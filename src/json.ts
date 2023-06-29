@@ -9,7 +9,8 @@ const ws =
     $expect("\u0020"),
   ));
 
-const jsonNull = $expect("null");
+const jsonNull = 
+  $proc($expect("null"), () => ({ type: ["json", "null"] }));
 
 const jsonBoolean =
   $switch(
