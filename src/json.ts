@@ -24,16 +24,30 @@ const ws =
     $expect("\u0020"),
   ));
 
-const jsonNull = 
-  $proc($expect("null"), () => ({ lang: "json", type: "null", value: null }));
+const jsonNull = (pr: ParseReader): Result<JsonNull> => {
+  return $proc(
+    $expect("null"),
+    () => ({ lang: "json", type: "null", value: null }),
+  )(pr);
+};
 
-const jsonBoolean =
-  $switch(
-    $proc($expect("true"), () => ({ lang: "json", type: "boolean", value: true })),
-    $proc($expect("false"), () => ({ lang: "json", type: "boolean", value: false })),
-  );
+const jsonBoolean = (pr: ParseReader): Result<JsonBoolean> => {
+  return $switch(
+    $proc(
+      $expect("true"),
+      () => ({ lang: "json", type: "boolean", value: true }),
+    ),
+    $proc(
+      $expect("false"),
+      () => ({ lang: "json", type: "boolean", value: false }),
+    ),
+  )(pr);
+};
 
-const jsonNumber =
+const jsonNumber = (pr: ParseReader): Result<JsonNumber> => {};
+const jsonString = (pr: ParseReader): Result<JsonString> => {};
+const jsonArray = (pr: ParseReader): Result<JsonArray> => {};
+const jsonObject = (pr: ParseReader): Result<JsonObject> => {};
 
 const jsonElement =
   $seq(
