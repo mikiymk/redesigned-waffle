@@ -17,7 +17,7 @@ export const $const = (value: T) => (): ResultSuccess<T> => {
 };
 
 export const $expect = (str: string) => (pr: ParseReader): Result<string> => {
-  const readString = [];
+  const readChars = [];
 
   for (let i = 0; i < str.length; i++) {
     const readChar = get(pr);
@@ -26,34 +26,27 @@ export const $expect = (str: string) => (pr: ParseReader): Result<string> => {
       return [false, new Error("reach to end of string")];
     }
 
-    readString.push(readChar);
+    readChars.push(readChar);
   }
 
-  return [true, readString.join("")];
+  const readString = readChars.join("");
+  if (str === readString) {
+    return [true, readString];
+  } else {
+    return [false, new Error("not expected")];
+  }
 };
 
-export const $while = <T>(containParser: Perser<T>, endParser: Parser<void>, delimiterParser?: Parser<void>) => (pr: ParseReader): Result<T[]> => {
+export const $while = <T>(parser: Perser<T>) => (pr: ParseReader): Result<T[]> => {
   const result = [];
   for (;;) {
     const [contOk, cont] = containParser(pr);
+
     if (!contOk) {
-      return [false, cont];
+      break;
     }
 
     result.push(cont);
-    
-    if (delimiterParser) {
-      const [delOk, v] = delimiterParser(pr);
-      
-      if (!delOk) {
-        return [false, v];
-      }
-    }
-    const [endOk, v] = endParser(pr);
-    
-    if (!endOk) {
-      return [false, v];
-    }
   }
 
   return [true, result];
@@ -69,3 +62,15 @@ export const $switch = (...conditions: Parser<T>[]) => (pr: ParseReader): Result
 
   return [false, new Error("uncaught condition")];
 };
+
+export const $try = (parser: Parser<T>) => (pr: ParseReader): Result<T> => {
+  const cloned = clone(pr);
+  const [ok, value] = parser(cloned);
+  
+  if (ok) {
+    reflect(pr, cloned);
+    return [true, value];
+  } else {
+    return [false, value];
+  }
+}
