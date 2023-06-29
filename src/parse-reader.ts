@@ -1,45 +1,33 @@
 export const EOL = Symbol("EOL");
+const Source = Symbol("source");
+const Position = Symbol("position");
 
-export class ParseReader {
-  private string: string;
-  private position = 0;
+export type ParseReader = {
+  readonly [Source]: string,
+  [Position]: number,
+};
 
-  constructor(string: string) {
-    this.string = string;
+export const generate = (src: string): ParseReader => {
+  return {
+    [Source]: src,
+    [Position]: 0,
+  };
+};
+
+export const get = (pr: ParseReader): string => {
+  if (isReachEnd(pr)) {
+    return EOF;
   }
 
-  peek(): string | typeof EOL {
-    const value = this.string[this.position];
-    if (value === undefined) return EOL;
+  const char = pr[Source][pr[Position]];
+  pr[Position] += 1;
 
-    return value;
-  }
+  return char;
+};
 
-  read(): string | typeof EOL {
-    const value = this.string[this.position];
-    if (value === undefined) return EOL;
-    this.position++;
-
-    return value;
-  }
-
-  expect(char: string): boolean {
-    if (this.peek() == char) {
-      this.position++;
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  end(error?: Error): void {
-    if (error) {
-      const message = [error.message, "\n", this.string, "\n", ...Array(this.position).fill(" "), "^"];
-      throw new Error(message.join(""), { cause: error });
-    }
-    if (this.position !== this.string.length) {
-      const message = ["string remain", "\n", this.string, "\n", ...Array(this.position).fill(" "), "^"];
-      throw new Error(message.join(""));
-    }
-  }
-}
+export const clone = (pr: ParseReader): ParseReader => {
+  return {
+    [Source]: pr[Source],
+    [Position]: pr[Position],
+  };
+};
