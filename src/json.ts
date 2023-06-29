@@ -44,7 +44,38 @@ const jsonBoolean = (pr: ParseReader): Result<JsonBoolean> => {
   )(pr);
 };
 
-const jsonNumber = (pr: ParseReader): Result<JsonNumber> => {};
+const jsonNumber = (pr: ParseReader): Result<JsonNumber> => {
+  return $proc(
+    $seq(
+      $0or1($expect("-")),
+      $switch(
+        $expect("0"),
+        $1orN(digit),
+      ),
+      $0or1($seq(
+        $expect("."),
+        $1orN(digit),
+      )),
+      $0or1($seq(
+        $switch(
+          $expect("e"),
+          $expect("E"),
+        ),
+        $0or1($switch(
+          $expect("+"),
+          $expect("-"),
+        )),
+        $1orN(digit),
+      )),
+    ),
+    ([sign, int, frac, exp]) => {
+      let value = 1;
+
+      return { lang: "json", type: "nunber", value };
+    },
+  );
+};
+
 const jsonString = (pr: ParseReader): Result<JsonString> => {};
 const jsonArray = (pr: ParseReader): Result<JsonArray> => {};
 const jsonObject = (pr: ParseReader): Result<JsonObject> => {};
