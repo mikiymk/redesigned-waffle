@@ -16,13 +16,14 @@ type JsonValue =
   | JsonArray
   | JsonObject;
 
-const ws =
-  $while($switch(
+const ws = = (pr: ParseReader): Result<void> => {
+  return $0orMore($switch(
     $expect("\u0009"),
     $expect("\u000A"),
     $expect("\u000D"),
     $expect("\u0020"),
   ));
+};
 
 const jsonNull = (pr: ParseReader): Result<JsonNull> => {
   return $proc(
@@ -120,9 +121,81 @@ const jsonNumber = (pr: ParseReader): Result<JsonNumber> => {
   )(pr);
 };
 
-const jsonString = (pr: ParseReader): Result<JsonString> => {};
-const jsonArray = (pr: ParseReader): Result<JsonArray> => {};
-const jsonObject = (pr: ParseReader): Result<JsonObject> => {};
+const jsonString = (pr: ParseReader): Result<JsonString> => {
+  return $proc(
+    $seq(
+      $except('"'),
+      $0orMore(character),
+      $except('"'),
+    ),
+    ([sq, cs, eq]) => {
+      const value = cs.join("");
+      return { lang: "json", type: "string", value };
+    },
+  )(pr);
+};
+
+const jsonArray = (pr: ParseReader): Result<JsonArray> => {
+  return $proc(
+    $seq(
+      $except("["),
+      ws,
+      $0or1($seq(
+        element,
+        $0orMore($seq(
+          $except(","),
+          element,
+        )),
+      )),
+      $except("]"),
+    ),
+    ([sb, ws, el, eb]) => {
+      const value = [];
+
+      if (el) {
+        const [first, rest] = el;
+        value.push(first);
+
+        for (const [c, item] of rest) {
+          value.push(item);
+        }
+      }
+      
+      return { lang: "json", type: "array", value };
+    },
+  )(pr);
+};
+
+const jsonObject = (pr: ParseReader): Result<JsonObject> => {
+  return $proc(
+    $seq(
+      $except("{"),
+      ws,
+      $0or1($seq(
+        member,
+        $0orMore($seq(
+          $except(","),
+          member,
+        )),
+      )),
+      $except("}"),
+    ),
+    ([sq, ws, cs, eq]) => {
+      const value = [];
+
+      if (el) {
+        const [first, rest] = el;
+        value.push(first);
+
+        for (const [c, item] of rest) {
+          value.push(item);
+        }
+      }
+      
+      return { lang: "json", type: "object", value };
+    },
+  )(pr);
+};
 
 const jsonElement =
   $seq(
