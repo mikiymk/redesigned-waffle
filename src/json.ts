@@ -121,6 +121,32 @@ const jsonNumber = (pr: ParseReader): Result<JsonNumber> => {
   )(pr);
 };
 
+const character = (pr: ParseReader): Result<JsonString> => {
+  return $switch(
+    $expect("\\\""),
+    $expect("\\\\"),
+    $expect("\\\/"),
+    $expect("\\\b"),
+    $expect("\\\f"),
+    $expect("\\\n"),
+    $expect("\\\r"),
+    $expect("\\\t"),
+    $seq(
+      $expect("\\\u"),
+      hex,
+      hex,
+      hex,
+      hex,
+    ),
+    // ignore U+0000 to U+001F control characters
+    $expectRange("\u0020", "\u0021"),
+    // ignore U+0022 " double quote
+    $expectRange("\u0023", "\u005B"),
+    // ignore U+005C \ reverse solidus
+    $expectRange("\u005D", "\uFFFF"),
+  )(pr);
+};
+
 const jsonString = (pr: ParseReader): Result<JsonString> => {
   return $proc(
     $seq(
