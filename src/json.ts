@@ -18,16 +18,16 @@ type JsonValue =
 
 const ws = = (pr: ParseReader): Result<void> => {
   return $0orMore($switch(
-    $expect("\u0009"),
-    $expect("\u000A"),
-    $expect("\u000D"),
-    $expect("\u0020"),
+    $word("\u0009"),
+    $word("\u000A"),
+    $word("\u000D"),
+    $word("\u0020"),
   ));
 };
 
 const jsonNull = (pr: ParseReader): Result<JsonNull> => {
   return $proc(
-    $expect("null"),
+    $word("null"),
     () => ({ lang: "json", type: "null", value: null }),
   )(pr);
 };
@@ -35,11 +35,11 @@ const jsonNull = (pr: ParseReader): Result<JsonNull> => {
 const jsonBoolean = (pr: ParseReader): Result<JsonBoolean> => {
   return $switch(
     $proc(
-      $expect("true"),
+      $word("true"),
       () => ({ lang: "json", type: "boolean", value: true }),
     ),
     $proc(
-      $expect("false"),
+      $word("false"),
       () => ({ lang: "json", type: "boolean", value: false }),
     ),
   )(pr);
@@ -73,14 +73,14 @@ const digits = (pr: ParseReader): Result<number> => {
 
 const sign = (pr: ParseReader): Result<number> => {
   return $proc(
-    $0or1($expect("-")),
+    $0or1($word("-")),
     (s) => s === "-" ? -1 : 1,
   )(pr);
 };
 
 const integer = (pr: ParseReader): Result<number> => {
   return $switch(
-    $expect("0"),
+    $word("0"),
     digits,
   )(pr);
 };
@@ -88,7 +88,7 @@ const integer = (pr: ParseReader): Result<number> => {
 const fractional = (pr: ParseReader): Result<number> => {
   return $proc(
     $seq(
-      $expect("."),
+      $word("."),
       digits,
     ),
     ([p, f]) => f === 0 ? 0 : f / 10 ** (Math.floor(Math.log10(f)) + 1),
@@ -98,8 +98,8 @@ const fractional = (pr: ParseReader): Result<number> => {
 const exponent = (pr: ParseReader): Result<number> => {
   return $proc(
     $seq(
-      $switch($expect("e"), $expect("E")),
-      $0or1($switch($expect("+"), $expect("-"))),
+      $switch($word("e"), $word("E")),
+      $0or1($switch($word("+"), $word("-"))),
       digits,
     ),
     ([e, s, d]) => (s === "-" ? -1 : 1) * d,
@@ -123,36 +123,36 @@ const jsonNumber = (pr: ParseReader): Result<JsonNumber> => {
 
 const character = (pr: ParseReader): Result<JsonString> => {
   return $switch(
-    $expect("\\\""),
-    $expect("\\\\"),
-    $expect("\\\/"),
-    $expect("\\\b"),
-    $expect("\\\f"),
-    $expect("\\\n"),
-    $expect("\\\r"),
-    $expect("\\\t"),
+    $word("\\\""),
+    $word("\\\\"),
+    $word("\\\/"),
+    $word("\\\b"),
+    $word("\\\f"),
+    $word("\\\n"),
+    $word("\\\r"),
+    $word("\\\t"),
     $seq(
-      $expect("\\\u"),
+      $word("\\\u"),
       hex,
       hex,
       hex,
       hex,
     ),
     // ignore U+0000 to U+001F control characters
-    $expectRange("\u0020", "\u0021"),
+    $charRange(0x0020, 0x0021),
     // ignore U+0022 " double quote
-    $expectRange("\u0023", "\u005B"),
+    $charRange(0x0023, 0x005B),
     // ignore U+005C \ reverse solidus
-    $expectRange("\u005D", "\uFFFF"),
+    $charRange(0x005D, 0xFFFF),
   )(pr);
 };
 
 const jsonString = (pr: ParseReader): Result<JsonString> => {
   return $proc(
     $seq(
-      $except('"'),
+      $word('"'),
       $0orMore(character),
-      $except('"'),
+      $word('"'),
     ),
     ([sq, cs, eq]) => {
       const value = cs.join("");
@@ -164,16 +164,16 @@ const jsonString = (pr: ParseReader): Result<JsonString> => {
 const jsonArray = (pr: ParseReader): Result<JsonArray> => {
   return $proc(
     $seq(
-      $except("["),
+      $word("["),
       ws,
       $0or1($seq(
         element,
         $0orMore($seq(
-          $except(","),
+          $word(","),
           element,
         )),
       )),
-      $except("]"),
+      $word("]"),
     ),
     ([sb, ws, el, eb]) => {
       const value = [];
@@ -195,16 +195,16 @@ const jsonArray = (pr: ParseReader): Result<JsonArray> => {
 const jsonObject = (pr: ParseReader): Result<JsonObject> => {
   return $proc(
     $seq(
-      $except("{"),
+      $word("{"),
       ws,
       $0or1($seq(
         member,
         $0orMore($seq(
-          $except(","),
+          $word(","),
           member,
         )),
       )),
-      $except("}"),
+      $word("}"),
     ),
     ([sq, ws, cs, eq]) => {
       const value = [];
