@@ -44,33 +44,60 @@ const jsonBoolean = (pr: ParseReader): Result<JsonBoolean> => {
   )(pr);
 };
 
+const digits = (pr: ParseReader): Result<number> => {
+  return $while($switch(
+    $proc($expect("0"), () => 0),
+    $proc($expect("1"), () => 1),
+    $proc($expect("2"), () => 2),
+    $proc($expect("3"), () => 3),
+    $proc($expect("4"), () => 4),
+    $proc($expect("5"), () => 5),
+    $proc($expect("6"), () => 6),
+    $proc($expect("7"), () => 7),
+    $proc($expect("8"), () => 8),
+    $proc($expect("9"), () => 9),
+  ));
+};
+
+const sign = (pr: ParseReader): Result<number> => {
+  return $proc(
+    $0or1($expect("-")),
+    (s) => s === "-" ? -1 : 1,
+  );
+};
+
+const integer = (pr: ParseReader): Result<number> => {
+  return $switch(
+    $expect("0"),
+    digits,
+  );
+};
+
+const fractional = (pr: ParseReader): Result<number> => {
+  return $seq(
+    $expect("."),
+    digits,
+  );
+};
+
+const exponent = (pr: ParseReader): Result<number> => {
+  return $seq(
+    $switch($expect("e"), $expect("E")),
+    $0or1($switch($expect("+"), $expect("-"))),
+    digits,
+  );
+};
+
 const jsonNumber = (pr: ParseReader): Result<JsonNumber> => {
   return $proc(
     $seq(
-      $0or1($expect("-")),
-      $switch(
-        $expect("0"),
-        $1orN(digit),
-      ),
-      $0or1($seq(
-        $expect("."),
-        $1orN(digit),
-      )),
-      $0or1($seq(
-        $switch(
-          $expect("e"),
-          $expect("E"),
-        ),
-        $0or1($switch(
-          $expect("+"),
-          $expect("-"),
-        )),
-        $1orN(digit),
-      )),
+      sign,
+      integer,
+      $0or1(fractional),
+      $0or1(exponent),
     ),
-    ([sign, int, frac, exp]) => {
-      let value = 1;
-
+    ([s, i, f, e]) => {
+      let value = s * (i + f) * 10 ** e;
       return { lang: "json", type: "nunber", value };
     },
   );
