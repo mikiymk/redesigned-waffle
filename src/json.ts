@@ -45,47 +45,64 @@ const jsonBoolean = (pr: ParseReader): Result<JsonBoolean> => {
 };
 
 const digits = (pr: ParseReader): Result<number> => {
-  return $while($switch(
-    $proc($expect("0"), () => 0),
-    $proc($expect("1"), () => 1),
-    $proc($expect("2"), () => 2),
-    $proc($expect("3"), () => 3),
-    $proc($expect("4"), () => 4),
-    $proc($expect("5"), () => 5),
-    $proc($expect("6"), () => 6),
-    $proc($expect("7"), () => 7),
-    $proc($expect("8"), () => 8),
-    $proc($expect("9"), () => 9),
-  ));
+  return $proc(
+    $1orMore($switch(
+      $proc($expect("0"), () => 0),
+      $proc($expect("1"), () => 1),
+      $proc($expect("2"), () => 2),
+      $proc($expect("3"), () => 3),
+      $proc($expect("4"), () => 4),
+      $proc($expect("5"), () => 5),
+      $proc($expect("6"), () => 6),
+      $proc($expect("7"), () => 7),
+      $proc($expect("8"), () => 8),
+      $proc($expect("9"), () => 9),
+    )),
+    (ds) => {
+      let value = 0;
+
+      for (const d of ds) {
+        value = value * 10 + d;
+      }
+
+      return value
+    },
+  )(pr);
 };
 
 const sign = (pr: ParseReader): Result<number> => {
   return $proc(
     $0or1($expect("-")),
     (s) => s === "-" ? -1 : 1,
-  );
+  )(pr);
 };
 
 const integer = (pr: ParseReader): Result<number> => {
   return $switch(
     $expect("0"),
     digits,
-  );
+  )(pr);
 };
 
 const fractional = (pr: ParseReader): Result<number> => {
-  return $seq(
-    $expect("."),
-    digits,
-  );
+  return $proc(
+    $seq(
+      $expect("."),
+      digits,
+    ),
+    ([p, f]) => f === 0 ? 0 : f / 10 ** (Math.floor(Math.log10(f)) + 1),
+  )(pr);
 };
 
 const exponent = (pr: ParseReader): Result<number> => {
-  return $seq(
-    $switch($expect("e"), $expect("E")),
-    $0or1($switch($expect("+"), $expect("-"))),
-    digits,
-  );
+  return $proc(
+    $seq(
+      $switch($expect("e"), $expect("E")),
+      $0or1($switch($expect("+"), $expect("-"))),
+      digits,
+    ),
+    ([e, s, d]) => (s === "-" ? -1 : 1) * d,
+  )(pr);
 };
 
 const jsonNumber = (pr: ParseReader): Result<JsonNumber> => {
@@ -97,10 +114,10 @@ const jsonNumber = (pr: ParseReader): Result<JsonNumber> => {
       $0or1(exponent),
     ),
     ([s, i, f, e]) => {
-      let value = s * (i + f) * 10 ** e;
+      let value = s * (i + f ?? 0) * 10 ** e ?? 0;
       return { lang: "json", type: "nunber", value };
     },
-  );
+  )(pr);
 };
 
 const jsonString = (pr: ParseReader): Result<JsonString> => {};
