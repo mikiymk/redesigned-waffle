@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig.json",
+
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // override
+    "noEmit": false,
+
+    // output .d.ts
+    "declaration": true,
+    "declarationMap": true,
+    "declarationDir": "./types",
+    "emitDeclarationOnly": true
+  },
+  "include": ["lib/**/*.ts"],
+  "exclude": ["**/*.test.ts", "**/*.bench.ts"]
+}
