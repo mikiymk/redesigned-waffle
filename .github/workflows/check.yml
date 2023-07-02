@@ -31,3 +31,5 @@ jobs:
       - run: pnpm run lint:ts
       - run: pnpm run lint:eslint
       - run: pnpm run test
+      - run: pnpm run build:lib
+      - run: pnpm run build:lib-type
