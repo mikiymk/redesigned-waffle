@@ -1,13 +1,16 @@
-import { $1orMore, $charRange, $seq, $switch, $while, $word } from "./utils";
+import { binaryDigit, decimalDigit, hexDigit as hex, hexDigit, octalDigit, oneNine } from "./number";
+import { $0or1, $0orMore, $1orMore, $as, $charRange, $eof, $proc, $seq, $switch, $while, $word } from "./utils";
 
 import type { Parser } from "./utils";
 
 type TomlComment = { lang: "toml"; type: "comment"; value: string };
 type TomlKeyValue = { lang: "toml"; type: "key value"; value: [TomlKey, TomlValue] };
-type TomlKey = TomlBareKey | TomlQuotedKey | TomlDottedKey;
+
+type TomlKey = TomlDottedKey;
 type TomlBareKey = { lang: "toml"; type: "bare key"; value: string };
-type TomlQuotedKey = { lang: "toml"; type: "quoted key"; value: string };
+type TomlQuotedKey = { lang: "toml"; type: "quoted key"; value: TomlString };
 type TomlDottedKey = { lang: "toml"; type: "dotted key"; value: (TomlBareKey | TomlQuotedKey)[] };
+
 type TomlValue =
   | TomlString
   | TomlInteger
@@ -19,8 +22,19 @@ type TomlValue =
   | TomlTime
   | TomlArray
   | TomlInlineTable;
-type TomlString = { lang: "toml"; type: "comment"; value: [TomlKey, TomlValue] };
-type TomlInteger = { lang: "toml"; type: "comment"; value: [TomlKey, TomlValue] };
+
+type TomlString = TomlBasicString | TomlMultilineBasicString | TomlLiteralString | TomlMultilineLiteralString;
+type TomlBasicString = { lang: "toml"; type: "basic string"; value: string };
+type TomlMultilineBasicString = { lang: "toml"; type: "multiline basic string"; value: string };
+type TomlLiteralString = { lang: "toml"; type: "literal string"; value: string };
+type TomlMultilineLiteralString = { lang: "toml"; type: "multiline literal string"; value: string };
+
+type TomlInteger = TomlDecimalInteger | TomlBinaryInteger | TomlOctalInteger | TomlHexInteger;
+type TomlDecimalInteger = { lang: "toml"; type: "decimal integer"; value: number };
+type TomlBinaryInteger = { lang: "toml"; type: "binary integer"; value: number };
+type TomlOctalInteger = { lang: "toml"; type: "octal integer"; value: number };
+type TomlHexInteger = { lang: "toml"; type: "hex integer"; value: number };
+
 type TomlFloat = { lang: "toml"; type: "comment"; value: [TomlKey, TomlValue] };
 type TomlBoolean = { lang: "toml"; type: "comment"; value: [TomlKey, TomlValue] };
 type TomlOffsetDateTime = { lang: "toml"; type: "comment"; value: [TomlKey, TomlValue] };
@@ -31,21 +45,19 @@ type TomlArray = { lang: "toml"; type: "comment"; value: [TomlKey, TomlValue] };
 type TomlInlineTable = { lang: "toml"; type: "comment"; value: [TomlKey, TomlValue] };
 
 const ws: Parser<void> = (pr) => {
-  const [ok, value] = $switch($word("\u0009"), $word("\u0020"))(pr);
+  const [ok, value] = $0orMore($switch($word("\u0009"), $word("\u0020")))(pr);
 
   return ok ? [true, undefined] : [false, value];
 };
 
-const nl: Parser<void> = (pr) => {
-  const [ok, value] = $switch($word("\u000A"), $word("\u000D\u000A"))(pr);
-
-  return ok ? [true, undefined] : [false, value];
+const nl: Parser<"\n"> = (pr) => {
+  return $as($switch($word("\u000A"), $word("\u000D\u000A")), "\n")(pr);
 };
 
 const tomlComment: Parser<TomlComment> = (pr) => {
   const [ok, value] = $seq(
     $word("#"),
-    $while($switch($charRange(0x00_09, 0x00_09), $charRange(0x00_20, 0x00_7e), $charRange(0x00_80, 0xff_ff)), nl),
+    $while($switch($word("\u0009"), $charRange(0x00_20, 0x00_7e), $charRange(0x00_80, 0xff_ff)), $switch(nl, $eof)),
   )(pr);
 
   if (ok) {
@@ -56,8 +68,21 @@ const tomlComment: Parser<TomlComment> = (pr) => {
   return [false, value];
 };
 
-const tomlKeyValue: Parser<TomlKeyValue> = (pr) => {};
-const tomlKey: Parser<TomlKey> = (pr) => {};
+const tomlKeyValue: Parser<TomlKeyValue> = (pr) => {
+  const [ok, value] = $seq(ws, tomlKey, ws, $word("="), ws, tomlValue, ws, $switch(tomlComment, nl, $eof))(pr);
+
+  if (!ok) return [false, value];
+
+  const [_s1, key, _s2, _eq, _s3, v, _s4, comment] = value;
+
+  console.log(comment);
+
+  return [true, { lang: "toml", type: "key value", value: [key, v] }];
+};
+
+const tomlKey: Parser<TomlKey> = (pr) => {
+  return tomlDottedKey(pr);
+};
 
 // A-Za-z0-9_-
 const tomlBareKey: Parser<TomlBareKey> = (pr) => {
@@ -67,6 +92,228 @@ const tomlBareKey: Parser<TomlBareKey> = (pr) => {
 
   return ok ? [true, { lang: "toml", type: "bare key", value: value.join("") }] : [false, value];
 };
-const tomlValue: Parser<TomlValue> = (pr) => {};
+
+const tomlQuotedKey: Parser<TomlQuotedKey> = (pr) => {
+  const [ok, value] = tomlString(pr);
+
+  return ok ? [true, { lang: "toml", type: "quoted key", value }] : [false, value];
+};
+
+const tomlDottedKey: Parser<TomlDottedKey> = (pr) => {
+  const [ok, value] = $seq(
+    $switch(tomlBareKey, tomlQuotedKey),
+    $0orMore($seq(ws, $word("."), ws, $switch(tomlBareKey, tomlQuotedKey))),
+  )(pr);
+
+  if (!ok) {
+    return [false, value];
+  }
+
+  const [first, rest] = value;
+
+  const result = [first];
+
+  for (const [_s1, _dot, _s2, item] of rest) {
+    result.push(item);
+  }
+
+  return [true, { lang: "toml", type: "dotted key", value: result }];
+};
+
+const tomlValue: Parser<TomlValue> = (pr) => {
+  return $switch(tomlString, tomlInteger)(pr);
+};
+
+const tomlString: Parser<TomlString> = (pr) => {
+  return $switch(tomlBasicString, tomlMultilineBasicString, tomlLiteralString, tomlMultilineLiteralString)(pr);
+};
+
+const tomlCharacter: Parser<string> = (pr) => {
+  return $switch(
+    // U+0000 - U+0008 control characters
+    $word("\u0009"), // U+0009 TAB
+    // U+000A - U+001F control characters
+    $charRange(0x00_20, 0x00_21),
+    // U+0022 double quote
+    $charRange(0x00_23, 0x00_26),
+    // U+0027 single quote
+    $charRange(0x00_28, 0x00_5b),
+    // U+005C backslash
+    $charRange(0x00_5d, 0x00_7e),
+    // U+007F control character
+    $charRange(0x00_80, 0xff_ff),
+  )(pr);
+};
+
+const tomlEscapeCharacter: Parser<string> = (pr) => {
+  return $switch(
+    $proc($word("\\b"), () => "\u0008"),
+    $proc($word("\\t"), () => "\u0009"),
+    $proc($word("\\n"), () => "\u000A"),
+    $proc($word("\\f"), () => "\u000C"),
+    $proc($word("\\r"), () => "\u000D"),
+    $proc($word('\\"'), () => "\u0022"),
+    $proc($word("\\\\"), () => "\u005C"),
+    $proc($seq($word("\\u"), hex, hex, hex, hex), ([_u, h1, h2, h3, h4]) => {
+      return String.fromCodePoint((h1 << 12) | (h2 << 8) | (h3 << 4) | h4);
+    }),
+    $proc($seq($word("\\U"), hex, hex, hex, hex, hex, hex, hex, hex), ([_u, h1, h2, h3, h4, h5, h6, h7, h8]) => {
+      const code = (h1 << 28) | (h2 << 24) | (h3 << 20) | (h4 << 16) | (h5 << 12) | (h6 << 8) | (h7 << 4) | h8;
+
+      return String.fromCodePoint(code);
+    }),
+  )(pr);
+};
+
+const tomlBasicString: Parser<TomlBasicString> = (pr) => {
+  const [ok, value] = $seq(
+    $word('"'),
+    $0orMore($switch(tomlCharacter, $word("'"), tomlEscapeCharacter)),
+    $word('"'),
+  )(pr);
+
+  if (!ok) return [false, value];
+
+  const [_startQuote, contain, _endQuote] = value;
+
+  return [true, { lang: "toml", type: "basic string", value: contain.join("") }];
+};
+
+const tomlMultilineBasicString: Parser<TomlMultilineBasicString> = (pr) => {
+  const [ok, value] = $seq(
+    $word('"""'),
+    $0orMore(
+      $switch(
+        tomlCharacter,
+        $word("'"),
+        $word('"'),
+        tomlEscapeCharacter,
+        nl,
+        $as($seq($word("\\"), nl, $0orMore($switch(ws, nl))), ""),
+      ),
+    ),
+    $word('"""'),
+  )(pr);
+
+  if (!ok) return [false, value];
+
+  const [_startQuote, contain, _endQuote] = value;
+
+  return [true, { lang: "toml", type: "multiline basic string", value: contain.join("") }];
+};
+
+const tomlLiteralString: Parser<TomlLiteralString> = (pr) => {
+  const [ok, value] = $seq($word("'"), $0orMore($switch(tomlCharacter, $word('"'), $word("\\"))), $word("'"))(pr);
+
+  if (!ok) return [false, value];
+
+  const [_startQuote, contain, _endQuote] = value;
+
+  return [true, { lang: "toml", type: "literal string", value: contain.join("") }];
+};
+
+const tomlMultilineLiteralString: Parser<TomlMultilineLiteralString> = (pr) => {
+  const [ok, value] = $seq(
+    $word("'''"),
+    $0orMore($switch(tomlCharacter, $word("'"), $word('"'), $word("\\"), nl)),
+    $word("'''"),
+  )(pr);
+
+  if (!ok) return [false, value];
+
+  const [_startQuote, contain, _endQuote] = value;
+
+  return [true, { lang: "toml", type: "multiline literal string", value: contain.join("") }];
+};
+
+const tomlInteger: Parser<TomlInteger> = (pr) => {
+  return $switch(tomlDecimalInteger, tomlBinaryInteger, tomlOctalInteger, tomlHexInteger)(pr);
+};
+
+const underscoreSeparatedNumber =
+  (parser: Parser<number>, radix: number): Parser<number> =>
+  (pr) => {
+    return $proc(
+      $seq(parser, $0orMore(parser), $0orMore($seq($word("_"), $1orMore(parser)))),
+      ([first, rest, separated]) => {
+        let result: number = first;
+
+        for (const number of rest) {
+          result = result * radix + number;
+        }
+
+        for (const [_us, numbers] of separated) {
+          for (const number of numbers) {
+            result = result * radix + number;
+          }
+        }
+
+        return result;
+      },
+    )(pr);
+  };
+
+const tomlDecimalInteger: Parser<TomlDecimalInteger> = (pr) => {
+  const [ok, value] = $seq(
+    $switch($as($word("+"), +1), $as($word("-"), -1), $as($word(""), +1)),
+    $switch($as($word("0"), 0), underscoreSeparatedNumber(decimalDigit, 10)),
+  )(pr);
+
+  if (!ok) {
+    return [false, value];
+  }
+
+  const [sign, int] = value;
+
+  return [true, { lang: "toml", type: "decimal integer", value: sign * int }];
+};
+
+const tomlBinaryInteger: Parser<TomlBinaryInteger> = (pr) => {
+  const [ok, value] = $seq(
+    $0or1($as($word("-"), -1)),
+    $word("0b"),
+    $switch($as($word("0"), 0), underscoreSeparatedNumber(binaryDigit, 2)),
+  )(pr);
+
+  if (!ok) {
+    return [false, value];
+  }
+
+  const [sign, _prefix, int] = value;
+
+  return [true, { lang: "toml", type: "binary integer", value: (sign ?? 1) * int }];
+};
+
+const tomlOctalInteger: Parser<TomlOctalInteger> = (pr) => {
+  const [ok, value] = $seq(
+    $0or1($as($word("-"), -1)),
+    $word("0o"),
+    $switch($as($word("0"), 0), underscoreSeparatedNumber(octalDigit, 8)),
+  )(pr);
+
+  if (!ok) {
+    return [false, value];
+  }
+
+  const [sign, _prefix, int] = value;
+
+  return [true, { lang: "toml", type: "octal integer", value: (sign ?? 1) * int }];
+};
+
+const tomlHexInteger: Parser<TomlHexInteger> = (pr) => {
+  const [ok, value] = $seq(
+    $0or1($as($word("-"), -1)),
+    $word("0x"),
+    $switch($as($word("0"), 0), underscoreSeparatedNumber(hexDigit, 16)),
+  )(pr);
+
+  if (!ok) {
+    return [false, value];
+  }
+
+  const [sign, _prefix, int] = value;
+
+  return [true, { lang: "toml", type: "hex integer", value: (sign ?? 1) * int }];
+};
 
 export const toml = 0;

@@ -12,6 +12,7 @@
     "plugin:solid/recommended",
     "plugin:jsx-a11y/recommended",
     "plugin:vitest/recommended",
+    "plugin:jsdoc/recommended",
     "plugin:jsdoc/recommended-typescript",
     "plugin:eslint-comments/recommended",
     "prettier"

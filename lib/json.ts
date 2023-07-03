@@ -134,8 +134,7 @@ const character: Parser<string> = (pr) => {
     $proc($word("\\r"), () => "\r"),
     $proc($word("\\t"), () => "\t"),
     $proc($seq($word("\\u"), hex, hex, hex, hex), ([_u, h1, h2, h3, h4]) => {
-      // eslint-disable-next-line unicorn/prefer-code-point
-      return String.fromCharCode((h1 << 12) | (h2 << 8) | (h3 << 4) | h4);
+      return String.fromCodePoint((h1 << 12) | (h2 << 8) | (h3 << 4) | h4);
     }),
 
     // ignore U+0000 to U+001F control characters
