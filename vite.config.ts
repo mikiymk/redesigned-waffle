@@ -16,7 +16,6 @@ export default defineConfig(({ mode }) => {
   const common: UserConfig = {
     base: "/ts-page-template/",
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     plugins: [solidPlugin(), vanillaExtractPlugin()],
 
     resolve: {

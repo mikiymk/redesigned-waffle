@@ -1,19 +1,19 @@
 {
-    "$schema": "https://json.schemastore.org/tsconfig.json",
-  
-    "extends": "@tsconfig/strictest/tsconfig.json",
-    "compilerOptions": {
-      "target": "ESNext",
-      "module": "ESNext",
-      "moduleResolution": "bundler",
-      "jsx": "preserve",
-      "jsxImportSource": "solid-js",
-      "noEmit": true,
-  
-      "baseUrl": "./",
-      "paths": {
-        "@/*": ["*"]
-      }
-    },
-    "include": ["**/*.ts", "**/*.tsx"]
-  }
+  "$schema": "https://json.schemastore.org/tsconfig.json",
+
+  "extends": "@tsconfig/strictest/tsconfig.json",
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "noEmit": true,
+
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["*"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx"]
+}

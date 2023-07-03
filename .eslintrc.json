@@ -41,6 +41,8 @@
     "@typescript-eslint/consistent-type-definitions": ["warn", "type"],
     "@typescript-eslint/consistent-type-imports": "error",
 
+    "eslint-comments/no-use": ["error", { "allow": ["eslint-disable-next-line"] }],
+
     "import/consistent-type-specifier-style": ["error", "prefer-top-level"],
     "import/no-unused-modules": [
       "warn",
@@ -48,7 +50,7 @@
         "missingExports": true,
         "unusedExports": true,
 
-        "ignoreExports": ["./lib/main.ts", "./src/main.ts"]
+        "ignoreExports": ["./src/main.ts","./lib/main.ts"]
       }
     ],
     "import/order": [
