@@ -53,7 +53,7 @@ export const $charRange =
     // eslint-disable-next-line unicorn/prefer-code-point
     const charCode = char.charCodeAt(0);
 
-    if (min < charCode && charCode < max) {
+    if (min <= charCode && charCode <= max) {
       setPosition(pr, cloned);
       return [true, char];
     }
@@ -106,6 +106,31 @@ const $NtoM =
 
     setPosition(pr, cloned);
     return [true, result];
+  };
+
+export const $while =
+  <T, U>(parser: Parser<T>, endParser: Parser<U>): Parser<[T[], U]> =>
+  (pr) => {
+    const result = [];
+    const cloned = clone(pr);
+
+    for (;;) {
+      const [ok, value] = parser(cloned);
+
+      if (!ok) {
+        return [false, value];
+      }
+
+      result.push(value);
+
+      const endReader = clone(cloned);
+      const [endOk, endValue] = endParser(endReader);
+
+      if (endOk) {
+        setPosition(pr, endReader);
+        return [true, [result, endValue]];
+      }
+    }
   };
 
 type ParserValuesUnion<Ps extends Parser<unknown>[]> = {
