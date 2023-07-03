@@ -5,31 +5,31 @@ const Source = Symbol("source");
 const Position = Symbol("position");
 
 export type ParseReader = {
-	readonly [Source]: string;
-	[Position]: number;
+  readonly [Source]: string;
+  [Position]: number;
 };
 
 export const generatePR = (source: string): ParseReader => {
-	return {
-		[Source]: source,
-		[Position]: 0,
-	};
+  return {
+    [Source]: source,
+    [Position]: 0,
+  };
 };
 
 export const get = (pr: ParseReader): string | EOF => {
-	const char = pr[Source][pr[Position]];
-	pr[Position] += 1;
+  const char = pr[Source][pr[Position]];
+  pr[Position] += 1;
 
-	return char ?? EOF;
+  return char ?? EOF;
 };
 
 export const clone = (pr: ParseReader): ParseReader => {
-	return {
-		[Source]: pr[Source],
-		[Position]: pr[Position],
-	};
+  return {
+    [Source]: pr[Source],
+    [Position]: pr[Position],
+  };
 };
 
 export const setPosition = (base: ParseReader, moveTo: ParseReader) => {
-	base[Position] = moveTo[Position];
+  base[Position] = moveTo[Position];
 };

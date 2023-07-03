@@ -9,11 +9,11 @@ type JsonString = { lang: "json"; type: "string"; value: string };
 type JsonArray = { lang: "json"; type: "array"; value: JsonValue[] };
 type JsonObjectMember = {
   lang: "json";
-  type: "object entry";
+  type: "object member";
   value: [JsonString, JsonValue];
 };
 type JsonObject = { lang: "json"; type: "object"; value: JsonObjectMember[] };
-type JsonValue = JsonNull | JsonBoolean | JsonNumber | JsonString | JsonArray | JsonObject;
+export type JsonValue = JsonNull | JsonBoolean | JsonNumber | JsonString | JsonArray | JsonObject;
 
 const ws: Parser<void> = (pr) => {
   const [ok, value] = $0orMore($switch($word("\u0009"), $word("\u000A"), $word("\u000D"), $word("\u0020")))(pr);
@@ -135,7 +135,7 @@ const character: Parser<string> = (pr) => {
     $proc($word("\\t"), () => "\t"),
     $proc($seq($word("\\u"), hex, hex, hex, hex), ([_u, h1, h2, h3, h4]) => {
       // eslint-disable-next-line unicorn/prefer-code-point
-      return String.fromCharCode((h1 << 12) & (h2 << 8) & (h3 << 4) & h4);
+      return String.fromCharCode((h1 << 12) | (h2 << 8) | (h3 << 4) | h4);
     }),
 
     // ignore U+0000 to U+001F control characters
@@ -176,7 +176,7 @@ const jsonArray: Parser<JsonArray> = (pr) => {
 
 const jsonObjectMember: Parser<JsonObjectMember> = (pr) => {
   return $proc($seq(ws, jsonString, ws, $word(":"), jsonElement), ([_s1, key, _s2, _c, value]): JsonObjectMember => {
-    return { lang: "json", type: "object entry", value: [key, value] };
+    return { lang: "json", type: "object member", value: [key, value] };
   })(pr);
 };
 
