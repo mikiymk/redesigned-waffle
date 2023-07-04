@@ -1,8 +1,9 @@
-import { binaryDigit, decimalDigit, hexDigit as hex, hexDigit, octalDigit, oneNine } from "./number";
+import { binaryDigit, decimalDigit, hexDigit as hex, hexDigit, octalDigit } from "./number";
 import { $0or1, $0orMore, $1orMore, $as, $charRange, $eof, $proc, $seq, $switch, $while, $word } from "./utils";
 
 import type { Parser } from "./utils";
 
+export type TomlData = { lang: "toml"; type: "data"; value: TomlKeyValue[] };
 type TomlComment = { lang: "toml"; type: "comment"; value: string };
 type TomlKeyValue = { lang: "toml"; type: "key value"; value: [TomlKey, TomlValue] };
 
@@ -52,6 +53,28 @@ const ws: Parser<void> = (pr) => {
 
 const nl: Parser<"\n"> = (pr) => {
   return $as($switch($word("\u000A"), $word("\u000D\u000A")), "\n")(pr);
+};
+
+const tomlData: Parser<TomlData> = (pr) => {
+  const [ok, value] = $0orMore($switch(emptyLine, tomlComment, tomlKeyValue))(pr);
+
+  if (!ok) return [false, value];
+
+  const result: TomlKeyValue[] = [];
+
+  for (const item of value) {
+    if (item && item.type === "key value") {
+      result.push(item);
+    }
+  }
+
+  return [true, { lang: "toml", type: "data", value: result }];
+};
+
+const emptyLine: Parser<void> = (pr) => {
+  const [ok, value] = $seq($0orMore(ws), nl)(pr);
+
+  return ok ? [true, undefined] : [false, value];
 };
 
 const tomlComment: Parser<TomlComment> = (pr) => {
@@ -316,4 +339,4 @@ const tomlHexInteger: Parser<TomlHexInteger> = (pr) => {
   return [true, { lang: "toml", type: "hex integer", value: (sign ?? 1) * int }];
 };
 
-export const toml = 0;
+export const toml = emptyLine;
