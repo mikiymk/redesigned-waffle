@@ -1,44 +1,7 @@
 import { EOF, get, clone, setPosition } from "./reader";
 
 import type { ParseReader } from "./reader";
-
-type Success<T> = readonly [isSuccess: true, value: T];
-type Failure<E extends Error> = readonly [isSuccess: false, value: E];
-export type Result<T, E extends Error = Error> = Success<T> | Failure<E>;
-
-export type Parser<T> = (pr: ParseReader) => Result<T>;
-
-// eslint-disable-next-line import/no-unused-modules
-export const $const =
-  <T>(value: T): Parser<T> =>
-  (): Success<T> =>
-    [true, value];
-
-export const $word =
-  <T extends string>(word: T): Parser<T> =>
-  (pr: ParseReader): Result<T> => {
-    const readChars = [];
-    const cloned = clone(pr);
-
-    for (const _ of word) {
-      const readChar = get(cloned);
-
-      if (readChar === EOF) {
-        return [false, new Error("reach to end of string")];
-      }
-
-      readChars.push(readChar);
-    }
-
-    const readString = readChars.join("");
-
-    if (word === readString) {
-      setPosition(pr, cloned);
-      return [true, readString as T];
-    }
-
-    return [false, new Error("not expected")];
-  };
+import type { Parser, Result } from "./util/parser";
 
 export const $charRange =
   (min: number, max: number) =>
