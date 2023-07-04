@@ -1,7 +1,5 @@
 import { binaryDigit, decimalDigit, hexDigit, octalDigit } from "./number";
-import { char } from "./util/char";
-import { word } from "./util/word";
-import { $0or1, $0orMore, $1orMore, $as, $eof, $proc, $seq, $switch, $while } from "./utils";
+import { $0orMore, $1orMore, $as, $eof, $proc, $seq, $switch, $while, char, opt, word } from "./utils";
 
 import type { Parser } from "./util/parser";
 
@@ -111,9 +109,7 @@ const tomlKey: Parser<TomlKey> = (pr) => {
 
 // A-Za-z0-9_-
 const tomlBareKey: Parser<TomlBareKey> = (pr) => {
-  const [ok, value] = $1orMore($switch(char(0x41, 0x5a), char(0x61, 0x7a), char(0x30, 0x39), word("_"), word("-")))(
-    pr,
-  );
+  const [ok, value] = $1orMore($switch(char(0x41, 0x5a), char(0x61, 0x7a), char(0x30, 0x39), word("_"), word("-")))(pr);
 
   return ok ? [true, { lang: "toml", type: "bare key", value: value.join("") }] : [false, value];
 };
@@ -294,7 +290,7 @@ const tomlDecimalInteger: Parser<TomlDecimalInteger> = (pr) => {
 
 const tomlBinaryInteger: Parser<TomlBinaryInteger> = (pr) => {
   const [ok, value] = $seq(
-    $0or1($as(word("-"), -1)),
+    opt($as(word("-"), -1)),
     word("0b"),
     $switch($as(word("0"), 0), underscoreSeparatedNumber(binaryDigit, 2)),
   )(pr);
@@ -310,7 +306,7 @@ const tomlBinaryInteger: Parser<TomlBinaryInteger> = (pr) => {
 
 const tomlOctalInteger: Parser<TomlOctalInteger> = (pr) => {
   const [ok, value] = $seq(
-    $0or1($as(word("-"), -1)),
+    opt($as(word("-"), -1)),
     word("0o"),
     $switch($as(word("0"), 0), underscoreSeparatedNumber(octalDigit, 8)),
   )(pr);
@@ -326,7 +322,7 @@ const tomlOctalInteger: Parser<TomlOctalInteger> = (pr) => {
 
 const tomlHexInteger: Parser<TomlHexInteger> = (pr) => {
   const [ok, value] = $seq(
-    $0or1($as(word("-"), -1)),
+    opt($as(word("-"), -1)),
     word("0x"),
     $switch($as(word("0"), 0), underscoreSeparatedNumber(hexDigit, 16)),
   )(pr);

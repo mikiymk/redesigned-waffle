@@ -3,19 +3,9 @@ import { EOF, get, clone, setPosition } from "./core/reader";
 import type { ParseReader } from "./core/reader";
 import type { Parser, Result } from "./util/parser";
 
-export const $0or1 =
-  <T>(parser: Parser<T>) =>
-  (pr: ParseReader): Result<T | undefined> => {
-    const cloned = clone(pr);
-    const [ok, value] = parser(cloned);
-
-    if (ok) {
-      setPosition(pr, cloned);
-      return [true, value];
-    }
-
-    return [true, undefined];
-  };
+export { word } from "./util/word";
+export { char } from "./util/char";
+export { opt } from "./util/opt";
 
 export const $0orMore = <T>(parser: Parser<T>) => $NtoM(parser, 0, Number.POSITIVE_INFINITY);
 export const $1orMore = <T>(parser: Parser<T>) => $NtoM(parser, 1, Number.POSITIVE_INFINITY);

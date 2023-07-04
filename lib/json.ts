@@ -1,6 +1,4 @@
-import { char } from "./util/char";
-import { word } from "./util/word";
-import { $0or1, $0orMore, $1orMore, $proc, $seq, $switch } from "./utils";
+import { $0orMore, $1orMore, $proc, $seq, $switch, char, opt, word } from "./utils";
 
 import type { Parser } from "./util/parser";
 
@@ -71,7 +69,7 @@ const digits: Parser<number> = (pr) => {
 };
 
 const sign: Parser<number> = (pr) => {
-  return $proc($0or1(word("-")), (s) => (s === "-" ? -1 : 1))(pr);
+  return $proc(opt(word("-")), (s) => (s === "-" ? -1 : 1))(pr);
 };
 
 const integer: Parser<number> = (pr) => {
@@ -89,14 +87,14 @@ const fractional: Parser<number> = (pr) => {
 
 const exponent: Parser<number> = (pr) => {
   return $proc(
-    $seq($switch(word("e"), word("E")), $0or1($switch(word("+"), word("-"))), digits),
+    $seq($switch(word("e"), word("E")), opt($switch(word("+"), word("-"))), digits),
     ([_exponentDelimiter, s, d]) => (s === "-" ? -1 : 1) * d,
   )(pr);
 };
 
 const jsonNumber: Parser<JsonNumber> = (pr) => {
   return $proc(
-    $seq(sign, integer, $0or1(fractional), $0or1(exponent)),
+    $seq(sign, integer, opt(fractional), opt(exponent)),
     ([sign, integer, fractional, exponent]): JsonNumber => {
       const value = sign * (integer + (fractional ?? 0)) * 10 ** (exponent ?? 0);
       return { lang: "json", type: "number", value };
@@ -157,7 +155,7 @@ const jsonString: Parser<JsonString> = (pr) => {
 
 const jsonArray: Parser<JsonArray> = (pr) => {
   return $proc(
-    $seq(word("["), ws, $0or1($seq(jsonElement, $0orMore($seq(word(","), jsonElement)))), word("]")),
+    $seq(word("["), ws, opt($seq(jsonElement, $0orMore($seq(word(","), jsonElement)))), word("]")),
     ([_startBrace, _ws, element, _endBrace]): JsonArray => {
       const value = [];
 
@@ -183,7 +181,7 @@ const jsonObjectMember: Parser<JsonObjectMember> = (pr) => {
 
 const jsonObject: Parser<JsonObject> = (pr) => {
   return $proc(
-    $seq(word("{"), ws, $0or1($seq(jsonObjectMember, $0orMore($seq(word(","), jsonObjectMember)))), word("}")),
+    $seq(word("{"), ws, opt($seq(jsonObjectMember, $0orMore($seq(word(","), jsonObjectMember)))), word("}")),
     ([_sq, _ws, cs, _eq]): JsonObject => {
       const value = [];
 

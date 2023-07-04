@@ -2,8 +2,7 @@ import { EOF, clone, get, setPosition } from "../core/reader";
 
 import { ParseWordError } from "./errors";
 
-import type { Parser, Result } from "./parser";
-import type { ParseReader } from "@/lib/core/reader";
+import type { Parser } from "./parser";
 
 /**
  * １つの単語をパースするパーサー関数を作ります
@@ -12,7 +11,7 @@ import type { ParseReader } from "@/lib/core/reader";
  */
 export const word =
   <T extends string>(word: T): Parser<T> =>
-  (pr: ParseReader): Result<T> => {
+  (pr) => {
     const readChars = [];
     const cloned = clone(pr);
 

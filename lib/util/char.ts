@@ -1,6 +1,20 @@
 import { EOF, get, clone, setPosition } from "../core/reader";
 
+import { ParseCharError } from "./errors";
+
 import type { Parser } from "./parser";
+
+type StringLength<T extends string, L extends unknown[] = []> = T extends ""
+  ? L["length"]
+  : T extends `${infer F}${infer R}`
+  ? StringLength<R, [F, ...L]>
+  : never;
+type Char<T extends string> = StringLength<T> extends 1 ? T : "Char type to a string with a length of 1";
+
+type CharParser = {
+  (min: number, max: number): Parser<string>;
+  <T extends string, U extends string>(min: Char<T>, max: Char<U>): Parser<string>;
+};
 
 /**
  * UTF-16 で min <= char <= max の１文字を読み込むパーサー関数を作ります。
@@ -8,23 +22,27 @@ import type { Parser } from "./parser";
  * @param max 最大文字コード
  * @returns １文字を読み込むパーサー関数
  */
-export const char =
-  (min: number, max: number): Parser<string> =>
+export const char: CharParser =
+  (min: number | string, max: number | string): Parser<string> =>
   (pr) => {
+    const minCode = typeof min === "number" ? min : min.codePointAt(0) ?? 0;
+    const maxCode = typeof max === "number" ? max : max.codePointAt(0) ?? 0;
     const cloned = clone(pr);
-    const char = get(cloned);
 
+    const char = get(cloned);
     if (char === EOF) {
       return [false, new Error("reach to end of string")];
     }
 
-    // eslint-disable-next-line unicorn/prefer-code-point
-    const charCode = char.charCodeAt(0);
+    const charCode = char.codePointAt(0);
+    if (charCode === undefined) {
+      return [false, new Error("next char is not character")];
+    }
 
-    if (min <= charCode && charCode <= max) {
+    if (charCode && minCode <= charCode && charCode <= maxCode) {
       setPosition(pr, cloned);
       return [true, char];
     }
 
-    return [false, new Error(`char ${char}(U+${("000" + charCode.toString(16)).slice(-4)}) is not in range`)];
+    return [false, new ParseCharError(minCode, maxCode, char)];
   };
