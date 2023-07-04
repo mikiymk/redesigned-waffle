@@ -1,10 +1,11 @@
 import { describe, expect, test } from "vitest";
 
-import { word, ParseWordError } from "./word";
+import { fromString } from "../core/reader";
+
+import { ParseWordError } from "./errors";
+import { word } from "./word";
 
 import type { Result } from "./parser";
-
-import { generatePR } from "../reader";
 
 describe("parse the expected string", () => {
   const cases: [string, Result<"word">][] = [
@@ -14,7 +15,7 @@ describe("parse the expected string", () => {
   ];
 
   test.each(cases)("%j", (source, value) => {
-    const pr = generatePR(source);
+    const pr = fromString(source);
 
     expect(word("word")(pr)).toStrictEqual(value);
   });

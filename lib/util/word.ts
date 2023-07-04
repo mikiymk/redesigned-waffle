@@ -1,14 +1,15 @@
+import { EOF, clone, get, setPosition } from "../core/reader";
+
+import { ParseWordError } from "./errors";
+
 import type { Parser, Result } from "./parser";
-import type { ParseReader } from "../reader";
+import type { ParseReader } from "@/lib/core/reader";
 
-import { EOF, clone, get, setPosition } from "../reader";
-
-export class ParseWordError extends Error {
-  constructor(expected: string, actual: string) {
-    super(`The parser expected "${expected}", but encountered "${actual}" instead.`);
-  }
-}
-
+/**
+ * １つの単語をパースするパーサー関数を作ります
+ * @param word 読み込みたい単語
+ * @returns パーサー関数
+ */
 export const word =
   <T extends string>(word: T): Parser<T> =>
   (pr: ParseReader): Result<T> => {

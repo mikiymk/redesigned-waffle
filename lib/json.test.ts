@@ -1,10 +1,10 @@
 import { expect, test } from "vitest";
 
+import { fromString } from "./core/reader";
 import { json } from "./json";
-import { generatePR } from "./reader";
 
 import type { JsonValue } from "./json";
-import type { Result } from "./utils";
+import type { Result } from "./util/parser";
 
 const cases: [string, Result<JsonValue>][] = [
   // # json null
@@ -111,6 +111,6 @@ const cases: [string, Result<JsonValue>][] = [
 ];
 
 test.each(cases)("parse %j", (source, value) => {
-  const pr = generatePR(source);
+  const pr = fromString(source);
   expect(json(pr)).toStrictEqual(value);
 });

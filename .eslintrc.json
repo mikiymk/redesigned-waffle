@@ -44,6 +44,20 @@
 
     "eslint-comments/no-use": ["error", { "allow": ["eslint-disable-next-line"] }],
 
+    "jsdoc/require-jsdoc": [
+      "warn",
+      {
+        "require": {
+          "ArrowFunctionExpression": true,
+          "ClassDeclaration": true,
+          "ClassExpression": true,
+          "FunctionDeclaration": true,
+          "FunctionExpression": true,
+          "MethodDefinition": true
+        }
+      }
+    ],
+
     "import/consistent-type-specifier-style": ["error", "prefer-top-level"],
     "import/no-unused-modules": [
       "warn",
@@ -51,13 +65,13 @@
         "missingExports": true,
         "unusedExports": true,
 
-        "ignoreExports": ["./src/main.ts","./lib/main.ts"]
+        "ignoreExports": ["./src/main.ts", "./lib/main.ts"]
       }
     ],
     "import/order": [
       "error",
       {
-        "groups": ["external", "internal", "sibling", "type"],
+        "groups": ["external", "internal", "parent", "sibling", "type"],
         "newlines-between": "always",
         "alphabetize": {
           "order": "asc",

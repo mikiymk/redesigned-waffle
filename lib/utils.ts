@@ -1,28 +1,7 @@
-import { EOF, get, clone, setPosition } from "./reader";
+import { EOF, get, clone, setPosition } from "./core/reader";
 
-import type { ParseReader } from "./reader";
+import type { ParseReader } from "./core/reader";
 import type { Parser, Result } from "./util/parser";
-
-export const $charRange =
-  (min: number, max: number) =>
-  (pr: ParseReader): Result<string> => {
-    const cloned = clone(pr);
-    const char = get(cloned);
-
-    if (char === EOF) {
-      return [false, new Error("reach to end of string")];
-    }
-
-    // eslint-disable-next-line unicorn/prefer-code-point
-    const charCode = char.charCodeAt(0);
-
-    if (min <= charCode && charCode <= max) {
-      setPosition(pr, cloned);
-      return [true, char];
-    }
-
-    return [false, new Error(`char ${char}(U+${("000" + charCode.toString(16)).slice(-4)}) is not in range`)];
-  };
 
 export const $0or1 =
   <T>(parser: Parser<T>) =>

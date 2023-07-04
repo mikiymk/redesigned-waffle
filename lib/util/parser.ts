@@ -1,4 +1,4 @@
-import type { ParseReader } from "../reader";
+import type { ParseReader } from "../core/reader";
 
 type Success<T> = readonly [isSuccess: true, value: T];
 type Failure<E extends Error> = readonly [isSuccess: false, value: E];

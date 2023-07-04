@@ -1,8 +1,9 @@
-import { binaryDigit, decimalDigit, hexDigit as hex, hexDigit, octalDigit } from "./number";
-import { $0or1, $0orMore, $1orMore, $as, $charRange, $eof, $proc, $seq, $switch, $while } from "./utils";
+import { binaryDigit, decimalDigit, hexDigit, octalDigit } from "./number";
+import { char } from "./util/char";
+import { word } from "./util/word";
+import { $0or1, $0orMore, $1orMore, $as, $eof, $proc, $seq, $switch, $while } from "./utils";
 
 import type { Parser } from "./util/parser";
-import { word } from "./util/word";
 
 export type TomlData = { lang: "toml"; type: "data"; value: TomlKeyValue[] };
 type TomlComment = { lang: "toml"; type: "comment"; value: string };
@@ -81,7 +82,7 @@ const emptyLine: Parser<void> = (pr) => {
 const tomlComment: Parser<TomlComment> = (pr) => {
   const [ok, value] = $seq(
     word("#"),
-    $while($switch(word("\u0009"), $charRange(0x00_20, 0x00_7e), $charRange(0x00_80, 0xff_ff)), $switch(nl, $eof)),
+    $while($switch(word("\u0009"), char(0x00_20, 0x00_7e), char(0x00_80, 0xff_ff)), $switch(nl, $eof)),
   )(pr);
 
   if (ok) {
@@ -110,9 +111,9 @@ const tomlKey: Parser<TomlKey> = (pr) => {
 
 // A-Za-z0-9_-
 const tomlBareKey: Parser<TomlBareKey> = (pr) => {
-  const [ok, value] = $1orMore(
-    $switch($charRange(0x41, 0x5a), $charRange(0x61, 0x7a), $charRange(0x30, 0x39), word("_"), word("-")),
-  )(pr);
+  const [ok, value] = $1orMore($switch(char(0x41, 0x5a), char(0x61, 0x7a), char(0x30, 0x39), word("_"), word("-")))(
+    pr,
+  );
 
   return ok ? [true, { lang: "toml", type: "bare key", value: value.join("") }] : [false, value];
 };
@@ -157,15 +158,15 @@ const tomlCharacter: Parser<string> = (pr) => {
     // U+0000 - U+0008 control characters
     word("\u0009"), // U+0009 TAB
     // U+000A - U+001F control characters
-    $charRange(0x00_20, 0x00_21),
+    char(0x00_20, 0x00_21),
     // U+0022 double quote
-    $charRange(0x00_23, 0x00_26),
+    char(0x00_23, 0x00_26),
     // U+0027 single quote
-    $charRange(0x00_28, 0x00_5b),
+    char(0x00_28, 0x00_5b),
     // U+005C backslash
-    $charRange(0x00_5d, 0x00_7e),
+    char(0x00_5d, 0x00_7e),
     // U+007F control character
-    $charRange(0x00_80, 0xff_ff),
+    char(0x00_80, 0xff_ff),
   )(pr);
 };
 
@@ -178,23 +179,22 @@ const tomlEscapeCharacter: Parser<string> = (pr) => {
     $proc(word("\\r"), () => "\u000D"),
     $proc(word('\\"'), () => "\u0022"),
     $proc(word("\\\\"), () => "\u005C"),
-    $proc($seq(word("\\u"), hex, hex, hex, hex), ([_u, h1, h2, h3, h4]) => {
+    $proc($seq(word("\\u"), hexDigit, hexDigit, hexDigit, hexDigit), ([_u, h1, h2, h3, h4]) => {
       return String.fromCodePoint((h1 << 12) | (h2 << 8) | (h3 << 4) | h4);
     }),
-    $proc($seq(word("\\U"), hex, hex, hex, hex, hex, hex, hex, hex), ([_u, h1, h2, h3, h4, h5, h6, h7, h8]) => {
-      const code = (h1 << 28) | (h2 << 24) | (h3 << 20) | (h4 << 16) | (h5 << 12) | (h6 << 8) | (h7 << 4) | h8;
+    $proc(
+      $seq(word("\\U"), hexDigit, hexDigit, hexDigit, hexDigit, hexDigit, hexDigit, hexDigit, hexDigit),
+      ([_u, h1, h2, h3, h4, h5, h6, h7, h8]) => {
+        const code = (h1 << 28) | (h2 << 24) | (h3 << 20) | (h4 << 16) | (h5 << 12) | (h6 << 8) | (h7 << 4) | h8;
 
-      return String.fromCodePoint(code);
-    }),
+        return String.fromCodePoint(code);
+      },
+    ),
   )(pr);
 };
 
 const tomlBasicString: Parser<TomlBasicString> = (pr) => {
-  const [ok, value] = $seq(
-    word('"'),
-    $0orMore($switch(tomlCharacter, word("'"), tomlEscapeCharacter)),
-    word('"'),
-  )(pr);
+  const [ok, value] = $seq(word('"'), $0orMore($switch(tomlCharacter, word("'"), tomlEscapeCharacter)), word('"'))(pr);
 
   if (!ok) return [false, value];
 

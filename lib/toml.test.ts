@@ -1,10 +1,10 @@
 import { expect, test } from "vitest";
 
+import { fromString } from "./core/reader";
 import { toml } from "./main";
-import { generatePR } from "./reader";
 
 import type { TomlData } from "./toml";
-import type { Result } from "./utils";
+import type { Result } from "./util/parser";
 
 const cases: [string, Result<TomlData>][] = [
   ["", [true, { lang: "toml", type: "data", value: [] }]],
@@ -16,11 +16,11 @@ const cases: [string, Result<TomlData>][] = [
 ];
 
 test.skip("parse %j", () => {
-    const pr = generatePR("");
-    expect(toml(pr)).toStrictEqual({});
-  });
+  const pr = fromString("");
+  expect(toml(pr)).toStrictEqual({});
+});
 
 test.skip.each(cases)("parse %j", (source, value) => {
-  const pr = generatePR(source);
+  const pr = fromString(source);
   expect(toml(pr)).toStrictEqual(value);
 });

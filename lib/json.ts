@@ -1,5 +1,6 @@
+import { char } from "./util/char";
 import { word } from "./util/word";
-import { $0or1, $0orMore, $1orMore, $charRange, $proc, $seq, $switch } from "./utils";
+import { $0or1, $0orMore, $1orMore, $proc, $seq, $switch } from "./utils";
 
 import type { Parser } from "./util/parser";
 
@@ -139,11 +140,11 @@ const character: Parser<string> = (pr) => {
     }),
 
     // ignore U+0000 to U+001F control characters
-    $charRange(0x00_20, 0x00_21),
+    char(0x00_20, 0x00_21),
     // ignore U+0022 " double quote
-    $charRange(0x00_23, 0x00_5b),
+    char(0x00_23, 0x00_5b),
     // ignore U+005C \ reverse solidus
-    $charRange(0x00_5d, 0xff_ff),
+    char(0x00_5d, 0xff_ff),
   )(pr);
 };
 
