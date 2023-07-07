@@ -1,4 +1,4 @@
-import { clone, setPosition } from "../core/reader";
+import { tryParse } from "./try";
 
 import type { Parser } from "./parser";
 
@@ -9,14 +9,8 @@ import type { Parser } from "./parser";
  */
 export const opt = <T>(parser: Parser<T>): Parser<T | undefined> => {
   return (pr) => {
-    const cloned = clone(pr);
-    const [ok, value] = parser(cloned);
+    const [ok, value] = tryParse(parser)(pr);
 
-    if (ok) {
-      setPosition(pr, cloned);
-      return [true, value];
-    }
-
-    return [true, undefined];
+    return ok ? [true, value] : [true, undefined];
   };
 };

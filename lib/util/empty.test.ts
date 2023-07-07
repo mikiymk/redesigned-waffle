@@ -15,7 +15,9 @@ describe("parse the expected string", () => {
 
   test.each(cases)("%j", (source, value) => {
     const pr = fromString(source);
+    const result = empty(pr);
 
-    expect(empty(pr)).toStrictEqual(value);
+    expect(result).toStrictEqual(value);
+    expect(pr.position).toBe(0);
   });
 });

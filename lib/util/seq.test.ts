@@ -9,16 +9,18 @@ import { word } from "./word";
 import type { Result } from "./parser";
 
 describe("parse the expected string", () => {
-  const cases: [string, Result<["word", "chance"]>][] = [
-    ["wordchance", [true, ["word", "chance"]]],
-    ["wordchance1", [true, ["word", "chance"]]],
-    ["word", [false, new ParseWordError("chance", "")]],
-    ["chance", [false, new ParseWordError("word", "chan")]],
+  const cases: [string, Result<["word", "chance"]>, number][] = [
+    ["wordchance", [true, ["word", "chance"]], 10],
+    ["wordchance1", [true, ["word", "chance"]], 10],
+    ["word", [false, new ParseWordError("chance", "")], 0],
+    ["chance", [false, new ParseWordError("word", "chan")], 0],
   ];
 
-  test.each(cases)("%j", (source, value) => {
+  test.each(cases)("%j", (source, value, position) => {
     const pr = fromString(source);
+    const result = seq(word("word"), word("chance"))(pr);
 
-    expect(seq(word("word"), word("chance"))(pr)).toStrictEqual(value);
+    expect(result).toStrictEqual(value);
+    expect(pr.position).toBe(position);
   });
 });

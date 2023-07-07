@@ -1,5 +1,7 @@
 import { clone, setPosition } from "../core/reader";
 
+import { tryParse } from "./try";
+
 import type { Parser } from "./parser";
 
 /**
@@ -29,26 +31,27 @@ const $NtoM = <T>(parser: Parser<T>, min: number, max: number): Parser<T[]> => {
     const cloned = clone(pr);
 
     for (let index = 0; index < min; index++) {
-      const [contOk, cont] = parser(cloned);
+      const [ok, value] = parser(cloned);
 
-      if (!contOk) {
-        return [false, new Error(`not reached ${min}`, { cause: cont })];
+      if (!ok) {
+        return [false, new Error(`not reached ${min}`, { cause: value })];
       }
 
-      result.push(cont);
-    }
-
-    for (let index = 0; index < max - min; index++) {
-      const [contOk, cont] = parser(cloned);
-
-      if (!contOk) {
-        break;
-      }
-
-      result.push(cont);
+      result.push(value);
     }
 
     setPosition(pr, cloned);
+
+    for (let index = 0; index < max - min; index++) {
+      const [ok, value] = tryParse(parser)(pr);
+
+      if (!ok) {
+        break;
+      }
+
+      result.push(value);
+    }
+
     return [true, result];
   };
 };
@@ -64,15 +67,14 @@ export const until = <T, U>(parser: Parser<T>, endParser: Parser<U>): Parser<[T[
     const result = [];
     const cloned = clone(pr);
 
-    const endReader = clone(cloned);
-    const [endOk, endValue] = endParser(endReader);
-
-    if (endOk) {
-      setPosition(pr, endReader);
-      return [true, [[], endValue]];
-    }
-
     for (;;) {
+      const [endOk, endValue] = tryParse(endParser)(cloned);
+
+      if (endOk) {
+        setPosition(pr, cloned);
+        return [true, [result, endValue]];
+      }
+
       const [ok, value] = parser(cloned);
 
       if (!ok) {
@@ -80,14 +82,6 @@ export const until = <T, U>(parser: Parser<T>, endParser: Parser<U>): Parser<[T[
       }
 
       result.push(value);
-
-      const endReader = clone(cloned);
-      const [endOk, endValue] = endParser(endReader);
-
-      if (endOk) {
-        setPosition(pr, endReader);
-        return [true, [result, endValue]];
-      }
     }
   };
 };

@@ -9,22 +9,17 @@ import { word } from "./word";
 import type { Result } from "./parser";
 
 describe("parse the expected string", () => {
-  const cases: [string, Result<"word">][] = [
-    ["word", [true, "word"]],
-    ["word1", [true, "word"]],
-    ["world", [false, new ParseWordError("word", "worl")]],
+  const cases: [string, Result<"word">, number][] = [
+    ["word", [true, "word"], 4],
+    ["word1", [true, "word"], 4],
+    ["world", [false, new ParseWordError("word", "worl")], 0],
   ];
 
-  test.each(cases)("%j", (source, value) => {
+  test.each(cases)("%j", (source, value, position) => {
     const pr = fromString(source);
     const result = tryParse(word("word"))(pr);
 
     expect(result).toStrictEqual(value);
-
-    if (result[0]) {
-      expect(pr.position).toBe(4);
-    } else {
-      expect(pr.position).toBe(0);
-    }
+    expect(pr.position).toBe(position);
   });
 });

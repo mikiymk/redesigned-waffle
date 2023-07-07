@@ -1,4 +1,4 @@
-import { EOF, get, clone, setPosition } from "../core/reader";
+import { EOF, get, clone } from "../core/reader";
 
 import type { Parser } from "./parser";
 
@@ -8,10 +8,7 @@ import type { Parser } from "./parser";
  * @returns ファイルの終わりなら成功
  */
 export const eof: Parser<void> = (pr) => {
-  const cloned = clone(pr);
-
-  if (get(cloned) === EOF) {
-    setPosition(pr, cloned);
+  if (get(clone(pr)) === EOF) {
     return [true, undefined];
   }
 

@@ -8,11 +8,11 @@ import { word } from "./word";
 import type { Result } from "./parser";
 
 describe("parse the expected string", () => {
-  const cases: [string, Result<"word">][] = [
-    ["word", [true, "word"]],
-    ["word1", [true, "word"]],
-    ["world", [false, new ParseWordError("word", "worl")]],
-    ["wod", [false, new ParseWordError("word", "wod")]],
+  const cases: [string, Result<"word">, number][] = [
+    ["word", [true, "word"], 4],
+    ["word1", [true, "word"], 4],
+    ["world", [false, new ParseWordError("word", "worl")], 0],
+    ["wod", [false, new ParseWordError("word", "wod")], 0],
   ];
 
   test.each(cases)("%j", (source, value) => {

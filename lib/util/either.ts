@@ -1,6 +1,5 @@
-import { clone, setPosition } from "../core/reader";
-
 import { ParseEitherError } from "./errors";
+import { tryParse } from "./try";
 
 import type { Parser } from "./parser";
 
@@ -18,12 +17,11 @@ type ParserValuesUnion<Ps extends Parser<unknown>[]> = {
  */
 export const either = <Ps extends Parser<unknown>[]>(...parsers: Ps): Parser<ParserValuesUnion<Ps>> => {
   return (pr) => {
-    const errors = [];
+    const errors: Error[] = [];
     for (const parser of parsers) {
-      const cloned = clone(pr);
-      const [ok, value] = parser(cloned);
+      const [ok, value] = tryParse(parser)(pr);
+
       if (ok) {
-        setPosition(pr, cloned);
         return [true, value as ParserValuesUnion<Ps>];
       }
 
