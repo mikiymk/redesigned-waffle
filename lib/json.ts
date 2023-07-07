@@ -1,10 +1,10 @@
 import { char } from "./util/char";
 import { either } from "./util/either";
 import { map } from "./util/map";
+import { zeroOrMore, oneOrMore } from "./util/multiple";
 import { opt } from "./util/opt";
 import { seq } from "./util/seq";
 import { word } from "./util/word";
-import { $0orMore, $1orMore } from "./utils";
 
 import type { Parser } from "./util/parser";
 
@@ -22,7 +22,7 @@ type JsonObject = { lang: "json"; type: "object"; value: JsonObjectMember[] };
 export type JsonValue = JsonNull | JsonBoolean | JsonNumber | JsonString | JsonArray | JsonObject;
 
 const ws: Parser<void> = (pr) => {
-  const [ok, value] = $0orMore(either(word("\u0009"), word("\u000A"), word("\u000D"), word("\u0020")))(pr);
+  const [ok, value] = zeroOrMore(either(word("\u0009"), word("\u000A"), word("\u000D"), word("\u0020")))(pr);
 
   return ok ? [true, undefined] : [false, value];
 };
@@ -48,7 +48,7 @@ const jsonBoolean: Parser<JsonBoolean> = (pr) => {
 
 const digits: Parser<number> = (pr) => {
   return map(
-    $1orMore(
+    oneOrMore(
       either(
         map(word("0"), () => 0),
         map(word("1"), () => 1),
@@ -153,7 +153,7 @@ const character: Parser<string> = (pr) => {
 };
 
 const jsonString: Parser<JsonString> = (pr) => {
-  return map(seq(word('"'), $0orMore(character), word('"')), ([_sq, cs, _eq]): JsonString => {
+  return map(seq(word('"'), zeroOrMore(character), word('"')), ([_sq, cs, _eq]): JsonString => {
     const value = cs.join("");
     return { lang: "json", type: "string", value };
   })(pr);
@@ -161,7 +161,7 @@ const jsonString: Parser<JsonString> = (pr) => {
 
 const jsonArray: Parser<JsonArray> = (pr) => {
   return map(
-    seq(word("["), ws, opt(seq(jsonElement, $0orMore(seq(word(","), jsonElement)))), word("]")),
+    seq(word("["), ws, opt(seq(jsonElement, zeroOrMore(seq(word(","), jsonElement)))), word("]")),
     ([_startBrace, _ws, element, _endBrace]): JsonArray => {
       const value = [];
 
@@ -187,7 +187,7 @@ const jsonObjectMember: Parser<JsonObjectMember> = (pr) => {
 
 const jsonObject: Parser<JsonObject> = (pr) => {
   return map(
-    seq(word("{"), ws, opt(seq(jsonObjectMember, $0orMore(seq(word(","), jsonObjectMember)))), word("}")),
+    seq(word("{"), ws, opt(seq(jsonObjectMember, zeroOrMore(seq(word(","), jsonObjectMember)))), word("}")),
     ([_sq, _ws, cs, _eq]): JsonObject => {
       const value = [];
 

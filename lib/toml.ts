@@ -3,10 +3,10 @@ import { char } from "./util/char";
 import { either } from "./util/either";
 import { eof } from "./util/eof";
 import { map, as } from "./util/map";
+import { zeroOrMore, oneOrMore, until } from "./util/multiple";
 import { opt } from "./util/opt";
 import { seq } from "./util/seq";
 import { word } from "./util/word";
-import { $0orMore, $1orMore, $while } from "./utils";
 
 import type { Parser } from "./util/parser";
 
@@ -53,7 +53,7 @@ type TomlArray = { lang: "toml"; type: "comment"; value: [TomlKey, TomlValue] };
 type TomlInlineTable = { lang: "toml"; type: "comment"; value: [TomlKey, TomlValue] };
 
 const ws: Parser<void> = (pr) => {
-  const [ok, value] = $0orMore(either(word("\u0009"), word("\u0020")))(pr);
+  const [ok, value] = zeroOrMore(either(word("\u0009"), word("\u0020")))(pr);
 
   return ok ? [true, undefined] : [false, value];
 };
@@ -63,7 +63,7 @@ const nl: Parser<"\n"> = (pr) => {
 };
 
 const tomlData: Parser<TomlData> = (pr) => {
-  const [ok, value] = $0orMore(either(emptyLine, tomlComment, tomlKeyValue))(pr);
+  const [ok, value] = zeroOrMore(either(emptyLine, tomlComment, tomlKeyValue))(pr);
 
   if (!ok) return [false, value];
 
@@ -79,7 +79,7 @@ const tomlData: Parser<TomlData> = (pr) => {
 };
 
 const emptyLine: Parser<void> = (pr) => {
-  const [ok, value] = seq($0orMore(ws), nl)(pr);
+  const [ok, value] = seq(zeroOrMore(ws), nl)(pr);
 
   return ok ? [true, undefined] : [false, value];
 };
@@ -87,7 +87,7 @@ const emptyLine: Parser<void> = (pr) => {
 const tomlComment: Parser<TomlComment> = (pr) => {
   const [ok, value] = seq(
     word("#"),
-    $while(either(word("\u0009"), char(0x00_20, 0x00_7e), char(0x00_80, 0xff_ff)), either(nl, eof)),
+    until(either(word("\u0009"), char(0x00_20, 0x00_7e), char(0x00_80, 0xff_ff)), either(nl, eof)),
   )(pr);
 
   if (ok) {
@@ -116,7 +116,7 @@ const tomlKey: Parser<TomlKey> = (pr) => {
 
 // A-Za-z0-9_-
 const tomlBareKey: Parser<TomlBareKey> = (pr) => {
-  const [ok, value] = $1orMore(either(char(0x41, 0x5a), char(0x61, 0x7a), char(0x30, 0x39), word("_"), word("-")))(pr);
+  const [ok, value] = oneOrMore(either(char(0x41, 0x5a), char(0x61, 0x7a), char(0x30, 0x39), word("_"), word("-")))(pr);
 
   return ok ? [true, { lang: "toml", type: "bare key", value: value.join("") }] : [false, value];
 };
@@ -130,7 +130,7 @@ const tomlQuotedKey: Parser<TomlQuotedKey> = (pr) => {
 const tomlDottedKey: Parser<TomlDottedKey> = (pr) => {
   const [ok, value] = seq(
     either(tomlBareKey, tomlQuotedKey),
-    $0orMore(seq(ws, word("."), ws, either(tomlBareKey, tomlQuotedKey))),
+    zeroOrMore(seq(ws, word("."), ws, either(tomlBareKey, tomlQuotedKey))),
   )(pr);
 
   if (!ok) {
@@ -197,7 +197,7 @@ const tomlEscapeCharacter: Parser<string> = (pr) => {
 };
 
 const tomlBasicString: Parser<TomlBasicString> = (pr) => {
-  const [ok, value] = seq(word('"'), $0orMore(either(tomlCharacter, word("'"), tomlEscapeCharacter)), word('"'))(pr);
+  const [ok, value] = seq(word('"'), zeroOrMore(either(tomlCharacter, word("'"), tomlEscapeCharacter)), word('"'))(pr);
 
   if (!ok) return [false, value];
 
@@ -209,14 +209,14 @@ const tomlBasicString: Parser<TomlBasicString> = (pr) => {
 const tomlMultilineBasicString: Parser<TomlMultilineBasicString> = (pr) => {
   const [ok, value] = seq(
     word('"""'),
-    $0orMore(
+    zeroOrMore(
       either(
         tomlCharacter,
         word("'"),
         word('"'),
         tomlEscapeCharacter,
         nl,
-        as(seq(word("\\"), nl, $0orMore(either(ws, nl))), ""),
+        as(seq(word("\\"), nl, zeroOrMore(either(ws, nl))), ""),
       ),
     ),
     word('"""'),
@@ -230,7 +230,7 @@ const tomlMultilineBasicString: Parser<TomlMultilineBasicString> = (pr) => {
 };
 
 const tomlLiteralString: Parser<TomlLiteralString> = (pr) => {
-  const [ok, value] = seq(word("'"), $0orMore(either(tomlCharacter, word('"'), word("\\"))), word("'"))(pr);
+  const [ok, value] = seq(word("'"), zeroOrMore(either(tomlCharacter, word('"'), word("\\"))), word("'"))(pr);
 
   if (!ok) return [false, value];
 
@@ -242,7 +242,7 @@ const tomlLiteralString: Parser<TomlLiteralString> = (pr) => {
 const tomlMultilineLiteralString: Parser<TomlMultilineLiteralString> = (pr) => {
   const [ok, value] = seq(
     word("'''"),
-    $0orMore(either(tomlCharacter, word("'"), word('"'), word("\\"), nl)),
+    zeroOrMore(either(tomlCharacter, word("'"), word('"'), word("\\"), nl)),
     word("'''"),
   )(pr);
 
@@ -261,7 +261,7 @@ const underscoreSeparatedNumber =
   (parser: Parser<number>, radix: number): Parser<number> =>
   (pr) => {
     return map(
-      seq(parser, $0orMore(parser), $0orMore(seq(word("_"), $1orMore(parser)))),
+      seq(parser, zeroOrMore(parser), zeroOrMore(seq(word("_"), oneOrMore(parser)))),
       ([first, rest, separated]) => {
         let result: number = first;
 
