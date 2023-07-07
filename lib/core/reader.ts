@@ -1,8 +1,8 @@
 export const EOF = Symbol("EOF");
 export type EOF = typeof EOF;
 
-const Source = Symbol("source");
-const Position = Symbol("position");
+const Source = "source";
+const Position = "position";
 
 export type ParseReader = {
   readonly [Source]: string;
