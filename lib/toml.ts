@@ -1,10 +1,12 @@
 import { binaryDigit, decimalDigit, hexDigit, octalDigit } from "./number";
 import { char } from "./util/char";
 import { either } from "./util/either";
+import { eof } from "./util/eof";
+import { map, as } from "./util/map";
 import { opt } from "./util/opt";
 import { seq } from "./util/seq";
 import { word } from "./util/word";
-import { $0orMore, $1orMore, $as, $eof, $proc, $while } from "./utils";
+import { $0orMore, $1orMore, $while } from "./utils";
 
 import type { Parser } from "./util/parser";
 
@@ -57,7 +59,7 @@ const ws: Parser<void> = (pr) => {
 };
 
 const nl: Parser<"\n"> = (pr) => {
-  return $as(either(word("\u000A"), word("\u000D\u000A")), "\n")(pr);
+  return as(either(word("\u000A"), word("\u000D\u000A")), "\n")(pr);
 };
 
 const tomlData: Parser<TomlData> = (pr) => {
@@ -85,7 +87,7 @@ const emptyLine: Parser<void> = (pr) => {
 const tomlComment: Parser<TomlComment> = (pr) => {
   const [ok, value] = seq(
     word("#"),
-    $while(either(word("\u0009"), char(0x00_20, 0x00_7e), char(0x00_80, 0xff_ff)), either(nl, $eof)),
+    $while(either(word("\u0009"), char(0x00_20, 0x00_7e), char(0x00_80, 0xff_ff)), either(nl, eof)),
   )(pr);
 
   if (ok) {
@@ -97,7 +99,7 @@ const tomlComment: Parser<TomlComment> = (pr) => {
 };
 
 const tomlKeyValue: Parser<TomlKeyValue> = (pr) => {
-  const [ok, value] = seq(ws, tomlKey, ws, word("="), ws, tomlValue, ws, either(tomlComment, nl, $eof))(pr);
+  const [ok, value] = seq(ws, tomlKey, ws, word("="), ws, tomlValue, ws, either(tomlComment, nl, eof))(pr);
 
   if (!ok) return [false, value];
 
@@ -173,17 +175,17 @@ const tomlCharacter: Parser<string> = (pr) => {
 
 const tomlEscapeCharacter: Parser<string> = (pr) => {
   return either(
-    $proc(word("\\b"), () => "\u0008"),
-    $proc(word("\\t"), () => "\u0009"),
-    $proc(word("\\n"), () => "\u000A"),
-    $proc(word("\\f"), () => "\u000C"),
-    $proc(word("\\r"), () => "\u000D"),
-    $proc(word('\\"'), () => "\u0022"),
-    $proc(word("\\\\"), () => "\u005C"),
-    $proc(seq(word("\\u"), hexDigit, hexDigit, hexDigit, hexDigit), ([_u, h1, h2, h3, h4]) => {
+    map(word("\\b"), () => "\u0008"),
+    map(word("\\t"), () => "\u0009"),
+    map(word("\\n"), () => "\u000A"),
+    map(word("\\f"), () => "\u000C"),
+    map(word("\\r"), () => "\u000D"),
+    map(word('\\"'), () => "\u0022"),
+    map(word("\\\\"), () => "\u005C"),
+    map(seq(word("\\u"), hexDigit, hexDigit, hexDigit, hexDigit), ([_u, h1, h2, h3, h4]) => {
       return String.fromCodePoint((h1 << 12) | (h2 << 8) | (h3 << 4) | h4);
     }),
-    $proc(
+    map(
       seq(word("\\U"), hexDigit, hexDigit, hexDigit, hexDigit, hexDigit, hexDigit, hexDigit, hexDigit),
       ([_u, h1, h2, h3, h4, h5, h6, h7, h8]) => {
         const code = (h1 << 28) | (h2 << 24) | (h3 << 20) | (h4 << 16) | (h5 << 12) | (h6 << 8) | (h7 << 4) | h8;
@@ -214,7 +216,7 @@ const tomlMultilineBasicString: Parser<TomlMultilineBasicString> = (pr) => {
         word('"'),
         tomlEscapeCharacter,
         nl,
-        $as(seq(word("\\"), nl, $0orMore(either(ws, nl))), ""),
+        as(seq(word("\\"), nl, $0orMore(either(ws, nl))), ""),
       ),
     ),
     word('"""'),
@@ -258,7 +260,7 @@ const tomlInteger: Parser<TomlInteger> = (pr) => {
 const underscoreSeparatedNumber =
   (parser: Parser<number>, radix: number): Parser<number> =>
   (pr) => {
-    return $proc(
+    return map(
       seq(parser, $0orMore(parser), $0orMore(seq(word("_"), $1orMore(parser)))),
       ([first, rest, separated]) => {
         let result: number = first;
@@ -280,8 +282,8 @@ const underscoreSeparatedNumber =
 
 const tomlDecimalInteger: Parser<TomlDecimalInteger> = (pr) => {
   const [ok, value] = seq(
-    either($as(word("+"), +1), $as(word("-"), -1), $as(word(""), +1)),
-    either($as(word("0"), 0), underscoreSeparatedNumber(decimalDigit, 10)),
+    either(as(word("+"), +1), as(word("-"), -1), as(word(""), +1)),
+    either(as(word("0"), 0), underscoreSeparatedNumber(decimalDigit, 10)),
   )(pr);
 
   if (!ok) {
@@ -295,9 +297,9 @@ const tomlDecimalInteger: Parser<TomlDecimalInteger> = (pr) => {
 
 const tomlBinaryInteger: Parser<TomlBinaryInteger> = (pr) => {
   const [ok, value] = seq(
-    opt($as(word("-"), -1)),
+    opt(as(word("-"), -1)),
     word("0b"),
-    either($as(word("0"), 0), underscoreSeparatedNumber(binaryDigit, 2)),
+    either(as(word("0"), 0), underscoreSeparatedNumber(binaryDigit, 2)),
   )(pr);
 
   if (!ok) {
@@ -311,9 +313,9 @@ const tomlBinaryInteger: Parser<TomlBinaryInteger> = (pr) => {
 
 const tomlOctalInteger: Parser<TomlOctalInteger> = (pr) => {
   const [ok, value] = seq(
-    opt($as(word("-"), -1)),
+    opt(as(word("-"), -1)),
     word("0o"),
-    either($as(word("0"), 0), underscoreSeparatedNumber(octalDigit, 8)),
+    either(as(word("0"), 0), underscoreSeparatedNumber(octalDigit, 8)),
   )(pr);
 
   if (!ok) {
@@ -327,9 +329,9 @@ const tomlOctalInteger: Parser<TomlOctalInteger> = (pr) => {
 
 const tomlHexInteger: Parser<TomlHexInteger> = (pr) => {
   const [ok, value] = seq(
-    opt($as(word("-"), -1)),
+    opt(as(word("-"), -1)),
     word("0x"),
-    either($as(word("0"), 0), underscoreSeparatedNumber(hexDigit, 16)),
+    either(as(word("0"), 0), underscoreSeparatedNumber(hexDigit, 16)),
   )(pr);
 
   if (!ok) {

@@ -1,4 +1,4 @@
-import { EOF, get, clone, setPosition } from "./core/reader";
+import { clone, setPosition } from "./core/reader";
 
 import type { ParseReader } from "./core/reader";
 import type { Parser, Result } from "./util/parser";
@@ -60,30 +60,3 @@ export const $while =
       }
     }
   };
-
-export const $as =
-  <T, const U>(parser: Parser<T>, alterValue: U): Parser<U> =>
-  (pr: ParseReader): Result<U> => {
-    const [ok, value] = parser(pr);
-
-    return ok ? [true, alterValue] : [false, value];
-  };
-
-export const $proc =
-  <T, U>(parser: Parser<T>, function_: (value: T) => U): Parser<U> =>
-  (pr: ParseReader): Result<U> => {
-    const [ok, value] = parser(pr);
-
-    return ok ? [true, function_(value)] : [false, value];
-  };
-
-export const $eof: Parser<void> = (pr) => {
-  const cloned = clone(pr);
-
-  if (get(cloned) === EOF) {
-    setPosition(pr, cloned);
-    return [true, undefined];
-  }
-
-  return [false, new Error("not end of file")];
-};

@@ -1,9 +1,10 @@
 import { char } from "./util/char";
 import { either } from "./util/either";
+import { map } from "./util/map";
 import { opt } from "./util/opt";
 import { seq } from "./util/seq";
 import { word } from "./util/word";
-import { $0orMore, $1orMore, $proc } from "./utils";
+import { $0orMore, $1orMore } from "./utils";
 
 import type { Parser } from "./util/parser";
 
@@ -46,19 +47,19 @@ const jsonBoolean: Parser<JsonBoolean> = (pr) => {
 };
 
 const digits: Parser<number> = (pr) => {
-  return $proc(
+  return map(
     $1orMore(
       either(
-        $proc(word("0"), () => 0),
-        $proc(word("1"), () => 1),
-        $proc(word("2"), () => 2),
-        $proc(word("3"), () => 3),
-        $proc(word("4"), () => 4),
-        $proc(word("5"), () => 5),
-        $proc(word("6"), () => 6),
-        $proc(word("7"), () => 7),
-        $proc(word("8"), () => 8),
-        $proc(word("9"), () => 9),
+        map(word("0"), () => 0),
+        map(word("1"), () => 1),
+        map(word("2"), () => 2),
+        map(word("3"), () => 3),
+        map(word("4"), () => 4),
+        map(word("5"), () => 5),
+        map(word("6"), () => 6),
+        map(word("7"), () => 7),
+        map(word("8"), () => 8),
+        map(word("9"), () => 9),
       ),
     ),
     (ds) => {
@@ -74,31 +75,31 @@ const digits: Parser<number> = (pr) => {
 };
 
 const sign: Parser<number> = (pr) => {
-  return $proc(opt(word("-")), (s) => (s === "-" ? -1 : 1))(pr);
+  return map(opt(word("-")), (s) => (s === "-" ? -1 : 1))(pr);
 };
 
 const integer: Parser<number> = (pr) => {
   return either(
-    $proc(word("0"), () => 0),
+    map(word("0"), () => 0),
     digits,
   )(pr);
 };
 
 const fractional: Parser<number> = (pr) => {
-  return $proc(seq(word("."), digits), ([_point, fractional]) =>
+  return map(seq(word("."), digits), ([_point, fractional]) =>
     fractional === 0 ? 0 : fractional / 10 ** (Math.floor(Math.log10(fractional)) + 1),
   )(pr);
 };
 
 const exponent: Parser<number> = (pr) => {
-  return $proc(
+  return map(
     seq(either(word("e"), word("E")), opt(either(word("+"), word("-"))), digits),
     ([_exponentDelimiter, s, d]) => (s === "-" ? -1 : 1) * d,
   )(pr);
 };
 
 const jsonNumber: Parser<JsonNumber> = (pr) => {
-  return $proc(
+  return map(
     seq(sign, integer, opt(fractional), opt(exponent)),
     ([sign, integer, fractional, exponent]): JsonNumber => {
       const value = sign * (integer + (fractional ?? 0)) * 10 ** (exponent ?? 0);
@@ -109,36 +110,36 @@ const jsonNumber: Parser<JsonNumber> = (pr) => {
 
 const hex: Parser<number> = (pr) => {
   return either(
-    $proc(word("0"), () => 0),
-    $proc(word("1"), () => 1),
-    $proc(word("2"), () => 2),
-    $proc(word("3"), () => 3),
-    $proc(word("4"), () => 4),
-    $proc(word("5"), () => 5),
-    $proc(word("6"), () => 6),
-    $proc(word("7"), () => 7),
-    $proc(word("8"), () => 8),
-    $proc(word("9"), () => 9),
-    $proc(either(word("a"), word("A")), () => 10),
-    $proc(either(word("b"), word("B")), () => 11),
-    $proc(either(word("c"), word("C")), () => 12),
-    $proc(either(word("d"), word("D")), () => 13),
-    $proc(either(word("e"), word("E")), () => 14),
-    $proc(either(word("f"), word("F")), () => 15),
+    map(word("0"), () => 0),
+    map(word("1"), () => 1),
+    map(word("2"), () => 2),
+    map(word("3"), () => 3),
+    map(word("4"), () => 4),
+    map(word("5"), () => 5),
+    map(word("6"), () => 6),
+    map(word("7"), () => 7),
+    map(word("8"), () => 8),
+    map(word("9"), () => 9),
+    map(either(word("a"), word("A")), () => 10),
+    map(either(word("b"), word("B")), () => 11),
+    map(either(word("c"), word("C")), () => 12),
+    map(either(word("d"), word("D")), () => 13),
+    map(either(word("e"), word("E")), () => 14),
+    map(either(word("f"), word("F")), () => 15),
   )(pr);
 };
 
 const character: Parser<string> = (pr) => {
   return either(
-    $proc(word('\\"'), () => '"'),
-    $proc(word("\\\\"), () => "\\"),
-    $proc(word("\\/"), () => "/"),
-    $proc(word("\\b"), () => "\b"),
-    $proc(word("\\f"), () => "\f"),
-    $proc(word("\\n"), () => "\n"),
-    $proc(word("\\r"), () => "\r"),
-    $proc(word("\\t"), () => "\t"),
-    $proc(seq(word("\\u"), hex, hex, hex, hex), ([_u, h1, h2, h3, h4]) => {
+    map(word('\\"'), () => '"'),
+    map(word("\\\\"), () => "\\"),
+    map(word("\\/"), () => "/"),
+    map(word("\\b"), () => "\b"),
+    map(word("\\f"), () => "\f"),
+    map(word("\\n"), () => "\n"),
+    map(word("\\r"), () => "\r"),
+    map(word("\\t"), () => "\t"),
+    map(seq(word("\\u"), hex, hex, hex, hex), ([_u, h1, h2, h3, h4]) => {
       return String.fromCodePoint((h1 << 12) | (h2 << 8) | (h3 << 4) | h4);
     }),
 
@@ -152,14 +153,14 @@ const character: Parser<string> = (pr) => {
 };
 
 const jsonString: Parser<JsonString> = (pr) => {
-  return $proc(seq(word('"'), $0orMore(character), word('"')), ([_sq, cs, _eq]): JsonString => {
+  return map(seq(word('"'), $0orMore(character), word('"')), ([_sq, cs, _eq]): JsonString => {
     const value = cs.join("");
     return { lang: "json", type: "string", value };
   })(pr);
 };
 
 const jsonArray: Parser<JsonArray> = (pr) => {
-  return $proc(
+  return map(
     seq(word("["), ws, opt(seq(jsonElement, $0orMore(seq(word(","), jsonElement)))), word("]")),
     ([_startBrace, _ws, element, _endBrace]): JsonArray => {
       const value = [];
@@ -179,13 +180,13 @@ const jsonArray: Parser<JsonArray> = (pr) => {
 };
 
 const jsonObjectMember: Parser<JsonObjectMember> = (pr) => {
-  return $proc(seq(ws, jsonString, ws, word(":"), jsonElement), ([_s1, key, _s2, _c, value]): JsonObjectMember => {
+  return map(seq(ws, jsonString, ws, word(":"), jsonElement), ([_s1, key, _s2, _c, value]): JsonObjectMember => {
     return { lang: "json", type: "object member", value: [key, value] };
   })(pr);
 };
 
 const jsonObject: Parser<JsonObject> = (pr) => {
-  return $proc(
+  return map(
     seq(word("{"), ws, opt(seq(jsonObjectMember, $0orMore(seq(word(","), jsonObjectMember)))), word("}")),
     ([_sq, _ws, cs, _eq]): JsonObject => {
       const value = [];
@@ -204,7 +205,7 @@ const jsonObject: Parser<JsonObject> = (pr) => {
   )(pr);
 };
 
-const jsonElement: Parser<JsonValue> = $proc(
+const jsonElement: Parser<JsonValue> = map(
   seq(ws, either(jsonObject, jsonArray, jsonString, jsonNumber, jsonBoolean, jsonNull), ws),
   ([_s1, value, _s2]): JsonValue => {
     return value;
