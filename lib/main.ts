@@ -1,2 +1,2 @@
-export { json } from "./json";
+export { json } from "./json/json";
 export { toml } from "./toml";

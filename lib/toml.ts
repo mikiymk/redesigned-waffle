@@ -343,4 +343,4 @@ const tomlHexInteger: Parser<TomlHexInteger> = (pr) => {
   return [true, { lang: "toml", type: "hex integer", value: (sign ?? 1) * int }];
 };
 
-export const toml = emptyLine;
+export const toml = tomlData;

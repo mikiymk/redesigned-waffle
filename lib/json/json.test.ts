@@ -1,10 +1,11 @@
 import { expect, test } from "vitest";
 
-import { fromString } from "./core/reader";
+import { fromString } from "../core/reader";
+
 import { json } from "./json";
 
 import type { JsonValue } from "./json";
-import type { Result } from "./util/parser";
+import type { Result } from "../util/parser";
 
 const cases: [string, Result<JsonValue>][] = [
   // # json null

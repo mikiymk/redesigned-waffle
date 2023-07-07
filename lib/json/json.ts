@@ -1,12 +1,12 @@
-import { char } from "./util/char";
-import { either } from "./util/either";
-import { map } from "./util/map";
-import { zeroOrMore, oneOrMore } from "./util/multiple";
-import { opt } from "./util/opt";
-import { seq } from "./util/seq";
-import { word } from "./util/word";
+import { char } from "../util/char";
+import { either } from "../util/either";
+import { map } from "../util/map";
+import { zeroOrMore, oneOrMore } from "../util/multiple";
+import { opt } from "../util/opt";
+import { seq } from "../util/seq";
+import { word } from "../util/word";
 
-import type { Parser } from "./util/parser";
+import type { Parser } from "../util/parser";
 
 type JsonNull = { lang: "json"; type: "null"; value: null };
 type JsonBoolean = { lang: "json"; type: "boolean"; value: boolean };
