@@ -3,10 +3,6 @@ import { EOF, get, clone, setPosition } from "./core/reader";
 import type { ParseReader } from "./core/reader";
 import type { Parser, Result } from "./util/parser";
 
-export { word } from "./util/word";
-export { char } from "./util/char";
-export { opt } from "./util/opt";
-
 export const $0orMore = <T>(parser: Parser<T>) => $NtoM(parser, 0, Number.POSITIVE_INFINITY);
 export const $1orMore = <T>(parser: Parser<T>) => $NtoM(parser, 1, Number.POSITIVE_INFINITY);
 
@@ -63,46 +59,6 @@ export const $while =
         return [true, [result, endValue]];
       }
     }
-  };
-
-type ParserValuesUnion<Ps extends Parser<unknown>[]> = {
-  [K in keyof Ps]: Ps[K] extends Parser<infer R> ? R : never;
-}[number];
-export const $switch =
-  <Ps extends Parser<unknown>[]>(...conditions: Ps) =>
-  (pr: ParseReader): Result<ParserValuesUnion<Ps>> => {
-    for (const parser of conditions) {
-      const cloned = clone(pr);
-      const [ok, value] = parser(cloned);
-      if (ok) {
-        setPosition(pr, cloned);
-        return [true, value as ParserValuesUnion<Ps>];
-      }
-    }
-
-    return [false, new Error("uncaught condition")];
-  };
-
-type ParserValuesTuple<Ps extends Parser<unknown>[]> = {
-  [K in keyof Ps]: Ps[K] extends Parser<infer R> ? R : never;
-};
-export const $seq =
-  <Ps extends Parser<unknown>[]>(...parsers: Ps) =>
-  (pr: ParseReader): Result<ParserValuesTuple<Ps>> => {
-    const result = [];
-    const cloned = clone(pr);
-
-    for (const parser of parsers) {
-      const [ok, value] = parser(cloned);
-      if (!ok) {
-        return [false, value];
-      }
-
-      result.push(value);
-    }
-
-    setPosition(pr, cloned);
-    return [true, result as ParserValuesTuple<Ps>];
   };
 
 export const $as =

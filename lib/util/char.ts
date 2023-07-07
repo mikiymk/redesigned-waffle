@@ -22,9 +22,8 @@ type CharParser = {
  * @param max 最大文字コード
  * @returns １文字を読み込むパーサー関数
  */
-export const char: CharParser =
-  (min: number | string, max: number | string): Parser<string> =>
-  (pr) => {
+export const char: CharParser = (min: number | string, max: number | string): Parser<string> => {
+  return (pr) => {
     const minCode = typeof min === "number" ? min : min.codePointAt(0) ?? 0;
     const maxCode = typeof max === "number" ? max : max.codePointAt(0) ?? 0;
     const cloned = clone(pr);
@@ -46,3 +45,4 @@ export const char: CharParser =
 
     return [false, new ParseCharError(minCode, maxCode, char)];
   };
+};

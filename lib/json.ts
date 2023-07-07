@@ -1,4 +1,9 @@
-import { $0orMore, $1orMore, $proc, $seq, $switch, char, opt, word } from "./utils";
+import { char } from "./util/char";
+import { either } from "./util/either";
+import { opt } from "./util/opt";
+import { seq } from "./util/seq";
+import { word } from "./util/word";
+import { $0orMore, $1orMore, $proc } from "./utils";
 
 import type { Parser } from "./util/parser";
 
@@ -16,7 +21,7 @@ type JsonObject = { lang: "json"; type: "object"; value: JsonObjectMember[] };
 export type JsonValue = JsonNull | JsonBoolean | JsonNumber | JsonString | JsonArray | JsonObject;
 
 const ws: Parser<void> = (pr) => {
-  const [ok, value] = $0orMore($switch(word("\u0009"), word("\u000A"), word("\u000D"), word("\u0020")))(pr);
+  const [ok, value] = $0orMore(either(word("\u0009"), word("\u000A"), word("\u000D"), word("\u0020")))(pr);
 
   return ok ? [true, undefined] : [false, value];
 };
@@ -31,7 +36,7 @@ const jsonNull: Parser<JsonNull> = (pr) => {
 };
 
 const jsonBoolean: Parser<JsonBoolean> = (pr) => {
-  const [ok, value] = $switch(word("true"), word("false"))(pr);
+  const [ok, value] = either(word("true"), word("false"))(pr);
 
   return ok
     ? value === "true"
@@ -43,7 +48,7 @@ const jsonBoolean: Parser<JsonBoolean> = (pr) => {
 const digits: Parser<number> = (pr) => {
   return $proc(
     $1orMore(
-      $switch(
+      either(
         $proc(word("0"), () => 0),
         $proc(word("1"), () => 1),
         $proc(word("2"), () => 2),
@@ -73,28 +78,28 @@ const sign: Parser<number> = (pr) => {
 };
 
 const integer: Parser<number> = (pr) => {
-  return $switch(
+  return either(
     $proc(word("0"), () => 0),
     digits,
   )(pr);
 };
 
 const fractional: Parser<number> = (pr) => {
-  return $proc($seq(word("."), digits), ([_point, fractional]) =>
+  return $proc(seq(word("."), digits), ([_point, fractional]) =>
     fractional === 0 ? 0 : fractional / 10 ** (Math.floor(Math.log10(fractional)) + 1),
   )(pr);
 };
 
 const exponent: Parser<number> = (pr) => {
   return $proc(
-    $seq($switch(word("e"), word("E")), opt($switch(word("+"), word("-"))), digits),
+    seq(either(word("e"), word("E")), opt(either(word("+"), word("-"))), digits),
     ([_exponentDelimiter, s, d]) => (s === "-" ? -1 : 1) * d,
   )(pr);
 };
 
 const jsonNumber: Parser<JsonNumber> = (pr) => {
   return $proc(
-    $seq(sign, integer, opt(fractional), opt(exponent)),
+    seq(sign, integer, opt(fractional), opt(exponent)),
     ([sign, integer, fractional, exponent]): JsonNumber => {
       const value = sign * (integer + (fractional ?? 0)) * 10 ** (exponent ?? 0);
       return { lang: "json", type: "number", value };
@@ -103,7 +108,7 @@ const jsonNumber: Parser<JsonNumber> = (pr) => {
 };
 
 const hex: Parser<number> = (pr) => {
-  return $switch(
+  return either(
     $proc(word("0"), () => 0),
     $proc(word("1"), () => 1),
     $proc(word("2"), () => 2),
@@ -114,17 +119,17 @@ const hex: Parser<number> = (pr) => {
     $proc(word("7"), () => 7),
     $proc(word("8"), () => 8),
     $proc(word("9"), () => 9),
-    $proc($switch(word("a"), word("A")), () => 10),
-    $proc($switch(word("b"), word("B")), () => 11),
-    $proc($switch(word("c"), word("C")), () => 12),
-    $proc($switch(word("d"), word("D")), () => 13),
-    $proc($switch(word("e"), word("E")), () => 14),
-    $proc($switch(word("f"), word("F")), () => 15),
+    $proc(either(word("a"), word("A")), () => 10),
+    $proc(either(word("b"), word("B")), () => 11),
+    $proc(either(word("c"), word("C")), () => 12),
+    $proc(either(word("d"), word("D")), () => 13),
+    $proc(either(word("e"), word("E")), () => 14),
+    $proc(either(word("f"), word("F")), () => 15),
   )(pr);
 };
 
 const character: Parser<string> = (pr) => {
-  return $switch(
+  return either(
     $proc(word('\\"'), () => '"'),
     $proc(word("\\\\"), () => "\\"),
     $proc(word("\\/"), () => "/"),
@@ -133,7 +138,7 @@ const character: Parser<string> = (pr) => {
     $proc(word("\\n"), () => "\n"),
     $proc(word("\\r"), () => "\r"),
     $proc(word("\\t"), () => "\t"),
-    $proc($seq(word("\\u"), hex, hex, hex, hex), ([_u, h1, h2, h3, h4]) => {
+    $proc(seq(word("\\u"), hex, hex, hex, hex), ([_u, h1, h2, h3, h4]) => {
       return String.fromCodePoint((h1 << 12) | (h2 << 8) | (h3 << 4) | h4);
     }),
 
@@ -147,7 +152,7 @@ const character: Parser<string> = (pr) => {
 };
 
 const jsonString: Parser<JsonString> = (pr) => {
-  return $proc($seq(word('"'), $0orMore(character), word('"')), ([_sq, cs, _eq]): JsonString => {
+  return $proc(seq(word('"'), $0orMore(character), word('"')), ([_sq, cs, _eq]): JsonString => {
     const value = cs.join("");
     return { lang: "json", type: "string", value };
   })(pr);
@@ -155,7 +160,7 @@ const jsonString: Parser<JsonString> = (pr) => {
 
 const jsonArray: Parser<JsonArray> = (pr) => {
   return $proc(
-    $seq(word("["), ws, opt($seq(jsonElement, $0orMore($seq(word(","), jsonElement)))), word("]")),
+    seq(word("["), ws, opt(seq(jsonElement, $0orMore(seq(word(","), jsonElement)))), word("]")),
     ([_startBrace, _ws, element, _endBrace]): JsonArray => {
       const value = [];
 
@@ -174,14 +179,14 @@ const jsonArray: Parser<JsonArray> = (pr) => {
 };
 
 const jsonObjectMember: Parser<JsonObjectMember> = (pr) => {
-  return $proc($seq(ws, jsonString, ws, word(":"), jsonElement), ([_s1, key, _s2, _c, value]): JsonObjectMember => {
+  return $proc(seq(ws, jsonString, ws, word(":"), jsonElement), ([_s1, key, _s2, _c, value]): JsonObjectMember => {
     return { lang: "json", type: "object member", value: [key, value] };
   })(pr);
 };
 
 const jsonObject: Parser<JsonObject> = (pr) => {
   return $proc(
-    $seq(word("{"), ws, opt($seq(jsonObjectMember, $0orMore($seq(word(","), jsonObjectMember)))), word("}")),
+    seq(word("{"), ws, opt(seq(jsonObjectMember, $0orMore(seq(word(","), jsonObjectMember)))), word("}")),
     ([_sq, _ws, cs, _eq]): JsonObject => {
       const value = [];
 
@@ -200,7 +205,7 @@ const jsonObject: Parser<JsonObject> = (pr) => {
 };
 
 const jsonElement: Parser<JsonValue> = $proc(
-  $seq(ws, $switch(jsonObject, jsonArray, jsonString, jsonNumber, jsonBoolean, jsonNull), ws),
+  seq(ws, either(jsonObject, jsonArray, jsonString, jsonNumber, jsonBoolean, jsonNull), ws),
   ([_s1, value, _s2]): JsonValue => {
     return value;
   },

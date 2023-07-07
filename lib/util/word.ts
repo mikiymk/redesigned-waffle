@@ -19,7 +19,7 @@ export const word =
       const readChar = get(cloned);
 
       if (readChar === EOF) {
-        return [false, new Error("reach to end of string")];
+        return [false, new ParseWordError(word, readChars.join(""))];
       }
 
       readChars.push(readChar);

@@ -7,9 +7,8 @@ import type { Parser } from "./parser";
  * @param parser 読み込む場合のパーサー
  * @returns オプションで読み込むパーサー
  */
-export const opt =
-  <T>(parser: Parser<T>): Parser<T | undefined> =>
-  (pr) => {
+export const opt = <T>(parser: Parser<T>): Parser<T | undefined> => {
+  return (pr) => {
     const cloned = clone(pr);
     const [ok, value] = parser(cloned);
 
@@ -20,3 +19,4 @@ export const opt =
 
     return [true, undefined];
   };
+};

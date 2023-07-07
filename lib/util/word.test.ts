@@ -12,6 +12,7 @@ describe("parse the expected string", () => {
     ["word", [true, "word"]],
     ["word1", [true, "word"]],
     ["world", [false, new ParseWordError("word", "worl")]],
+    ["wod", [false, new ParseWordError("word", "wod")]],
   ];
 
   test.each(cases)("%j", (source, value) => {
