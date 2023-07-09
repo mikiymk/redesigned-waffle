@@ -5,7 +5,7 @@ import { getRuleNames } from "./rule-names";
 
 const syntax = [
   rule("rule1", word("rule"), word("defined")),
-  rule("rule1", char(0x41, 0x5a), reference("rule2")),
+  rule("rule1", char("A", "Z"), reference("rule2")),
   rule("rule2", word("rule2"), word("defined")),
   rule("rule2", word("hello"), word("world")),
 ];

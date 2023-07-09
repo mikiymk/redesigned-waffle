@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "vitest run",
-    "format": "prettier --write src lib",
+    "format": "prettier --write src lib --cache",
     "lint:ts": "tsc",
-    "lint:eslint": "eslint src lib",
+    "lint:eslint": "eslint src lib --cache",
     "build:page": "vite build",
     "build:lib": "vite build --mode lib",
     "build:lib-type": "tsc --project ./tsconfig.lib.json",

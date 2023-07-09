@@ -52,16 +52,28 @@ type TomlTime = { lang: "toml"; type: "comment"; value: [TomlKey, TomlValue] };
 type TomlArray = { lang: "toml"; type: "comment"; value: [TomlKey, TomlValue] };
 type TomlInlineTable = { lang: "toml"; type: "comment"; value: [TomlKey, TomlValue] };
 
+/**
+ *
+ * @param pr
+ */
 const ws: Parser<void> = (pr) => {
   const [ok, value] = zeroOrMore(either(word("\u0009"), word("\u0020")))(pr);
 
   return ok ? [true, undefined] : [false, value];
 };
 
+/**
+ *
+ * @param pr
+ */
 const nl: Parser<"\n"> = (pr) => {
   return as(either(word("\u000A"), word("\u000D\u000A")), "\n")(pr);
 };
 
+/**
+ *
+ * @param pr
+ */
 const tomlData: Parser<TomlData> = (pr) => {
   const [ok, value] = zeroOrMore(either(emptyLine, tomlComment, tomlKeyValue))(pr);
 
@@ -78,12 +90,20 @@ const tomlData: Parser<TomlData> = (pr) => {
   return [true, { lang: "toml", type: "data", value: result }];
 };
 
+/**
+ *
+ * @param pr
+ */
 const emptyLine: Parser<void> = (pr) => {
   const [ok, value] = seq(zeroOrMore(ws), nl)(pr);
 
   return ok ? [true, undefined] : [false, value];
 };
 
+/**
+ *
+ * @param pr
+ */
 const tomlComment: Parser<TomlComment> = (pr) => {
   const [ok, value] = seq(
     word("#"),
@@ -98,6 +118,10 @@ const tomlComment: Parser<TomlComment> = (pr) => {
   return [false, value];
 };
 
+/**
+ *
+ * @param pr
+ */
 const tomlKeyValue: Parser<TomlKeyValue> = (pr) => {
   const [ok, value] = seq(ws, tomlKey, ws, word("="), ws, tomlValue, ws, either(tomlComment, nl, eof))(pr);
 
@@ -110,23 +134,39 @@ const tomlKeyValue: Parser<TomlKeyValue> = (pr) => {
   return [true, { lang: "toml", type: "key value", value: [key, v] }];
 };
 
+/**
+ *
+ * @param pr
+ */
 const tomlKey: Parser<TomlKey> = (pr) => {
   return tomlDottedKey(pr);
 };
 
 // A-Za-z0-9_-
+/**
+ *
+ * @param pr
+ */
 const tomlBareKey: Parser<TomlBareKey> = (pr) => {
   const [ok, value] = oneOrMore(either(char(0x41, 0x5a), char(0x61, 0x7a), char(0x30, 0x39), word("_"), word("-")))(pr);
 
   return ok ? [true, { lang: "toml", type: "bare key", value: value.join("") }] : [false, value];
 };
 
+/**
+ *
+ * @param pr
+ */
 const tomlQuotedKey: Parser<TomlQuotedKey> = (pr) => {
   const [ok, value] = tomlString(pr);
 
   return ok ? [true, { lang: "toml", type: "quoted key", value }] : [false, value];
 };
 
+/**
+ *
+ * @param pr
+ */
 const tomlDottedKey: Parser<TomlDottedKey> = (pr) => {
   const [ok, value] = seq(
     either(tomlBareKey, tomlQuotedKey),
@@ -148,14 +188,26 @@ const tomlDottedKey: Parser<TomlDottedKey> = (pr) => {
   return [true, { lang: "toml", type: "dotted key", value: result }];
 };
 
+/**
+ *
+ * @param pr
+ */
 const tomlValue: Parser<TomlValue> = (pr) => {
   return either(tomlString, tomlInteger)(pr);
 };
 
+/**
+ *
+ * @param pr
+ */
 const tomlString: Parser<TomlString> = (pr) => {
   return either(tomlBasicString, tomlMultilineBasicString, tomlLiteralString, tomlMultilineLiteralString)(pr);
 };
 
+/**
+ *
+ * @param pr
+ */
 const tomlCharacter: Parser<string> = (pr) => {
   return either(
     // U+0000 - U+0008 control characters
@@ -173,6 +225,10 @@ const tomlCharacter: Parser<string> = (pr) => {
   )(pr);
 };
 
+/**
+ *
+ * @param pr
+ */
 const tomlEscapeCharacter: Parser<string> = (pr) => {
   return either(
     map(word("\\b"), () => "\u0008"),
@@ -196,6 +252,10 @@ const tomlEscapeCharacter: Parser<string> = (pr) => {
   )(pr);
 };
 
+/**
+ *
+ * @param pr
+ */
 const tomlBasicString: Parser<TomlBasicString> = (pr) => {
   const [ok, value] = seq(word('"'), zeroOrMore(either(tomlCharacter, word("'"), tomlEscapeCharacter)), word('"'))(pr);
 
@@ -206,6 +266,10 @@ const tomlBasicString: Parser<TomlBasicString> = (pr) => {
   return [true, { lang: "toml", type: "basic string", value: contain.join("") }];
 };
 
+/**
+ *
+ * @param pr
+ */
 const tomlMultilineBasicString: Parser<TomlMultilineBasicString> = (pr) => {
   const [ok, value] = seq(
     word('"""'),
@@ -229,6 +293,10 @@ const tomlMultilineBasicString: Parser<TomlMultilineBasicString> = (pr) => {
   return [true, { lang: "toml", type: "multiline basic string", value: contain.join("") }];
 };
 
+/**
+ *
+ * @param pr
+ */
 const tomlLiteralString: Parser<TomlLiteralString> = (pr) => {
   const [ok, value] = seq(word("'"), zeroOrMore(either(tomlCharacter, word('"'), word("\\"))), word("'"))(pr);
 
@@ -239,6 +307,10 @@ const tomlLiteralString: Parser<TomlLiteralString> = (pr) => {
   return [true, { lang: "toml", type: "literal string", value: contain.join("") }];
 };
 
+/**
+ *
+ * @param pr
+ */
 const tomlMultilineLiteralString: Parser<TomlMultilineLiteralString> = (pr) => {
   const [ok, value] = seq(
     word("'''"),
@@ -253,10 +325,19 @@ const tomlMultilineLiteralString: Parser<TomlMultilineLiteralString> = (pr) => {
   return [true, { lang: "toml", type: "multiline literal string", value: contain.join("") }];
 };
 
+/**
+ *
+ * @param pr
+ */
 const tomlInteger: Parser<TomlInteger> = (pr) => {
   return either(tomlDecimalInteger, tomlBinaryInteger, tomlOctalInteger, tomlHexInteger)(pr);
 };
 
+/**
+ *
+ * @param parser
+ * @param radix
+ */
 const underscoreSeparatedNumber =
   (parser: Parser<number>, radix: number): Parser<number> =>
   (pr) => {
@@ -280,6 +361,10 @@ const underscoreSeparatedNumber =
     )(pr);
   };
 
+/**
+ *
+ * @param pr
+ */
 const tomlDecimalInteger: Parser<TomlDecimalInteger> = (pr) => {
   const [ok, value] = seq(
     either(as(word("+"), +1), as(word("-"), -1), as(word(""), +1)),
@@ -295,6 +380,10 @@ const tomlDecimalInteger: Parser<TomlDecimalInteger> = (pr) => {
   return [true, { lang: "toml", type: "decimal integer", value: sign * int }];
 };
 
+/**
+ *
+ * @param pr
+ */
 const tomlBinaryInteger: Parser<TomlBinaryInteger> = (pr) => {
   const [ok, value] = seq(
     opt(as(word("-"), -1)),
@@ -311,6 +400,10 @@ const tomlBinaryInteger: Parser<TomlBinaryInteger> = (pr) => {
   return [true, { lang: "toml", type: "binary integer", value: (sign ?? 1) * int }];
 };
 
+/**
+ *
+ * @param pr
+ */
 const tomlOctalInteger: Parser<TomlOctalInteger> = (pr) => {
   const [ok, value] = seq(
     opt(as(word("-"), -1)),
@@ -327,6 +420,10 @@ const tomlOctalInteger: Parser<TomlOctalInteger> = (pr) => {
   return [true, { lang: "toml", type: "octal integer", value: (sign ?? 1) * int }];
 };
 
+/**
+ *
+ * @param pr
+ */
 const tomlHexInteger: Parser<TomlHexInteger> = (pr) => {
   const [ok, value] = seq(
     opt(as(word("-"), -1)),

@@ -1,19 +1,15 @@
-import { getFirstSet } from "./first-set";
-import { getRuleIndexes } from "./rule-indexes";
+import { getFirstSetList } from "./first-set";
 
 import type { Syntax } from "./define-rules";
 
-export type Char = string | [tag: "char", min: number, max: number] | [tag: "epsilon"];
+export type Char = ["word", string] | ["char", number, number] | ["epsilon"];
 
+/**
+ *
+ * @param syntax
+ */
 export const generateParser = (syntax: Syntax) => {
-  const firstSets: Set<Char>[] = [];
-  for (let index = 0; index < syntax.length; index++) {
-    firstSets[index] = getFirstSet(firstSets, syntax, index);
-  }
+  const firstSets = getFirstSetList(syntax);
 
   console.log(firstSets);
-
-  const followSets: Set<Char>[] = [];
-
-  const startRules = getRuleIndexes(syntax, "start");
 };

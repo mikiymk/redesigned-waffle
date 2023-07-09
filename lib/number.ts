@@ -5,6 +5,10 @@ import { word } from "./util/word";
 import type { Parser } from "./util/parser";
 
 type OneNine = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+/**
+ *
+ * @param pr
+ */
 export const oneNine: Parser<OneNine> = (pr) => {
   return either(
     as(word("1"), 1),
@@ -20,6 +24,10 @@ export const oneNine: Parser<OneNine> = (pr) => {
 };
 
 type DecimalDigit = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+/**
+ *
+ * @param pr
+ */
 export const decimalDigit: Parser<DecimalDigit> = (pr) => {
   return either(
     as(word("0"), 0),
@@ -36,11 +44,19 @@ export const decimalDigit: Parser<DecimalDigit> = (pr) => {
 };
 
 type BinaryDigit = 0 | 1;
+/**
+ *
+ * @param pr
+ */
 export const binaryDigit: Parser<BinaryDigit> = (pr) => {
   return either(as(word("0"), 0), as(word("1"), 1))(pr);
 };
 
 type OctalDigit = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+/**
+ *
+ * @param pr
+ */
 export const octalDigit: Parser<OctalDigit> = (pr) => {
   return either(
     as(word("0"), 0),
@@ -55,6 +71,10 @@ export const octalDigit: Parser<OctalDigit> = (pr) => {
 };
 
 type HexDigit = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15;
+/**
+ *
+ * @param pr
+ */
 export const hexDigit: Parser<HexDigit> = (pr) => {
   return either(
     as(word("0"), 0),

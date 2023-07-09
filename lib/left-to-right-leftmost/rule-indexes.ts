@@ -1,5 +1,10 @@
 import type { Syntax } from "./define-rules";
 
+/**
+ *
+ * @param syntax
+ * @param ruleName
+ */
 export const getRuleIndexes = (syntax: Syntax, ruleName: string): number[] => {
   const indexes = [];
 

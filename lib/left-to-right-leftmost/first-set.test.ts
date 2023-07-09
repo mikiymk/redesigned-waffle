@@ -1,27 +1,40 @@
 import { describe, expect, test } from "vitest";
 
 import { char, epsilon, reference, rule, word } from "./define-rules";
-import { getFirstSet } from "./first-set";
-
-import type { Char } from "./generate-parser";
+import { getFirstSetList } from "./first-set";
 
 describe("get first-set from syntax", () => {
   const syntax = [
-    rule("rule1", word("rule"), word("defined")),
+    rule("rule1", reference("rule2"), word("defined")),
     rule("rule1", reference("rule2")),
-    rule("rule2", char(0x41, 0x5a)),
+    rule("rule2", word("word")),
+    rule("rule2", char("A", "Z")),
     rule("rule2", epsilon),
+
+    rule("left recursion", reference("left recursion"), word("follow")),
+    rule("left recursion", word("!"), word("follow")),
+
+    rule("indirect left recursion 1", reference("indirect left recursion 2"), word("follow")),
+    rule("indirect left recursion 2", reference("indirect left recursion 1"), word("follow")),
+    rule("indirect left recursion 2", word("?")),
   ];
 
-  const cases: [number, Set<Char>][] = [
-    [0, new Set(["r"])],
-    [1, new Set([["char", 0x41, 0x5a], epsilon])],
-    [2, new Set([["char", 0x41, 0x5a]])],
-    [3, new Set([epsilon])],
-  ];
+  test("defined rules", () => {
+    const result = getFirstSetList(syntax);
+    const expected = [
+      new Set([word("word"), char("A", "Z"), word("defined")]),
+      new Set([word("word"), char("A", "Z"), epsilon]),
+      new Set([word("word")]),
+      new Set([char("A", "Z")]),
+      new Set([epsilon]),
 
-  test.each(cases)("defined rules %d", (index, expected) => {
-    const result = getFirstSet([], syntax, index);
+      new Set([word("!")]),
+      new Set([word("!")]),
+
+      new Set([word("?")]),
+      new Set([word("?")]),
+      new Set([word("?")]),
+    ];
 
     expect(result).toStrictEqual(expected);
   });

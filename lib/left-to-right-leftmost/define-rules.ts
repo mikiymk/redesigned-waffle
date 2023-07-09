@@ -46,14 +46,35 @@ export const word = (word: string): ["word", string] => {
   return ["word", word];
 };
 
+type StringLength<T extends string, L extends unknown[] = []> = T extends ""
+  ? L["length"]
+  : T extends `${infer F}${infer R}`
+  ? StringLength<R, [F, ...L]>
+  : never;
+type StringChar<T extends string> = StringLength<T> extends 1 ? T : "Char type to a string with a length of 1";
+
 /**
  * 特定のUnicodeコードポイント範囲にある文字のトークンを作る
  * @param min その数を含む最小コードポイント
  * @param max その数を含む最大コードポイント
  * @returns ルール用トークン
  */
-export const char = (min: number, max: number): ["char", number, number] => {
-  return ["char", min, max];
+export const char = <T extends string, U extends string>(
+  min: StringChar<T>,
+  max: StringChar<U>,
+): ["char", number, number] => {
+  if (min.length !== 1 || max.length !== 1) {
+    throw new Error(`"${min}" and "${max}" needs length at 1.`);
+  }
+
+  const minCode = min.codePointAt(0);
+  const maxCode = max.codePointAt(0);
+
+  if (minCode === undefined || maxCode === undefined) {
+    throw new Error(`"${min}" and "${max}" needs length at 1.`);
+  }
+
+  return ["char", minCode, maxCode];
 };
 
 /**

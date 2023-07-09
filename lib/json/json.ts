@@ -21,12 +21,20 @@ type JsonObjectMember = {
 type JsonObject = { lang: "json"; type: "object"; value: JsonObjectMember[] };
 export type JsonValue = JsonNull | JsonBoolean | JsonNumber | JsonString | JsonArray | JsonObject;
 
+/**
+ *
+ * @param pr
+ */
 const ws: Parser<void> = (pr) => {
   const [ok, value] = zeroOrMore(either(word("\u0009"), word("\u000A"), word("\u000D"), word("\u0020")))(pr);
 
   return ok ? [true, undefined] : [false, value];
 };
 
+/**
+ *
+ * @param pr
+ */
 const jsonNull: Parser<JsonNull> = (pr) => {
   const [ok, value] = word("null")(pr);
 
@@ -36,6 +44,10 @@ const jsonNull: Parser<JsonNull> = (pr) => {
     : [false, value];
 };
 
+/**
+ *
+ * @param pr
+ */
 const jsonBoolean: Parser<JsonBoolean> = (pr) => {
   const [ok, value] = either(word("true"), word("false"))(pr);
 
@@ -46,6 +58,10 @@ const jsonBoolean: Parser<JsonBoolean> = (pr) => {
     : [false, value];
 };
 
+/**
+ *
+ * @param pr
+ */
 const digits: Parser<number> = (pr) => {
   return map(
     oneOrMore(
@@ -74,10 +90,18 @@ const digits: Parser<number> = (pr) => {
   )(pr);
 };
 
+/**
+ *
+ * @param pr
+ */
 const sign: Parser<number> = (pr) => {
   return map(opt(word("-")), (s) => (s === "-" ? -1 : 1))(pr);
 };
 
+/**
+ *
+ * @param pr
+ */
 const integer: Parser<number> = (pr) => {
   return either(
     map(word("0"), () => 0),
@@ -85,12 +109,20 @@ const integer: Parser<number> = (pr) => {
   )(pr);
 };
 
+/**
+ *
+ * @param pr
+ */
 const fractional: Parser<number> = (pr) => {
   return map(seq(word("."), digits), ([_point, fractional]) =>
     fractional === 0 ? 0 : fractional / 10 ** (Math.floor(Math.log10(fractional)) + 1),
   )(pr);
 };
 
+/**
+ *
+ * @param pr
+ */
 const exponent: Parser<number> = (pr) => {
   return map(
     seq(either(word("e"), word("E")), opt(either(word("+"), word("-"))), digits),
@@ -98,6 +130,10 @@ const exponent: Parser<number> = (pr) => {
   )(pr);
 };
 
+/**
+ *
+ * @param pr
+ */
 const jsonNumber: Parser<JsonNumber> = (pr) => {
   return map(
     seq(sign, integer, opt(fractional), opt(exponent)),
@@ -108,6 +144,10 @@ const jsonNumber: Parser<JsonNumber> = (pr) => {
   )(pr);
 };
 
+/**
+ *
+ * @param pr
+ */
 const hex: Parser<number> = (pr) => {
   return either(
     map(word("0"), () => 0),
@@ -129,6 +169,10 @@ const hex: Parser<number> = (pr) => {
   )(pr);
 };
 
+/**
+ *
+ * @param pr
+ */
 const character: Parser<string> = (pr) => {
   return either(
     map(word('\\"'), () => '"'),
@@ -152,6 +196,10 @@ const character: Parser<string> = (pr) => {
   )(pr);
 };
 
+/**
+ *
+ * @param pr
+ */
 const jsonString: Parser<JsonString> = (pr) => {
   return map(seq(word('"'), zeroOrMore(character), word('"')), ([_sq, cs, _eq]): JsonString => {
     const value = cs.join("");
@@ -159,6 +207,10 @@ const jsonString: Parser<JsonString> = (pr) => {
   })(pr);
 };
 
+/**
+ *
+ * @param pr
+ */
 const jsonArray: Parser<JsonArray> = (pr) => {
   return map(
     seq(word("["), ws, opt(seq(jsonElement, zeroOrMore(seq(word(","), jsonElement)))), word("]")),
@@ -179,12 +231,20 @@ const jsonArray: Parser<JsonArray> = (pr) => {
   )(pr);
 };
 
+/**
+ *
+ * @param pr
+ */
 const jsonObjectMember: Parser<JsonObjectMember> = (pr) => {
   return map(seq(ws, jsonString, ws, word(":"), jsonElement), ([_s1, key, _s2, _c, value]): JsonObjectMember => {
     return { lang: "json", type: "object member", value: [key, value] };
   })(pr);
 };
 
+/**
+ *
+ * @param pr
+ */
 const jsonObject: Parser<JsonObject> = (pr) => {
   return map(
     seq(word("{"), ws, opt(seq(jsonObjectMember, zeroOrMore(seq(word(","), jsonObjectMember)))), word("}")),
