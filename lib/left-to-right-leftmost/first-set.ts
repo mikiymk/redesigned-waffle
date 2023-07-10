@@ -20,11 +20,13 @@ export const getFirstSetList = (syntax: Syntax): Set<Char>[] => {
       const length = firstSet[index]?.size;
       generateFirstSet(syntax, firstSet, index);
 
+      // 集合に変化があったらマーク
       if (length !== firstSet[index]?.size) {
         updated = true;
       }
     }
 
+    // 全てに変化がなかったら終了
     if (!updated) {
       break;
     }
@@ -46,11 +48,6 @@ const generateFirstSet = (syntax: Syntax, firstSetList: Set<Char>[], index: numb
 
   if (!firstSet || !rule) {
     throw new Error(`rule length is ${syntax.length}, but access index of ${index}`);
-  }
-
-  // 既に生成済みなら、それを返す
-  if (firstSet.size > 0) {
-    return firstSet;
   }
 
   const [_, ...tokens] = rule;
