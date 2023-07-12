@@ -1,4 +1,4 @@
-import { epsilonString } from "./define-rules";
+import { epsilon, epsilonString } from "./define-rules";
 import { getFirstSet } from "./first-set";
 import { getRuleIndexes } from "./rule-indexes";
 import { appendSet, differenceSet } from "./set-functions";
@@ -11,9 +11,12 @@ import type { TokenString, Syntax, Token } from "./define-rules";
  * @param firstSetList 最初の文字集合リスト
  * @returns 続く文字の文字の集合リスト
  */
-export const getFollowSetList = (syntax: Syntax, firstSetList: Set<TokenString>[]): Set<TokenString>[] => {
+export const getFollowSetList = (
+  syntax: Syntax,
+  firstSetList: Map<TokenString, Token>[],
+): Map<TokenString, Token>[] => {
   // ルールリストと同じ長さで文字集合リストを作る
-  const followSetList = syntax.map(() => new Set<TokenString>());
+  const followSetList = syntax.map(() => new Map<TokenString, Token>());
 
   for (;;) {
     let updated = false;
@@ -48,10 +51,10 @@ export const getFollowSetList = (syntax: Syntax, firstSetList: Set<TokenString>[
  */
 const generateFollowSet = (
   syntax: Syntax,
-  followSetList: Set<TokenString>[],
-  firstSetList: Set<TokenString>[],
+  followSetList: Map<TokenString, Token>[],
+  firstSetList: Map<TokenString, Token>[],
   index: number,
-): Set<TokenString> => {
+): Map<TokenString, Token> => {
   const rule = syntax[index];
   const followSet = followSetList[index];
 
@@ -78,7 +81,7 @@ const generateFollowSet = (
 
       const followFirstSet = getFirstSet(syntax, firstSetList, follows);
 
-      appendSet(followSet, differenceSet(followFirstSet, new Set<TokenString>([epsilonString])));
+      appendSet(followSet, differenceSet(followFirstSet, new Map<TokenString, Token>([[epsilonString, epsilon]])));
 
       // εが含まれる場合
       if (followFirstSet.has(epsilonString)) {
@@ -92,5 +95,5 @@ const generateFollowSet = (
     }
   }
 
-  return new Set();
+  return followSet;
 };

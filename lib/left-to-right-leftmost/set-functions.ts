@@ -2,13 +2,11 @@
  * 左側の集合に右側の集合の要素を追加します
  * @param leftSet 左側の集合
  * @param rightSet 右側の集合
- * @returns 左側の集合 （左側の集合∪右側の集合）
  */
-export const appendSet = <T>(leftSet: Set<T>, rightSet: Set<T>): Set<T> => {
-  for (const item of rightSet) {
-    leftSet.add(item);
+export const appendSet = <K, V>(leftSet: Map<K, V>, rightSet: Map<K, V>) => {
+  for (const [key, value] of rightSet) {
+    leftSet.set(key, value);
   }
-  return leftSet;
 };
 
 /**
@@ -17,8 +15,8 @@ export const appendSet = <T>(leftSet: Set<T>, rightSet: Set<T>): Set<T> => {
  * @param rightSet 右側の集合
  * @returns 和集合 （左側の集合∪右側の集合）
  */
-export const unionSet = <T>(leftSet: Set<T>, rightSet: Set<T>): Set<T> => {
-  return new Set([...leftSet, ...rightSet]);
+export const unionSet = <K, V>(leftSet: Map<K, V>, rightSet: Map<K, V>): Map<K, V> => {
+  return new Map([...leftSet, ...rightSet]);
 };
 
 /**
@@ -27,12 +25,12 @@ export const unionSet = <T>(leftSet: Set<T>, rightSet: Set<T>): Set<T> => {
  * @param rightSet 右側の集合
  * @returns 積集合 （左側の集合∩右側の集合）
  */
-export const intersectionSet = <T>(leftSet: Set<T>, rightSet: Set<T>): Set<T> => {
-  const newSet = new Set<T>();
+export const intersectionSet = <K, V>(leftSet: Map<K, V>, rightSet: Map<K, V>): Map<K, V> => {
+  const newSet = new Map<K, V>();
 
-  for (const item of leftSet) {
-    if (rightSet.has(item)) {
-      newSet.add(item);
+  for (const [key, value] of leftSet) {
+    if (rightSet.has(key)) {
+      newSet.set(key, value);
     }
   }
 
@@ -45,12 +43,12 @@ export const intersectionSet = <T>(leftSet: Set<T>, rightSet: Set<T>): Set<T> =>
  * @param rightSet 右側の集合
  * @returns 差集合 （左側の集合＼右側の集合）
  */
-export const differenceSet = <T>(leftSet: Set<T>, rightSet: Set<T>): Set<T> => {
-  const newSet = new Set<T>();
+export const differenceSet = <K, V>(leftSet: Map<K, V>, rightSet: Map<K, V>): Map<K, V> => {
+  const newSet = new Map<K, V>();
 
-  for (const item of leftSet) {
-    if (!rightSet.has(item)) {
-      newSet.add(item);
+  for (const [key, value] of leftSet) {
+    if (!rightSet.has(key)) {
+      newSet.set(key, value);
     }
   }
 
