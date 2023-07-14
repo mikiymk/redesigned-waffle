@@ -1,4 +1,6 @@
-import { Token, TokenString, tokenToString } from "./define-rules";
+import { tokenToString } from "./define-rules";
+
+import type { Token, TokenString } from "./define-rules";
 
 /**
  * トークンの集合（同じトークンが最大で１つ含まれる）
@@ -81,10 +83,11 @@ export class TokenSet {
    * @returns 新しいトークンの集合
    */
   difference(tokens: Iterable<Token>): TokenSet {
+    const tokenSet = new TokenSet(tokens);
     const newSet = new TokenSet([]);
 
-    for (const token of tokens) {
-      if (!this.has(token)) {
+    for (const token of this) {
+      if (!tokenSet.has(token)) {
         newSet.add(token);
       }
     }
