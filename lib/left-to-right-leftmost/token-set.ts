@@ -1,6 +1,32 @@
-import { tokenToString } from "./define-rules";
+import type { Token } from "./define-rules";
 
-import type { Token, TokenString } from "./define-rules";
+type TokenString = `word ${string}` | `char ${number} ${number}` | `ref ${string}` | "epsilon";
+
+/**
+ * トークンを文字列にする
+ * Setに入れるため
+ * @param token トークン
+ * @returns 文字列
+ */
+const tokenToString = (token: Token): TokenString => {
+  switch (token[0]) {
+    case "char": {
+      return `char ${token[1]} ${token[2]}`;
+    }
+
+    case "epsilon": {
+      return "epsilon";
+    }
+
+    case "ref": {
+      return `ref ${token[1]}`;
+    }
+
+    case "word": {
+      return `word ${token[1]}`;
+    }
+  }
+};
 
 /**
  * トークンの集合（同じトークンが最大で１つ含まれる）

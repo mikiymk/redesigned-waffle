@@ -16,11 +16,6 @@ export type Rule = [string, ...Token[]];
  * ルール用のトークン
  */
 export type Token = ["word", string] | ["char", number, number] | ["ref", string] | ["epsilon"];
-export type TokenString =
-  | `["word", "${string}"]`
-  | `["char", ${number}, ${number}]`
-  | `["ref", "${string}"]`
-  | '["epsilon"]';
 
 /**
  * 構文用のルールを作る
@@ -93,68 +88,3 @@ export const reference = (terminal: string): ["ref", string] => {
  * 空のトークン
  */
 export const epsilon: ["epsilon"] = ["epsilon"];
-export const epsilonString = '["epsilon"]';
-
-/**
- * トークンを文字列にする
- * Setに入れるため
- * @param token トークン
- * @returns 文字列
- */
-export const tokenToString = (token: Token): TokenString => {
-  switch (token[0]) {
-    case "char": {
-      return `["char", ${token[1]}, ${token[2]}]`;
-    }
-
-    case "epsilon": {
-      return '["epsilon"]';
-    }
-
-    case "ref": {
-      return `["ref", "${token[1]}"]`;
-    }
-
-    case "word": {
-      return `["word", "${token[1]}"]`;
-    }
-  }
-};
-
-/**
- * 文字列をトークンに戻す
- * @param tokenString 文字列
- * @returns トークン
- */
-export const stringToToken = (tokenString: TokenString): Token => {
-  const [tag, ...rest] = tokenString.split(", ");
-
-  switch (tag) {
-    case '["char"': {
-      if (rest[0] && rest[1]) {
-        return ["char", Number.parseInt(rest[0]), Number.parseInt(rest[1])];
-      }
-      break;
-    }
-
-    case '["epsilon"]': {
-      return ["epsilon"];
-    }
-
-    case '["ref"': {
-      if (rest[0]) {
-        return ["ref", rest[0].slice(1, -2)];
-      }
-      break;
-    }
-
-    case '["word"': {
-      if (rest[0]) {
-        return ["word", rest[0].slice(1, -2)];
-      }
-      break;
-    }
-  }
-
-  throw new Error("token string is not token string");
-};
