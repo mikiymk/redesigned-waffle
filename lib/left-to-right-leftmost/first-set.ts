@@ -1,17 +1,17 @@
-import { epsilonString, tokenToString } from "./define-rules";
+import { epsilon } from "./define-rules";
 import { getRuleIndexes } from "./rule-indexes";
-import { appendSet } from "./set-functions";
+import { TokenSet } from "./token-set";
 
-import type { Syntax, Token, TokenString } from "./define-rules";
+import type { Syntax, Token } from "./define-rules";
 
 /**
  * 各ルールについて、最初の文字を求める。
  * @param syntax 構文ルールリスト
  * @returns 最初の文字の集合リスト
  */
-export const getFirstSetList = (syntax: Syntax): Map<TokenString, Token>[] => {
+export const getFirstSetList = (syntax: Syntax): TokenSet[] => {
   // ルールリストと同じ長さで文字集合リストを作る
-  const firstSet = syntax.map(() => new Map<TokenString, Token>());
+  const firstSet = syntax.map(() => new TokenSet());
 
   for (;;) {
     let updated = false;
@@ -42,11 +42,7 @@ export const getFirstSetList = (syntax: Syntax): Map<TokenString, Token>[] => {
  * @param index 作るルールのインデックス
  * @returns 作った最初の文字集合
  */
-const generateFirstSet = (
-  syntax: Syntax,
-  firstSetList: Map<TokenString, Token>[],
-  index: number,
-): Map<TokenString, Token> => {
+const generateFirstSet = (syntax: Syntax, firstSetList: TokenSet[], index: number): TokenSet => {
   const rule = syntax[index];
   const firstSet = firstSetList[index];
 
@@ -56,7 +52,7 @@ const generateFirstSet = (
 
   const [_, ...tokens] = rule;
 
-  appendSet(firstSet, getFirstSet(syntax, firstSetList, tokens));
+  firstSet.append(getFirstSet(syntax, firstSetList, tokens));
 
   return firstSet;
 };
@@ -68,20 +64,15 @@ const generateFirstSet = (
  * @param tokens 作るルールのトークン列
  * @returns 作った最初の文字集合
  */
-export const getFirstSet = (
-  syntax: Syntax,
-  firstSetList: Map<TokenString, Token>[],
-  tokens: Token[],
-): Map<TokenString, Token> => {
-  const set = new Map<TokenString, Token>();
+export const getFirstSet = (syntax: Syntax, firstSetList: TokenSet[], tokens: Token[]): TokenSet => {
+  const set = new TokenSet();
   // ルールから最初のトークンを取り出す
   for (const [index, token] of tokens.entries()) {
-    const tokenString = tokenToString(token);
     switch (token[0]) {
       case "char":
       case "word": {
         // もし、文字なら、それを文字集合に追加する
-        set.set(tokenString, token);
+        set.add(token);
         return set;
       }
 
@@ -89,7 +80,7 @@ export const getFirstSet = (
         if (tokens[index + 1] === undefined) {
           // もし、空かつその後にトークンがないなら、空を文字集合に追加する
 
-          set.set(tokenString, token);
+          set.add(token);
           return set;
         } else {
           // もし、空かつその後にトークンがあるなら、後ろのトークンを文字集合に追加する
@@ -103,14 +94,14 @@ export const getFirstSet = (
           const referenceFirstSet = firstSetList[index];
           if (!referenceFirstSet) continue;
 
-          for (const [tokenString, token] of referenceFirstSet) {
-            set.set(tokenString, token);
+          for (const token of referenceFirstSet) {
+            set.add(token);
           }
         }
 
         // 空トークンが入っているなら、次のトークンを追加する
-        if (set.has(epsilonString) && tokens[index + 1] !== undefined) {
-          set.delete(epsilonString);
+        if (set.has(epsilon) && tokens[index + 1] !== undefined) {
+          set.delete(epsilon);
           continue;
         }
 

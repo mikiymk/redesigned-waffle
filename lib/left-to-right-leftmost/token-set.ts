@@ -6,16 +6,24 @@ import type { Token, TokenString } from "./define-rules";
  * トークンの集合（同じトークンが最大で１つ含まれる）
  */
 export class TokenSet {
-  #set = new Map<TokenString, Token>();
+  set = new Map<TokenString, Token>();
 
   /**
    * 新しいトークンの集合を作成します。
    * @param tokens トークンの配列
    */
-  constructor(tokens: Iterable<Token>) {
+  constructor(tokens: Iterable<Token> = []) {
     for (const token of tokens) {
-      this.#set.set(tokenToString(token), token);
+      this.set.set(tokenToString(token), token);
     }
+  }
+
+  /**
+   * トークンの数を返します
+   * @returns 要素数
+   */
+  get size() {
+    return this.set.size;
   }
 
   /**
@@ -24,7 +32,7 @@ export class TokenSet {
    * @returns 含まれる場合は `true`
    */
   has(token: Token): boolean {
-    return this.#set.has(tokenToString(token));
+    return this.set.has(tokenToString(token));
   }
 
   /**
@@ -33,9 +41,18 @@ export class TokenSet {
    * @returns トークンを追加した自身
    */
   add(token: Token): TokenSet {
-    this.#set.set(tokenToString(token), token);
+    this.set.set(tokenToString(token), token);
 
     return this;
+  }
+
+  /**
+   * 自身のトークンを削除します
+   * @param token トークン
+   * @returns トークンが存在して削除された場合は `true`
+   */
+  delete(token: Token): boolean {
+    return this.set.delete(tokenToString(token));
   }
 
   /**
@@ -45,7 +62,7 @@ export class TokenSet {
    */
   append(tokens: Iterable<Token>): TokenSet {
     for (const token of tokens) {
-      this.#set.set(tokenToString(token), token);
+      this.set.set(tokenToString(token), token);
     }
 
     return this;
@@ -97,7 +114,7 @@ export class TokenSet {
 
   /** @override */
   *[Symbol.iterator]() {
-    for (const [_, token] of this.#set) {
+    for (const [_, token] of this.set) {
       yield token;
     }
   }
