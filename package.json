@@ -11,7 +11,8 @@
     "build:page": "vite build",
     "build:lib": "vite build --mode lib",
     "build:lib-type": "tsc --project ./tsconfig.lib.json",
-    "serve": "vite"
+    "serve": "vite",
+    "serve:test": "vitest watch"
   },
   "keywords": [],
   "author": "mikiymk",
