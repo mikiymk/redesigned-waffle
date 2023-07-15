@@ -27,9 +27,16 @@ export const fromString = (source: string): ParseReader => {
  * @returns 読み込んだ１文字。読み込みが終わりの場合、EOF
  */
 export const get = (pr: ParseReader): string | EOF => {
-  const char = pr[Source][pr[Position]++];
+  return pr[Source][pr[Position]++] ?? EOF;
+};
 
-  return char ?? EOF;
+/**
+ * 読み込みオブジェクトから１文字を読み込みます。
+ * @param pr パーサー読み込みオブジェクト
+ * @returns 読み込んだ１文字。読み込みが終わりの場合、EOF
+ */
+export const peek = (pr: ParseReader): string | EOF => {
+  return pr[Source][pr[Position]] ?? EOF;
 };
 
 /**

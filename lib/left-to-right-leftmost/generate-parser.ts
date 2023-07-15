@@ -5,8 +5,8 @@ import { isDisjoint } from "./is-disjoint";
 
 import type { Syntax } from "./define-rules";
 /**
- *
- * @param syntax
+ * 構文ルールリストからLL(1)パーサーを作成します。
+ * @param syntax 構文ルールリスト
  */
 export const generateParser = (syntax: Syntax) => {
   const firstSetList = getFirstSetList(syntax);
