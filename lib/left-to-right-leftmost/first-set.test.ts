@@ -1,16 +1,8 @@
 import { describe, expect, test } from "vitest";
 
-import { char, epsilon, reference, rule, tokenToString, word } from "./define-rules";
+import { char, epsilon, reference, rule, word } from "./define-rules";
 import { getFirstSetList } from "./first-set";
-
-import type { Token, TokenString } from "./define-rules";
-
-/**
- *
- * @param tokens トークン
- * @returns トークン文字列とトークンのエントリー
- */
-const tokensToMap = (...tokens: Token[]): Map<TokenString, Token> => new Map(tokens.map((t) => [tokenToString(t), t]));
+import { TokenSet } from "./token-set";
 
 describe("get first-set from syntax", () => {
   const syntax = [
@@ -52,7 +44,7 @@ describe("get first-set from syntax", () => {
   test("defined rules", () => {
     const result = getFirstSetList(syntax);
     const expected = [
-      tokensToMap(
+      new TokenSet([
         word("word"),
         char("A", "Z"),
         epsilon,
@@ -60,48 +52,48 @@ describe("get first-set from syntax", () => {
         word("word lr"),
         word("lead rr"),
         word("word rr"),
-        word("word in-lr"),
         word("lead in-rr 1"),
-      ),
+        word("word in-lr"),
+      ]),
 
-      tokensToMap(word("word"), char("A", "Z"), epsilon),
-      tokensToMap(word("word"), char("A", "Z"), epsilon),
-      tokensToMap(word("word"), char("A", "Z"), word("after defined")),
-      tokensToMap(word("word lr")),
-      tokensToMap(word("lead rr"), word("word rr")),
-      tokensToMap(word("word in-lr")),
-      tokensToMap(word("lead in-rr 1")),
+      new TokenSet([word("word"), char("A", "Z"), epsilon]),
+      new TokenSet([word("word"), char("A", "Z"), epsilon]),
+      new TokenSet([word("word"), char("A", "Z"), word("after defined")]),
+      new TokenSet([word("word lr")]),
+      new TokenSet([word("lead rr"), word("word rr")]),
+      new TokenSet([word("word in-lr")]),
+      new TokenSet([word("lead in-rr 1")]),
 
       // basic token
-      tokensToMap(word("word")),
-      tokensToMap(char("A", "Z")),
-      tokensToMap(epsilon),
+      new TokenSet([word("word")]),
+      new TokenSet([char("A", "Z")]),
+      new TokenSet([epsilon]),
 
       // reference token
-      tokensToMap(word("word"), char("A", "Z"), epsilon),
+      new TokenSet([word("word"), char("A", "Z"), epsilon]),
 
       // reference token and after
-      tokensToMap(word("word"), char("A", "Z"), word("after defined")),
+      new TokenSet([word("word"), char("A", "Z"), word("after defined")]),
 
       // left recursion
-      tokensToMap(word("word lr")),
-      tokensToMap(word("word lr")),
+      new TokenSet([word("word lr")]),
+      new TokenSet([word("word lr")]),
 
       // right recursion
-      tokensToMap(word("lead rr")),
-      tokensToMap(word("word rr")),
+      new TokenSet([word("lead rr")]),
+      new TokenSet([word("word rr")]),
 
       // indirect left recursion
-      tokensToMap(word("word in-lr")),
+      new TokenSet([word("word in-lr")]),
 
-      tokensToMap(word("word in-lr")),
-      tokensToMap(word("word in-lr")),
+      new TokenSet([word("word in-lr")]),
+      new TokenSet([word("word in-lr")]),
 
       // indirect right recursion
-      tokensToMap(word("lead in-rr 1")),
+      new TokenSet([word("lead in-rr 1")]),
 
-      tokensToMap(word("lead in-rr 2")),
-      tokensToMap(word("word in-rr")),
+      new TokenSet([word("lead in-rr 2")]),
+      new TokenSet([word("word in-rr")]),
     ];
 
     expect(result).toStrictEqual(expected);
@@ -118,11 +110,11 @@ describe("get first-set from syntax", () => {
 
     const result = getFirstSetList(syntax);
     const expected = [
-      tokensToMap(word("word"), char("A", "Z"), epsilon),
+      new TokenSet([word("word"), char("A", "Z"), epsilon]),
 
-      tokensToMap(word("word")),
-      tokensToMap(char("A", "Z")),
-      tokensToMap(epsilon),
+      new TokenSet([word("word")]),
+      new TokenSet([char("A", "Z")]),
+      new TokenSet([epsilon]),
     ];
 
     expect(result).toStrictEqual(expected);
@@ -141,13 +133,13 @@ describe("get first-set from syntax", () => {
 
     const result = getFirstSetList(syntax);
     const expected = [
-      tokensToMap(word("word"), char("A", "Z"), epsilon),
+      new TokenSet([word("word"), char("A", "Z"), epsilon]),
 
-      tokensToMap(word("word"), char("A", "Z"), epsilon),
+      new TokenSet([word("word"), char("A", "Z"), epsilon]),
 
-      tokensToMap(word("word")),
-      tokensToMap(char("A", "Z")),
-      tokensToMap(epsilon),
+      new TokenSet([word("word")]),
+      new TokenSet([char("A", "Z")]),
+      new TokenSet([epsilon]),
     ];
 
     expect(result).toStrictEqual(expected);
@@ -166,13 +158,13 @@ describe("get first-set from syntax", () => {
 
     const result = getFirstSetList(syntax);
     const expected = [
-      tokensToMap(word("word"), char("A", "Z"), word("after defined")),
+      new TokenSet([word("word"), char("A", "Z"), word("after defined")]),
 
-      tokensToMap(word("word"), char("A", "Z"), word("after defined")),
+      new TokenSet([word("word"), char("A", "Z"), word("after defined")]),
 
-      tokensToMap(word("word")),
-      tokensToMap(char("A", "Z")),
-      tokensToMap(epsilon),
+      new TokenSet([word("word")]),
+      new TokenSet([char("A", "Z")]),
+      new TokenSet([epsilon]),
     ];
 
     expect(result).toStrictEqual(expected);
@@ -187,7 +179,11 @@ describe("get first-set from syntax", () => {
     ];
 
     const result = getFirstSetList(syntax);
-    const expected = [tokensToMap(word("word lr")), tokensToMap(word("word lr")), tokensToMap(word("word lr"))];
+    const expected = [
+      new TokenSet([word("word lr")]),
+      new TokenSet([word("word lr")]),
+      new TokenSet([word("word lr")]),
+    ];
 
     expect(result).toStrictEqual(expected);
   });
@@ -202,10 +198,10 @@ describe("get first-set from syntax", () => {
 
     const result = getFirstSetList(syntax);
     const expected = [
-      tokensToMap(word("lead rr"), word("word rr")),
+      new TokenSet([word("lead rr"), word("word rr")]),
 
-      tokensToMap(word("lead rr")),
-      tokensToMap(word("word rr")),
+      new TokenSet([word("lead rr")]),
+      new TokenSet([word("word rr")]),
     ];
 
     expect(result).toStrictEqual(expected);
@@ -223,13 +219,13 @@ describe("get first-set from syntax", () => {
 
     const result = getFirstSetList(syntax);
     const expected = [
-      tokensToMap(word("word in-lr")),
+      new TokenSet([word("word in-lr")]),
 
       // indirect left recursion
-      tokensToMap(word("word in-lr")),
+      new TokenSet([word("word in-lr")]),
 
-      tokensToMap(word("word in-lr")),
-      tokensToMap(word("word in-lr")),
+      new TokenSet([word("word in-lr")]),
+      new TokenSet([word("word in-lr")]),
     ];
 
     expect(result).toStrictEqual(expected);
@@ -247,13 +243,13 @@ describe("get first-set from syntax", () => {
 
     const result = getFirstSetList(syntax);
     const expected = [
-      tokensToMap(word("lead in-rr 1")),
+      new TokenSet([word("lead in-rr 1")]),
 
       // indirect right recursion
-      tokensToMap(word("lead in-rr 1")),
+      new TokenSet([word("lead in-rr 1")]),
 
-      tokensToMap(word("lead in-rr 2")),
-      tokensToMap(word("word in-rr")),
+      new TokenSet([word("lead in-rr 2")]),
+      new TokenSet([word("word in-rr")]),
     ];
 
     expect(result).toStrictEqual(expected);
