@@ -32,7 +32,7 @@ export const isDisjoint = (left: TokenSet, right: TokenSet): boolean => {
  * @param tokens トークン集合
  * @returns それぞれのトークンの１文字目の範囲
  */
-const firstChars = (tokens: TokenSet): [number, number][] => {
+export const firstChars = (tokens: TokenSet): [number, number][] => {
   const firstChars: [number, number][] = [];
 
   for (const token of tokens) {
