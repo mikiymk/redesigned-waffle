@@ -14,14 +14,15 @@ export const isDisjoint = (left: TokenSet, right: TokenSet): boolean => {
   for (const [leftCharStart, leftCharEnd] of leftFirstChars) {
     // 右辺の文字にかぶるところがあるかチェックする
 
+    // １つでも範囲が重なるところがあれば
     if (
       rightFirstChars.some(
-        ([rightCharStart, rightCharEnd]) => leftCharEnd < rightCharStart || rightCharEnd < leftCharStart,
+        ([rightCharStart, rightCharEnd]) => !(leftCharEnd < rightCharStart || rightCharEnd < leftCharStart),
       )
     ) {
+      // あったらfalseを返す
       return false;
     }
-    // あったらfalseを返す
   }
 
   return true;

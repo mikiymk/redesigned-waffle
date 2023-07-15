@@ -12,6 +12,6 @@ const syntax: Syntax = [
   rule("F", word("1")),
 ];
 
-test("disjoint word", () => {
+test("generating parser", () => {
   expect(() => generateParser(syntax)).not.toThrow();
 });

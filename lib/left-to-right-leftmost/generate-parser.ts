@@ -5,6 +5,7 @@ import { getFirstSetList } from "./first-set";
 import { getFollowSetList } from "./follow-set";
 import { firstChars, isDisjoint } from "./is-disjoint";
 import { getRuleIndexes } from "./rule-indexes";
+import { getRuleNames } from "./rule-names";
 
 import type { Syntax, Token } from "./define-rules";
 import type { ParseReader } from "../core/reader";
@@ -19,16 +20,25 @@ export const generateParser = (syntax: Syntax) => {
   const followSetList = getFollowSetList(syntax, firstSetList);
   const directorSetList = getDirectorSetList(firstSetList, followSetList);
 
-  for (const left of directorSetList)
-    for (const right of directorSetList) {
-      if (left === right) continue;
+  console.log(syntax);
+  console.log(firstSetList);
+  console.log(followSetList);
+  console.log(directorSetList);
 
-      if (!isDisjoint(left, right)) {
-        console.error(`left and right is not disjoint`);
+  for (const name of getRuleNames(syntax)) {
+    for (const left of getRuleIndexes(syntax, name)) {
+      for (const right of getRuleIndexes(syntax, name)) {
+        if (left === right) continue;
+
+        const leftRule = directorSetList[left]!;
+        const rightRule = directorSetList[right]!;
+
+        if (!isDisjoint(leftRule, rightRule)) {
+          throw new Error(`left ${leftRule.asString()} and right ${rightRule.asString()} is not disjoint`);
+        }
       }
     }
-
-  console.log(firstSetList, followSetList, directorSetList);
+  }
 
   // パーサー
   return (pr: ParseReader) => {
