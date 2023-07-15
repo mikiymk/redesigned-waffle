@@ -40,7 +40,7 @@ export class TokenSet {
    * @param token トークン
    * @returns トークンを追加した自身
    */
-  add(token: Token): TokenSet {
+  add(token: Token): this {
     this.set.set(tokenToString(token), token);
 
     return this;
@@ -60,7 +60,7 @@ export class TokenSet {
    * @param tokens トークンの配列
    * @returns トークンを追加した自身
    */
-  append(tokens: Iterable<Token>): TokenSet {
+  append(tokens: Iterable<Token>): this {
     for (const token of tokens) {
       this.set.set(tokenToString(token), token);
     }
@@ -112,7 +112,9 @@ export class TokenSet {
     return newSet;
   }
 
-  /** @override */
+  /**
+   * @yields トークン
+   */
   *[Symbol.iterator]() {
     for (const [_, token] of this.set) {
       yield token;

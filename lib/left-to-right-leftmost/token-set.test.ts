@@ -103,20 +103,20 @@ test("intersection set", () => {
 });
 
 test("difference set", () => {
-    const tokenSet1 = new TokenSet([word("a"), word("b")]);
-    const tokenSet2 = new TokenSet([word("b"), word("c")]);
-  
-    const newSet = tokenSet1.difference(tokenSet2);
-  
-    expect(tokenSet1.has(word("a"))).toBe(true);
-    expect(tokenSet1.has(word("b"))).toBe(true);
-    expect(tokenSet1.has(word("c"))).toBe(false);
-  
-    expect(tokenSet2.has(word("a"))).toBe(false);
-    expect(tokenSet2.has(word("b"))).toBe(true);
-    expect(tokenSet2.has(word("c"))).toBe(true);
-  
-    expect(newSet.has(word("a"))).toBe(true);
-    expect(newSet.has(word("b"))).toBe(false);
-    expect(newSet.has(word("c"))).toBe(false);
-  });
+  const tokenSet1 = new TokenSet([word("a"), word("b")]);
+  const tokenSet2 = new TokenSet([word("b"), word("c")]);
+
+  const newSet = tokenSet1.difference(tokenSet2);
+
+  expect(tokenSet1.has(word("a"))).toBe(true);
+  expect(tokenSet1.has(word("b"))).toBe(true);
+  expect(tokenSet1.has(word("c"))).toBe(false);
+
+  expect(tokenSet2.has(word("a"))).toBe(false);
+  expect(tokenSet2.has(word("b"))).toBe(true);
+  expect(tokenSet2.has(word("c"))).toBe(true);
+
+  expect(newSet.has(word("a"))).toBe(true);
+  expect(newSet.has(word("b"))).toBe(false);
+  expect(newSet.has(word("c"))).toBe(false);
+});
