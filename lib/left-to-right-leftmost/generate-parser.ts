@@ -3,9 +3,8 @@ import { peek, EOF, get } from "../core/reader";
 import { getDirectorSetList } from "./director-set";
 import { getFirstSetList } from "./first-set";
 import { getFollowSetList } from "./follow-set";
-import { firstChars } from "./is-disjoint";
+import { getMatchRuleIndex } from "./get-match-rule";
 import { isLLSyntax } from "./is-ll-syntax";
-import { getRuleIndexes } from "./rule-indexes";
 
 import type { Syntax, Token } from "./define-rules";
 import type { ParseReader } from "../core/reader";
@@ -56,47 +55,32 @@ export const generateParser = (syntax: Syntax) => {
         return [false, new Error("invalid sequence")];
       }
 
-      cases: switch (token[0]) {
+      switch (token[0]) {
         case "eof": {
           // EOFなら読み込みを終了する
           if (peeked === EOF) {
             break loop;
-          } else {
-            return [false, new Error("leftover string")];
           }
+
+          return [false, new Error("leftover string")];
         }
 
         case "ref": {
           // 非終端記号の場合
-
-          // 各ルールについてループする
-          for (const ruleIndex of getRuleIndexes(syntax, token[1])) {
-            const tokens = directorSetList[ruleIndex];
-
-            if (tokens === undefined) {
-              return [false, new Error("invalid sequence")];
-            }
-
-            // ルールの文字範囲をループ
-            for (const [min, max] of firstChars(tokens)) {
-              // 先読みした入力が範囲に入っている場合
-              if (min <= peekedCode && peekedCode <= max) {
-                const [_, ...rules] = syntax[ruleIndex] ?? [];
-
-                // 構文スタックに逆順で追加する
-                for (let index = rules.length - 1; index >= 0; index--) {
-                  const rule = rules[index]!;
-
-                  stack.push(rule);
-                }
-
-                output.push(ruleIndex);
-                break cases;
-              }
-            }
+          const [ok, ruleIndex] = getMatchRuleIndex(syntax, directorSetList, token[1], peekedCode);
+          if (!ok) {
+            return [false, new Error(`no rule ${token[1]} matches first char ${peeked.toString()}`)];
           }
 
-          return [false, new Error(`no rule ${token[1]} matches first char ${peeked.toString()}`)];
+          const [_, ...rules] = syntax[ruleIndex] ?? [];
+
+          // 構文スタックに逆順で追加する
+          for (const rule of rules.reverse()) {
+            stack.push(rule);
+          }
+
+          output.push(ruleIndex);
+          break;
         }
 
         case "word": {
