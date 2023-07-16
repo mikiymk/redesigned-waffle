@@ -26,12 +26,12 @@ describe("parsing", () => {
 
     const result = parser(fromString(source));
 
-    expect(result).toStrictEqual([0, 2, "(", 1, 3, "1", "+", 3, "1", ")"]);
+    expect(result).toStrictEqual([true, [0, 2, "(", 1, 3, "1", "+", 3, "1", ")"]]);
   });
 
   test("parse failure", () => {
     const source = "(1+)";
 
-    expect(() => parser(fromString(source))).toThrow("no rule F matches first char )");
+    expect(parser(fromString(source))).toStrictEqual([false, new Error("no rule F matches first char )")]);
   });
 });

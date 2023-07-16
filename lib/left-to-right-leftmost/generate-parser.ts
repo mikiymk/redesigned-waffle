@@ -9,6 +9,7 @@ import { getRuleNames } from "./rule-names";
 
 import type { Syntax, Token } from "./define-rules";
 import type { ParseReader } from "../core/reader";
+import type { Result } from "../util/parser";
 
 /**
  * 構文ルールリストからLL(1)パーサーを作成します。
@@ -36,7 +37,7 @@ export const generateParser = (syntax: Syntax) => {
   }
 
   // パーサー
-  return (pr: ParseReader) => {
+  return (pr: ParseReader): Result<(number | string)[]> => {
     // 構文スタック
     const stack: (Token | ["eof"])[] = [["eof"], ["ref", "start"]];
 
@@ -60,16 +61,16 @@ export const generateParser = (syntax: Syntax) => {
       const peekedCode = peeked === EOF ? Number.NaN : peeked.codePointAt(0) ?? Number.NaN;
 
       if (token === undefined) {
-        throw new Error("invalid sequence");
+        return [false, new Error("invalid sequence")];
       }
 
-      tokencase: switch (token[0]) {
+      cases: switch (token[0]) {
         case "eof": {
           // EOFなら読み込みを終了する
           if (peeked === EOF) {
             break loop;
           } else {
-            throw new Error("leftover string");
+            return [false, new Error("leftover string")];
           }
         }
 
@@ -81,7 +82,7 @@ export const generateParser = (syntax: Syntax) => {
             const tokens = directorSetList[ruleIndex];
 
             if (tokens === undefined) {
-              throw new Error("invalid sequence");
+              return [false, new Error("invalid sequence")];
             }
 
             // ルールの文字範囲をループ
@@ -98,12 +99,12 @@ export const generateParser = (syntax: Syntax) => {
                 }
 
                 output.push(ruleIndex);
-                break tokencase;
+                break cases;
               }
             }
           }
 
-          throw new Error(`no rule ${token[1]} matches first char ${peeked.toString()}`);
+          return [false, new Error(`no rule ${token[1]} matches first char ${peeked.toString()}`)];
         }
 
         case "word": {
@@ -117,9 +118,9 @@ export const generateParser = (syntax: Syntax) => {
             if (nextChar === char) {
               get(pr);
             } else if (nextChar === EOF) {
-              throw new Error("expect " + word + " but reaches end");
+              return [false, new Error("expect " + word + " but reaches end")];
             } else {
-              throw new Error("expect " + word + " but found " + nextChar);
+              return [false, new Error("expect " + word + " but found " + nextChar)];
             }
 
             nextChar = peek(pr);
@@ -140,9 +141,9 @@ export const generateParser = (syntax: Syntax) => {
           if (peeked !== EOF && min <= peekedCode && peekedCode <= max) {
             output.push(peeked);
           } else if (peeked === EOF) {
-            throw new Error(`expect char ${min}..${max}but reaches end`);
+            return [false, new Error(`expect char ${min}..${max}but reaches end`)];
           } else {
-            throw new Error(`expect char ${min}..${max}but found ${peeked}`);
+            return [false, new Error(`expect char ${min}..${max}but found ${peeked}`)];
           }
           break;
         }
@@ -153,6 +154,6 @@ export const generateParser = (syntax: Syntax) => {
       }
     }
 
-    return output;
+    return [true, output];
   };
 };
