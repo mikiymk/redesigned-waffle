@@ -20,11 +20,6 @@ export const generateParser = (syntax: Syntax) => {
   const followSetList = getFollowSetList(syntax, firstSetList);
   const directorSetList = getDirectorSetList(firstSetList, followSetList);
 
-  console.log(syntax);
-  console.log(firstSetList);
-  console.log(followSetList);
-  console.log(directorSetList);
-
   for (const name of getRuleNames(syntax)) {
     for (const left of getRuleIndexes(syntax, name)) {
       for (const right of getRuleIndexes(syntax, name)) {
@@ -55,6 +50,12 @@ export const generateParser = (syntax: Syntax) => {
       // 次の入力
       const peeked = peek(pr);
 
+      console.log("stack:   ", stack);
+      console.log("output:  ", output);
+      console.log("token:   ", token);
+      console.log("peeked:  ", peeked);
+      console.log();
+
       // 文字コードに変換
       const peekedCode = peeked === EOF ? Number.NaN : peeked.codePointAt(0) ?? Number.NaN;
 
@@ -62,7 +63,7 @@ export const generateParser = (syntax: Syntax) => {
         throw new Error("invalid sequence");
       }
 
-      switch (token[0]) {
+      tokencase: switch (token[0]) {
         case "eof": {
           // EOFなら読み込みを終了する
           if (peeked === EOF) {
@@ -90,16 +91,21 @@ export const generateParser = (syntax: Syntax) => {
                 const [_, ...rules] = syntax[ruleIndex] ?? [];
 
                 // 構文スタックに逆順で追加する
-                for (let index = rules.length; index >= 0; index--) {
+                for (let index = rules.length - 1; index >= 0; index--) {
                   const rule = rules[index]!;
 
                   stack.push(rule);
                 }
+
+                output.push(ruleIndex);
+                break tokencase;
               }
             }
           }
-          break;
+
+          throw new Error(`no rule ${token[1]} matches first char ${peeked.toString()}`);
         }
+
         case "word": {
           // 文字列の場合
 
@@ -120,10 +126,11 @@ export const generateParser = (syntax: Syntax) => {
           }
 
           // 成功したら出力
-
           output.push(word);
+
           break;
         }
+
         case "char": {
           // 文字
 
@@ -139,6 +146,7 @@ export const generateParser = (syntax: Syntax) => {
           }
           break;
         }
+
         case "epsilon": {
           continue;
         }
