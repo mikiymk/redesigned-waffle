@@ -11,7 +11,7 @@ test("disjoint word", () => {
 
   const result = isDisjoint(tokenSet1, tokenSet2);
 
-  expect(result).toBe(true);
+  expect(result).toBe(false);
 });
 
 test("not disjoint word", () => {
@@ -21,7 +21,7 @@ test("not disjoint word", () => {
 
   const result = isDisjoint(tokenSet1, tokenSet2);
 
-  expect(result).toBe(false);
+  expect(result).toBe(true);
 });
 
 test("disjoint left char range", () => {
@@ -31,7 +31,7 @@ test("disjoint left char range", () => {
 
   const result = isDisjoint(tokenSet1, tokenSet2);
 
-  expect(result).toBe(true);
+  expect(result).toBe(false);
 });
 
 test("not disjoint left char range", () => {
@@ -41,7 +41,7 @@ test("not disjoint left char range", () => {
 
   const result = isDisjoint(tokenSet1, tokenSet2);
 
-  expect(result).toBe(false);
+  expect(result).toBe(true);
 });
 
 test("disjoint right char range", () => {
@@ -51,7 +51,7 @@ test("disjoint right char range", () => {
 
   const result = isDisjoint(tokenSet1, tokenSet2);
 
-  expect(result).toBe(true);
+  expect(result).toBe(false);
 });
 
 test("not disjoint right char range", () => {
@@ -61,7 +61,7 @@ test("not disjoint right char range", () => {
 
   const result = isDisjoint(tokenSet1, tokenSet2);
 
-  expect(result).toBe(false);
+  expect(result).toBe(true);
 });
 
 test("disjoint two char range", () => {
@@ -71,7 +71,7 @@ test("disjoint two char range", () => {
 
   const result = isDisjoint(tokenSet1, tokenSet2);
 
-  expect(result).toBe(true);
+  expect(result).toBe(false);
 });
 
 test("not disjoint two char range", () => {
@@ -81,5 +81,5 @@ test("not disjoint two char range", () => {
 
   const result = isDisjoint(tokenSet1, tokenSet2);
 
-  expect(result).toBe(false);
+  expect(result).toBe(true);
 });

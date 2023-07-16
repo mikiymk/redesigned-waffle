@@ -146,4 +146,12 @@ export class TokenSet {
       yield token;
     }
   }
+
+  /**
+   * 文字列表現を作ります
+   * @returns 文字列
+   */
+  asString(): string {
+    return `TokenSet [${[...this.set.keys()].join(", ")}]`;
+  }
 }

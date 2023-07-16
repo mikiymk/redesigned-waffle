@@ -110,5 +110,6 @@ export const getFirstSet = (syntax: Syntax, firstSetList: TokenSet[], tokens: To
     }
   }
 
-  throw new Error(`unreached code, rule at ${JSON.stringify(tokens)}`);
+  // トークン列が空なら、空を返す
+  return new TokenSet([epsilon]);
 };
