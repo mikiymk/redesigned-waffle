@@ -3,8 +3,10 @@ import { expect, test } from "vitest";
 import { char, word } from "./define-rules";
 import { TokenSet } from "./token-set";
 
+import type { Token } from "./define-rules";
+
 test("construct token set", () => {
-  const tokenSet = new TokenSet([]);
+  const tokenSet = new TokenSet<Token>([]);
 
   const result = [...tokenSet];
 
@@ -12,7 +14,7 @@ test("construct token set", () => {
 });
 
 test("construct token set and any tokens", () => {
-  const tokenSet = new TokenSet([word("any"), word("any")]);
+  const tokenSet = new TokenSet<Token>([word("any"), word("any")]);
 
   const result = [...tokenSet];
 
@@ -20,7 +22,7 @@ test("construct token set and any tokens", () => {
 });
 
 test("set has token", () => {
-  const tokenSet = new TokenSet([word("any")]);
+  const tokenSet = new TokenSet<Token>([word("any")]);
 
   const result = tokenSet.has(word("any"));
 
@@ -28,7 +30,7 @@ test("set has token", () => {
 });
 
 test("set has not token", () => {
-  const tokenSet = new TokenSet([word("any")]);
+  const tokenSet = new TokenSet<Token>([word("any")]);
 
   const result = tokenSet.has(word("all"));
 
@@ -36,7 +38,7 @@ test("set has not token", () => {
 });
 
 test("add token", () => {
-  const tokenSet = new TokenSet([]);
+  const tokenSet = new TokenSet<Token>([]);
 
   tokenSet.add(word("any"));
 
@@ -45,7 +47,7 @@ test("add token", () => {
 });
 
 test("add token, duplicate", () => {
-  const tokenSet = new TokenSet([]);
+  const tokenSet = new TokenSet<Token>([]);
 
   tokenSet.add(word("any"));
   tokenSet.add(word("any"));
@@ -55,7 +57,7 @@ test("add token, duplicate", () => {
 });
 
 test("append tokens", () => {
-  const tokenSet = new TokenSet([]);
+  const tokenSet = new TokenSet<Token>([]);
 
   tokenSet.append([word("any"), char("A", "C")]);
 
@@ -65,8 +67,8 @@ test("append tokens", () => {
 });
 
 test("union set", () => {
-  const tokenSet1 = new TokenSet([word("a"), word("b")]);
-  const tokenSet2 = new TokenSet([word("b"), word("c")]);
+  const tokenSet1 = new TokenSet<Token>([word("a"), word("b")]);
+  const tokenSet2 = new TokenSet<Token>([word("b"), word("c")]);
 
   const newSet = tokenSet1.union(tokenSet2);
 
@@ -84,8 +86,8 @@ test("union set", () => {
 });
 
 test("intersection set", () => {
-  const tokenSet1 = new TokenSet([word("a"), word("b")]);
-  const tokenSet2 = new TokenSet([word("b"), word("c")]);
+  const tokenSet1 = new TokenSet<Token>([word("a"), word("b")]);
+  const tokenSet2 = new TokenSet<Token>([word("b"), word("c")]);
 
   const newSet = tokenSet1.intersection(tokenSet2);
 
@@ -103,8 +105,8 @@ test("intersection set", () => {
 });
 
 test("difference set", () => {
-  const tokenSet1 = new TokenSet([word("a"), word("b")]);
-  const tokenSet2 = new TokenSet([word("b"), word("c")]);
+  const tokenSet1 = new TokenSet<Token>([word("a"), word("b")]);
+  const tokenSet2 = new TokenSet<Token>([word("b"), word("c")]);
 
   const newSet = tokenSet1.difference(tokenSet2);
 

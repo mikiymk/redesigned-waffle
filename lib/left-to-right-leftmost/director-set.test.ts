@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { char, epsilon, reference, rule, word } from "./define-rules";
+import { char, eof, epsilon, reference, rule, word } from "./define-rules";
 import { getDirectorSetList } from "./director-set";
 import { getFirstSetList } from "./first-set";
 import { getFollowSetList } from "./follow-set";
@@ -29,7 +29,7 @@ describe("get first-set from syntax", () => {
 
     const followSet = getFollowSetList(syntax, firstSet);
     const expectedFollowSet = [
-      new TokenSet(),
+      new TokenSet([eof]),
 
       new TokenSet([word("after basic token")]),
       new TokenSet([word("after basic token")]),

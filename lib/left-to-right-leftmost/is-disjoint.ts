@@ -1,3 +1,4 @@
+import type { DirectorSetToken } from "./define-rules";
 import type { TokenSet } from "./token-set";
 
 /**
@@ -6,7 +7,7 @@ import type { TokenSet } from "./token-set";
  * @param right B
  * @returns 互いに素なら `true`
  */
-export const isDisjoint = (left: TokenSet, right: TokenSet): boolean => {
+export const isDisjoint = (left: TokenSet<DirectorSetToken>, right: TokenSet<DirectorSetToken>): boolean => {
   const leftFirstChars = firstChars(left);
   const rightFirstChars = firstChars(right);
 
@@ -33,7 +34,7 @@ export const isDisjoint = (left: TokenSet, right: TokenSet): boolean => {
  * @param tokens トークン集合
  * @returns それぞれのトークンの１文字目の範囲
  */
-export const firstChars = (tokens: TokenSet): [number, number][] => {
+export const firstChars = (tokens: TokenSet<DirectorSetToken>): [number, number][] => {
   const firstChars: [number, number][] = [];
 
   for (const token of tokens) {

@@ -1,11 +1,11 @@
 import { peek, EOF, get } from "../core/reader";
 
+import { eof, reference } from "./define-rules";
 import { getDirectorSetList } from "./director-set";
 import { getFirstSetList } from "./first-set";
 import { getFollowSetList } from "./follow-set";
-import { firstChars, isDisjoint } from "./is-disjoint";
-import { getRuleIndexes } from "./rule-indexes";
-import { getRuleNames } from "./rule-names";
+import { getMatchRuleIndex } from "./get-match-rule";
+import { isLLSyntax } from "./is-ll-syntax";
 
 import type { Syntax, Token } from "./define-rules";
 import type { ParseReader } from "../core/reader";
@@ -23,25 +23,21 @@ export const generateParser = (syntax: Syntax) => {
   const followSetList = getFollowSetList(syntax, firstSetList);
   const directorSetList = getDirectorSetList(firstSetList, followSetList);
 
-  for (const name of getRuleNames(syntax)) {
-    for (const left of getRuleIndexes(syntax, name)) {
-      for (const right of getRuleIndexes(syntax, name)) {
-        if (left === right) continue;
-
-        const leftRule = directorSetList[left]!;
-        const rightRule = directorSetList[right]!;
-
-        if (!isDisjoint(leftRule, rightRule)) {
-          throw new Error(`left ${leftRule.asString()} and right ${rightRule.asString()} is not disjoint`);
-        }
-      }
-    }
+  const error = isLLSyntax(syntax, directorSetList);
+  if (!error[0]) {
+    throw error[1];
   }
+
+  console.log("syntax:        ", syntax);
+  console.log("first set:     ", firstSetList);
+  console.log("follow set:    ", followSetList);
+  console.log("director set:  ", directorSetList);
+  console.log();
 
   // パーサー
   return (pr: ParseReader): Result<Tree> => {
     // 構文スタック
-    const stack: (Token | ["eof"])[] = [["eof"], ["ref", "start"]];
+    const stack: Token[] = [eof, reference("start")];
 
     // 出力リスト
     const output: (number | string)[] = [];
@@ -66,47 +62,33 @@ export const generateParser = (syntax: Syntax) => {
         return [false, new Error("invalid sequence")];
       }
 
-      cases: switch (token[0]) {
+      switch (token[0]) {
         case "eof": {
           // EOFなら読み込みを終了する
           if (peeked === EOF) {
             break loop;
-          } else {
-            return [false, new Error("leftover string")];
           }
+
+          return [false, new Error("leftover string")];
         }
 
         case "ref": {
           // 非終端記号の場合
-
-          // 各ルールについてループする
-          for (const ruleIndex of getRuleIndexes(syntax, token[1])) {
-            const tokens = directorSetList[ruleIndex];
-
-            if (tokens === undefined) {
-              return [false, new Error("invalid sequence")];
-            }
-
-            // ルールの文字範囲をループ
-            for (const [min, max] of firstChars(tokens)) {
-              // 先読みした入力が範囲に入っている場合
-              if (min <= peekedCode && peekedCode <= max) {
-                const [_, ...rules] = syntax[ruleIndex] ?? [];
-
-                // 構文スタックに逆順で追加する
-                for (let index = rules.length - 1; index >= 0; index--) {
-                  const rule = rules[index]!;
-
-                  stack.push(rule);
-                }
-
-                output.push(ruleIndex);
-                break cases;
-              }
-            }
+          const [ok, ruleIndex] = getMatchRuleIndex(syntax, directorSetList, token[1], peekedCode);
+          if (!ok) {
+            return [false, new Error(`no rule ${token[1]} matches first char ${peeked.toString()}`)];
           }
 
-          return [false, new Error(`no rule ${token[1]} matches first char ${peeked.toString()}`)];
+          // 破壊的メソッドの影響を与えないために新しい配列を作る
+          const tokens = [...(syntax[ruleIndex]?.[1] ?? [])];
+
+          // 構文スタックに逆順で追加する
+          for (const token of tokens.reverse()) {
+            stack.push(token);
+          }
+
+          output.push(ruleIndex);
+          break;
         }
 
         case "word": {
@@ -160,7 +142,7 @@ export const generateParser = (syntax: Syntax) => {
     const tree: Tree[] = [];
     for (const ident of output.reverse()) {
       if (typeof ident === "number") {
-        const [_, ...tokens] = syntax[ident]!;
+        const [_, tokens] = syntax[ident]!;
 
         tree.push({
           index: ident,
