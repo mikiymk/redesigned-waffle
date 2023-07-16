@@ -3,7 +3,7 @@ import { getFirstSet } from "./first-set";
 import { getRuleIndexes } from "./rule-indexes";
 import { TokenSet } from "./token-set";
 
-import type { Syntax } from "./define-rules";
+import type { FirstSetToken, FollowSetToken, Syntax } from "./define-rules";
 
 /**
  * 各ルールについて、続く文字の文字を求める。
@@ -11,9 +11,12 @@ import type { Syntax } from "./define-rules";
  * @param firstSetList 最初の文字集合リスト
  * @returns 続く文字の文字の集合リスト
  */
-export const getFollowSetList = (syntax: Syntax, firstSetList: TokenSet[]): TokenSet[] => {
+export const getFollowSetList = (
+  syntax: Syntax,
+  firstSetList: TokenSet<FirstSetToken>[],
+): TokenSet<FollowSetToken>[] => {
   // ルールリストと同じ長さで文字集合リストを作る
-  const followSetList = syntax.map(() => new TokenSet());
+  const followSetList = syntax.map(() => new TokenSet<FollowSetToken>());
 
   for (;;) {
     let updated = false;
@@ -42,8 +45,8 @@ export const getFollowSetList = (syntax: Syntax, firstSetList: TokenSet[]): Toke
  */
 const generateFollowSet = (
   syntax: Syntax,
-  followSetList: TokenSet[],
-  firstSetList: TokenSet[],
+  followSetList: TokenSet<FollowSetToken>[],
+  firstSetList: TokenSet<FirstSetToken>[],
   index: number,
 ): boolean => {
   const rule = syntax[index];

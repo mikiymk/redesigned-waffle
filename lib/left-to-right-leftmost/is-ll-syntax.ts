@@ -2,7 +2,7 @@ import { isDisjoint } from "./is-disjoint";
 import { getRuleIndexes } from "./rule-indexes";
 import { getRuleNames } from "./rule-names";
 
-import type { Syntax } from "./define-rules";
+import type { DirectorSetToken, Syntax } from "./define-rules";
 import type { TokenSet } from "./token-set";
 import type { Result } from "../util/parser";
 
@@ -12,7 +12,7 @@ import type { Result } from "../util/parser";
  * @param directorSetList ディレクター集合リスト
  * @returns 結果オブジェクト
  */
-export const isLLSyntax = (syntax: Syntax, directorSetList: TokenSet[]): Result<undefined> => {
+export const isLLSyntax = (syntax: Syntax, directorSetList: TokenSet<DirectorSetToken>[]): Result<undefined> => {
   for (const name of getRuleNames(syntax)) {
     for (const left of getRuleIndexes(syntax, name)) {
       for (const right of getRuleIndexes(syntax, name)) {

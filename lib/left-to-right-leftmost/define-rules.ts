@@ -10,12 +10,23 @@ export type Syntax = Rule[];
 /**
  * 構文の名前付きルール
  */
-export type Rule = [string, Token[]];
+export type Rule = [string, SyntaxToken[]];
 
 /**
  * ルール用のトークン
  */
-export type Token = ["word", string] | ["char", number, number] | ["ref", string] | ["epsilon"];
+type WordToken = ["word", string];
+type CharToken = ["char", number, number];
+type ReferenceToken = ["ref", string];
+type EmptyToken = ["epsilon"];
+type EOFToken = ["eof"];
+
+export type SyntaxToken = WordToken | CharToken | ReferenceToken | EmptyToken;
+export type FirstSetToken = WordToken | CharToken | EmptyToken;
+export type FollowSetToken = WordToken | CharToken | EOFToken;
+export type DirectorSetToken = WordToken | CharToken | EOFToken;
+
+export type Token = WordToken | CharToken | ReferenceToken | EmptyToken | EOFToken;
 
 /**
  * 構文用のルールを作る
@@ -23,7 +34,7 @@ export type Token = ["word", string] | ["char", number, number] | ["ref", string
  * @param tokens ルールのトークン列
  * @returns ルールオブジェクト（タグ付きタプル）
  */
-export const rule = (name: string, ...tokens: Token[]): Rule => {
+export const rule = (name: string, ...tokens: SyntaxToken[]): Rule => {
   if (tokens.length === 0) {
     throw new Error(`word length must be greater than or equal to 1. received: ${tokens.length} items`);
   }
@@ -36,7 +47,7 @@ export const rule = (name: string, ...tokens: Token[]): Rule => {
  * @param word キーワード
  * @returns ルール用トークン
  */
-export const word = (word: string): ["word", string] => {
+export const word = (word: string): WordToken => {
   if (word.length === 0) {
     throw new Error(`word length must be greater than or equal to 1. received: ${word}(${word.length})`);
   }
@@ -57,10 +68,7 @@ type StringChar<T extends string> = StringLength<T> extends 1 ? T : "Char type t
  * @param max その数を含む最大コードポイント
  * @returns ルール用トークン
  */
-export const char = <T extends string, U extends string>(
-  min: StringChar<T>,
-  max: StringChar<U>,
-): ["char", number, number] => {
+export const char = <T extends string, U extends string>(min: StringChar<T>, max: StringChar<U>): CharToken => {
   if (min.length !== 1 || max.length !== 1) {
     throw new Error(`"${min}" and "${max}" needs length at 1.`);
   }
@@ -80,11 +88,12 @@ export const char = <T extends string, U extends string>(
  * @param terminal ルール名
  * @returns ルール用トークン
  */
-export const reference = (terminal: string): ["ref", string] => {
+export const reference = (terminal: string): ReferenceToken => {
   return ["ref", terminal];
 };
 
 /**
  * 空のトークン
  */
-export const epsilon: ["epsilon"] = ["epsilon"];
+export const epsilon: EmptyToken = ["epsilon"];
+export const eof: EOFToken = ["eof"];

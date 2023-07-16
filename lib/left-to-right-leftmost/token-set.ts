@@ -1,6 +1,6 @@
 import type { Token } from "./define-rules";
 
-type TokenString = `word ${string}` | `char ${number} ${number}` | `ref ${string}` | "epsilon";
+type TokenString = `word ${string}` | `char ${number} ${number}` | `ref ${string}` | "epsilon" | "eof";
 
 /**
  * トークンを文字列にする
@@ -25,20 +25,24 @@ const tokenToString = (token: Token): TokenString => {
     case "word": {
       return `word ${token[1]}`;
     }
+
+    case "eof": {
+      return "eof";
+    }
   }
 };
 
 /**
  * トークンの集合（同じトークンが最大で１つ含まれる）
  */
-export class TokenSet {
-  set = new Map<TokenString, Token>();
+export class TokenSet<T extends Token> {
+  set = new Map<TokenString, T>();
 
   /**
    * 新しいトークンの集合を作成します。
    * @param tokens トークンの配列
    */
-  constructor(tokens: Iterable<Token> = []) {
+  constructor(tokens: Iterable<T> = []) {
     for (const token of tokens) {
       this.set.set(tokenToString(token), token);
     }
@@ -57,7 +61,7 @@ export class TokenSet {
    * @param token トークン
    * @returns 含まれる場合は `true`
    */
-  has(token: Token): boolean {
+  has(token: Token): token is T {
     return this.set.has(tokenToString(token));
   }
 
@@ -66,7 +70,7 @@ export class TokenSet {
    * @param token トークン
    * @returns トークンを追加した自身
    */
-  add(token: Token): this {
+  add(token: T): this {
     this.set.set(tokenToString(token), token);
 
     return this;
@@ -77,7 +81,7 @@ export class TokenSet {
    * @param token トークン
    * @returns トークンが存在して削除された場合は `true`
    */
-  delete(token: Token): boolean {
+  delete(token: T): boolean {
     return this.set.delete(tokenToString(token));
   }
 
@@ -86,7 +90,7 @@ export class TokenSet {
    * @param tokens トークンの配列
    * @returns トークンを追加した自身
    */
-  append(tokens: Iterable<Token>): this {
+  append(tokens: Iterable<T>): this {
     for (const token of tokens) {
       this.set.set(tokenToString(token), token);
     }
@@ -99,8 +103,8 @@ export class TokenSet {
    * @param tokens トークンの集合
    * @returns 新しいトークンの集合
    */
-  union(tokens: Iterable<Token>): TokenSet {
-    return new TokenSet(this).append(tokens);
+  union<U extends Token>(tokens: Iterable<U>): TokenSet<T | U> {
+    return new TokenSet<T | U>(this).append(tokens);
   }
 
   /**
@@ -108,8 +112,8 @@ export class TokenSet {
    * @param tokens トークンの集合
    * @returns 新しいトークンの集合
    */
-  intersection(tokens: Iterable<Token>): TokenSet {
-    const newSet = new TokenSet([]);
+  intersection(tokens: Iterable<T>): TokenSet<T> {
+    const newSet = new TokenSet<T>([]);
 
     for (const token of tokens) {
       if (this.has(token)) {
@@ -125,13 +129,13 @@ export class TokenSet {
    * @param tokens トークンの集合
    * @returns 新しいトークンの集合
    */
-  difference(tokens: Iterable<Token>): TokenSet {
-    const tokenSet = new TokenSet(tokens);
-    const newSet = new TokenSet([]);
+  difference<U extends Token>(tokens: Iterable<U>): TokenSet<Exclude<T, U>> {
+    const tokenSet = new TokenSet<U>(tokens);
+    const newSet = new TokenSet<Exclude<T, U>>([]);
 
     for (const token of this) {
       if (!tokenSet.has(token)) {
-        newSet.add(token);
+        newSet.add(token as Exclude<T, U>);
       }
     }
 

@@ -1,7 +1,7 @@
 import { firstChars } from "./is-disjoint";
 import { getRuleIndexes } from "./rule-indexes";
 
-import type { Syntax } from "./define-rules";
+import type { DirectorSetToken, Syntax } from "./define-rules";
 import type { TokenSet } from "./token-set";
 import type { Result } from "../util/parser";
 
@@ -15,7 +15,7 @@ import type { Result } from "../util/parser";
  */
 export const getMatchRuleIndex = (
   syntax: Syntax,
-  directorSetList: TokenSet[],
+  directorSetList: TokenSet<DirectorSetToken>[],
   ruleName: string,
   peekedCode: number,
 ): Result<number> => {

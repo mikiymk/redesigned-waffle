@@ -2,16 +2,16 @@ import { epsilon } from "./define-rules";
 import { getRuleIndexes } from "./rule-indexes";
 import { TokenSet } from "./token-set";
 
-import type { Syntax, Token } from "./define-rules";
+import type { FirstSetToken, Syntax, SyntaxToken } from "./define-rules";
 
 /**
  * 各ルールについて、最初の文字を求める。
  * @param syntax 構文ルールリスト
  * @returns 最初の文字の集合リスト
  */
-export const getFirstSetList = (syntax: Syntax): TokenSet[] => {
+export const getFirstSetList = (syntax: Syntax): TokenSet<FirstSetToken>[] => {
   // ルールリストと同じ長さで文字集合リストを作る
-  const firstSet = syntax.map(() => new TokenSet());
+  const firstSet = syntax.map(() => new TokenSet<FirstSetToken>());
 
   for (;;) {
     let updated = false;
@@ -42,7 +42,11 @@ export const getFirstSetList = (syntax: Syntax): TokenSet[] => {
  * @param index 作るルールのインデックス
  * @returns 作った最初の文字集合
  */
-const generateFirstSet = (syntax: Syntax, firstSetList: TokenSet[], index: number): TokenSet => {
+const generateFirstSet = (
+  syntax: Syntax,
+  firstSetList: TokenSet<FirstSetToken>[],
+  index: number,
+): TokenSet<FirstSetToken> => {
   const rule = syntax[index];
   const firstSet = firstSetList[index];
 
@@ -64,8 +68,12 @@ const generateFirstSet = (syntax: Syntax, firstSetList: TokenSet[], index: numbe
  * @param tokens 作るルールのトークン列
  * @returns 作った最初の文字集合
  */
-export const getFirstSet = (syntax: Syntax, firstSetList: TokenSet[], tokens: Token[]): TokenSet => {
-  const set = new TokenSet();
+export const getFirstSet = (
+  syntax: Syntax,
+  firstSetList: TokenSet<FirstSetToken>[],
+  tokens: SyntaxToken[],
+): TokenSet<FirstSetToken> => {
+  const set = new TokenSet<FirstSetToken>();
   // ルールから最初のトークンを取り出す
   for (const [index, token] of tokens.entries()) {
     switch (token[0]) {

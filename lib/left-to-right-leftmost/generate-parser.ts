@@ -36,7 +36,7 @@ export const generateParser = (syntax: Syntax) => {
   // パーサー
   return (pr: ParseReader): Result<Tree> => {
     // 構文スタック
-    const stack: (Token | ["eof"])[] = [["eof"], ["ref", "start"]];
+    const stack: Token[] = [["eof"], ["ref", "start"]];
 
     // 出力リスト
     const output: (number | string)[] = [];
