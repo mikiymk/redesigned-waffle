@@ -1,4 +1,4 @@
-import { epsilon } from "./define-rules";
+import { eof, epsilon } from "./define-rules";
 import { getFirstSet } from "./first-set";
 import { getRuleIndexes } from "./rule-indexes";
 import { TokenSet } from "./token-set";
@@ -17,6 +17,10 @@ export const getFollowSetList = (
 ): TokenSet<FollowSetToken>[] => {
   // ルールリストと同じ長さで文字集合リストを作る
   const followSetList = syntax.map(() => new TokenSet<FollowSetToken>());
+
+  for (const ruleIndex of getRuleIndexes(syntax, "start")) {
+    followSetList[ruleIndex]?.add(eof);
+  }
 
   for (;;) {
     let updated = false;

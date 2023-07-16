@@ -1,5 +1,6 @@
 import { peek, EOF, get } from "../core/reader";
 
+import { eof, reference } from "./define-rules";
 import { getDirectorSetList } from "./director-set";
 import { getFirstSetList } from "./first-set";
 import { getFollowSetList } from "./follow-set";
@@ -36,7 +37,7 @@ export const generateParser = (syntax: Syntax) => {
   // パーサー
   return (pr: ParseReader): Result<Tree> => {
     // 構文スタック
-    const stack: Token[] = [["eof"], ["ref", "start"]];
+    const stack: Token[] = [eof, reference("start")];
 
     // 出力リスト
     const output: (number | string)[] = [];
