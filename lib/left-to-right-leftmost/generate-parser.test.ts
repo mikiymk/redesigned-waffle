@@ -26,7 +26,35 @@ describe("parsing", () => {
 
     const result = parser(fromString(source));
 
-    expect(result).toStrictEqual([true, [0, 2, "(", 1, 3, "1", "+", 3, "1", ")"]]);
+    expect(result).toStrictEqual([
+      true,
+      {
+        index: 0,
+        children: [
+          {
+            index: 2,
+            children: [
+              "(",
+              {
+                index: 1,
+                children: [
+                  {
+                    index: 3,
+                    children: ["1"],
+                  },
+                ],
+              },
+              "+",
+              {
+                index: 3,
+                children: ["1"],
+              },
+              ")",
+            ],
+          },
+        ],
+      },
+    ]);
   });
 
   test("parse failure", () => {

@@ -11,6 +11,8 @@ import type { Syntax, Token } from "./define-rules";
 import type { ParseReader } from "../core/reader";
 import type { Result } from "../util/parser";
 
+type Tree = string | { index: number; children: Tree[] };
+
 /**
  * 構文ルールリストからLL(1)パーサーを作成します。
  * @param syntax 構文ルールリスト
@@ -37,7 +39,7 @@ export const generateParser = (syntax: Syntax) => {
   }
 
   // パーサー
-  return (pr: ParseReader): Result<(number | string)[]> => {
+  return (pr: ParseReader): Result<Tree> => {
     // 構文スタック
     const stack: (Token | ["eof"])[] = [["eof"], ["ref", "start"]];
 
@@ -154,6 +156,21 @@ export const generateParser = (syntax: Syntax) => {
       }
     }
 
-    return [true, output];
+    // アウトプット列から構文木を作る
+    const tree: Tree[] = [];
+    for (const ident of output.reverse()) {
+      if (typeof ident === "number") {
+        const [_, ...tokens] = syntax[ident]!;
+
+        tree.push({
+          index: ident,
+          children: tree.splice(-tokens.length, tokens.length).reverse(),
+        });
+      } else {
+        tree.push(ident);
+      }
+    }
+
+    return [true, tree[0]!];
   };
 };
