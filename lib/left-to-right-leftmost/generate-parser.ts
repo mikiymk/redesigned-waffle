@@ -3,9 +3,9 @@ import { peek, EOF, get } from "../core/reader";
 import { getDirectorSetList } from "./director-set";
 import { getFirstSetList } from "./first-set";
 import { getFollowSetList } from "./follow-set";
-import { firstChars, isDisjoint } from "./is-disjoint";
+import { firstChars } from "./is-disjoint";
+import { isLLSyntax } from "./is-ll-syntax";
 import { getRuleIndexes } from "./rule-indexes";
-import { getRuleNames } from "./rule-names";
 
 import type { Syntax, Token } from "./define-rules";
 import type { ParseReader } from "../core/reader";
@@ -23,19 +23,9 @@ export const generateParser = (syntax: Syntax) => {
   const followSetList = getFollowSetList(syntax, firstSetList);
   const directorSetList = getDirectorSetList(firstSetList, followSetList);
 
-  for (const name of getRuleNames(syntax)) {
-    for (const left of getRuleIndexes(syntax, name)) {
-      for (const right of getRuleIndexes(syntax, name)) {
-        if (left === right) continue;
-
-        const leftRule = directorSetList[left]!;
-        const rightRule = directorSetList[right]!;
-
-        if (!isDisjoint(leftRule, rightRule)) {
-          throw new Error(`left ${leftRule.asString()} and right ${rightRule.asString()} is not disjoint`);
-        }
-      }
-    }
+  let error;
+  if (((error = isLLSyntax(syntax, directorSetList)), !error[0])) {
+    throw error[1];
   }
 
   // パーサー
