@@ -22,10 +22,16 @@ export const generateParser = (syntax: Syntax) => {
   const followSetList = getFollowSetList(syntax, firstSetList);
   const directorSetList = getDirectorSetList(firstSetList, followSetList);
 
-  let error;
-  if (((error = isLLSyntax(syntax, directorSetList)), !error[0])) {
+  const error = isLLSyntax(syntax, directorSetList);
+  if (!error[0]) {
     throw error[1];
   }
+
+  console.log("syntax:        ", syntax);
+  console.log("first set:     ", firstSetList);
+  console.log("follow set:    ", followSetList);
+  console.log("director set:  ", directorSetList);
+  console.log();
 
   // パーサー
   return (pr: ParseReader): Result<Tree> => {
@@ -72,11 +78,12 @@ export const generateParser = (syntax: Syntax) => {
             return [false, new Error(`no rule ${token[1]} matches first char ${peeked.toString()}`)];
           }
 
-          const [_, ...rules] = syntax[ruleIndex] ?? [];
+          // 破壊的メソッドの影響を与えないために新しい配列を作る
+          const tokens = [...(syntax[ruleIndex]?.[1] ?? [])];
 
           // 構文スタックに逆順で追加する
-          for (const rule of rules.reverse()) {
-            stack.push(rule);
+          for (const token of tokens.reverse()) {
+            stack.push(token);
           }
 
           output.push(ruleIndex);
@@ -134,7 +141,7 @@ export const generateParser = (syntax: Syntax) => {
     const tree: Tree[] = [];
     for (const ident of output.reverse()) {
       if (typeof ident === "number") {
-        const [_, ...tokens] = syntax[ident]!;
+        const [_, tokens] = syntax[ident]!;
 
         tree.push({
           index: ident,

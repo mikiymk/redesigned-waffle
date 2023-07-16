@@ -54,7 +54,8 @@ const generateFollowSet = (
   }
 
   let updated = false;
-  const [_, ...tokens] = rule;
+  const tokens = rule[1];
+
   //   Aj → wAiw' という形式の規則がある場合、
 
   //     終端記号 a が Fi(w' ) に含まれるなら、a を Fo(Ai) に追加する。

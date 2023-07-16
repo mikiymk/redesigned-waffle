@@ -50,7 +50,7 @@ const generateFirstSet = (syntax: Syntax, firstSetList: TokenSet[], index: numbe
     throw new Error(`rule length is ${syntax.length}, but access index of ${index}`);
   }
 
-  const [_, ...tokens] = rule;
+  const tokens = rule[1];
 
   firstSet.append(getFirstSet(syntax, firstSetList, tokens));
 

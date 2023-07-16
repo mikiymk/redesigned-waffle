@@ -10,7 +10,7 @@ export type Syntax = Rule[];
 /**
  * 構文の名前付きルール
  */
-export type Rule = [string, ...Token[]];
+export type Rule = [string, Token[]];
 
 /**
  * ルール用のトークン
@@ -28,7 +28,7 @@ export const rule = (name: string, ...tokens: Token[]): Rule => {
     throw new Error(`word length must be greater than or equal to 1. received: ${tokens.length} items`);
   }
 
-  return [name, ...tokens];
+  return [name, tokens];
 };
 
 /**
