@@ -1,6 +1,6 @@
 import type { Token } from "./define-rules";
 
-type TokenString = `word ${string}` | `char ${number} ${number}` | `ref ${string}` | "epsilon" | "eof";
+type TokenString = `word ${string}` | `char ${number} ${number}` | `ref ${string}` | "epsilon" | "eof" | "dot";
 
 /**
  * トークンを文字列にする
@@ -8,7 +8,7 @@ type TokenString = `word ${string}` | `char ${number} ${number}` | `ref ${string
  * @param token トークン
  * @returns 文字列
  */
-const tokenToString = (token: Token): TokenString => {
+export const tokenToString = (token: Token): TokenString => {
   switch (token[0]) {
     case "char": {
       return `char ${token[1]} ${token[2]}`;
@@ -28,6 +28,10 @@ const tokenToString = (token: Token): TokenString => {
 
     case "eof": {
       return "eof";
+    }
+
+    case "dot": {
+      return "dot";
     }
   }
 };

@@ -28,7 +28,7 @@ export type FollowSetToken = WordToken | CharToken | EOFToken;
 export type DirectorSetToken = WordToken | CharToken | EOFToken;
 export type LR0ItemToken = WordToken | CharToken | ReferenceToken | DotToken;
 
-export type Token = WordToken | CharToken | ReferenceToken | EmptyToken | EOFToken;
+export type Token = WordToken | CharToken | ReferenceToken | EmptyToken | EOFToken | DotToken;
 
 /**
  * 構文用のルールを作る

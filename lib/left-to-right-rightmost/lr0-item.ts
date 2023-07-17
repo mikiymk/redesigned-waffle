@@ -2,7 +2,7 @@ import { dot } from "../left-to-right-leftmost/define-rules";
 
 import type { LR0ItemToken, Rule, SyntaxToken } from "../left-to-right-leftmost/define-rules";
 
-type LR0Item = [string, LR0ItemToken[]];
+export type LR0Item = [string, LR0ItemToken[]];
 
 /**
  * 構文ルールからLR(0)アイテムを作る
