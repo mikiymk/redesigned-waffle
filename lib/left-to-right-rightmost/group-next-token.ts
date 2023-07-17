@@ -4,7 +4,12 @@ import { LR0ItemSet } from "./item-set";
 
 import type { LR0Item } from "./lr0-item";
 
-export const groupByNextToken = (items: LR0Item[]): Record<string, LR0ItemSet> => {
+/**
+ * アイテムを次のトークンでグループ分けします。
+ * @param items アイテムのリスト
+ * @returns グループ分けされたアイテム集合のリスト
+ */
+export const groupByNextToken = (items: Iterable<LR0Item>): LR0ItemSet[] => {
   const record: Record<string, LR0ItemSet> = {};
 
   for (const item of items) {
@@ -21,5 +26,5 @@ export const groupByNextToken = (items: LR0Item[]): Record<string, LR0ItemSet> =
     record[tokenToString(token)] = set;
   }
 
-  return record;
+  return Object.values(record);
 };
