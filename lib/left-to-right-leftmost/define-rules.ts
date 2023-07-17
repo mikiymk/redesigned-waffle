@@ -20,15 +20,14 @@ type CharToken = ["char", number, number];
 type ReferenceToken = ["ref", string];
 type EmptyToken = ["epsilon"];
 type EOFToken = ["eof"];
-type DotToken = ["dot"];
 
 export type SyntaxToken = WordToken | CharToken | ReferenceToken | EmptyToken;
 export type FirstSetToken = WordToken | CharToken | EmptyToken;
 export type FollowSetToken = WordToken | CharToken | EOFToken;
 export type DirectorSetToken = WordToken | CharToken | EOFToken;
-export type LR0ItemToken = WordToken | CharToken | ReferenceToken | DotToken;
+export type LR0ItemToken = WordToken | CharToken | ReferenceToken;
 
-export type Token = WordToken | CharToken | ReferenceToken | EmptyToken | EOFToken | DotToken;
+export type Token = WordToken | CharToken | ReferenceToken | EmptyToken | EOFToken;
 
 /**
  * 構文用のルールを作る
@@ -99,4 +98,3 @@ export const reference = (terminal: string): ReferenceToken => {
  */
 export const epsilon: EmptyToken = ["epsilon"];
 export const eof: EOFToken = ["eof"];
-export const dot: DotToken = ["dot"];

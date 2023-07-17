@@ -5,11 +5,17 @@ import type { LR0Item } from "./lr0-item";
 /**
  * トークンを文字列にする
  * Setに入れるため
- * @param token トークン
+ * @param item トークン
  * @returns 文字列
  */
-const itemToString = (token: LR0Item): string => {
-  return `${token[0]} [${token[1].map((value) => tokenToString(value)).join(", ")}]`;
+const itemToString = (item: LR0Item): string => {
+  return `${item.name} → ${item.tokens
+    .slice(0, item.position)
+    .map((value) => tokenToString(value))
+    .join(" ")} . ${item.tokens
+    .slice(item.position)
+    .map((value) => tokenToString(value))
+    .join(" ")}`;
 };
 
 /**

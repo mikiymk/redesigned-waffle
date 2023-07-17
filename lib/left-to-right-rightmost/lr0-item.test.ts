@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { dot, epsilon, reference, rule, word } from "../left-to-right-leftmost/define-rules";
+import { epsilon, reference, rule, word } from "../left-to-right-leftmost/define-rules";
 
 import { getLR0Item } from "./lr0-item";
 
@@ -9,12 +9,11 @@ test("get items from rule", () => {
 
   const result = getLR0Item(ruleS);
 
-  expect(result).toStrictEqual([
-    ["S", [dot, reference("E"), word("+"), reference("E")]],
-    ["S", [reference("E"), dot, word("+"), reference("E")]],
-    ["S", [reference("E"), word("+"), dot, reference("E")]],
-    ["S", [reference("E"), word("+"), reference("E"), dot]],
-  ]);
+  expect(result).toStrictEqual({
+    name: "S",
+    tokens: [reference("E"), word("+"), reference("E")],
+    position: 0,
+  });
 });
 
 test("get items from empty rule", () => {
@@ -22,5 +21,9 @@ test("get items from empty rule", () => {
 
   const result = getLR0Item(ruleS);
 
-  expect(result).toStrictEqual([["S", [dot]]]);
+  expect(result).toStrictEqual({
+    name: "S",
+    tokens: [],
+    position: 0,
+  });
 });
