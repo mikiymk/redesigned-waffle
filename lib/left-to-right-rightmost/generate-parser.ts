@@ -1,10 +1,13 @@
+import { tokenToString } from "../left-to-right-leftmost/token-set";
+
 import { closure } from "./closure";
 import { groupByNextToken } from "./group-next-token";
 import { LR0ItemSet } from "./item-set";
-import { LR0Item, getLR0Item } from "./lr0-item";
-import { nextItem, nextItemSet } from "./next-item";
+import { getLR0Item } from "./lr0-item";
+import { nextItemSet } from "./next-item";
 
-import type { Syntax } from "../left-to-right-leftmost/define-rules";
+import type { LR0Item } from "./lr0-item";
+import type { LR0ItemToken, Syntax } from "../left-to-right-leftmost/define-rules";
 
 /**
  *
@@ -22,28 +25,29 @@ export const generateParser = (syntax: Syntax) => {
 
   const itemSetList = [generateItemSet(syntax, [firstItem])];
 
-  for (const { kernels, additions } of itemSetList) {
+  for (const { kernels, additions, gotoMap } of itemSetList) {
     // アイテム集合をグループ分けする
     const groups = groupByNextToken(new LR0ItemSet([...kernels, ...additions]));
 
     // 各グループについて
-    outer: for (const [firstToken, itemSet] of groups) {
-      // もし既存のアイテム集合に同じものがあったら
-      // 新しく追加しない
-
+    outer: for (const [token, itemSet] of groups) {
       const next = nextItemSet(itemSet);
 
-      for (const { kernels } of itemSetList) {
+      // もし既存のアイテム集合に同じものがあったら
+      // 新しく追加しない
+      for (const [index, { kernels }] of itemSetList.entries()) {
         if (kernels.equals(next)) {
+          gotoMap.push([token, index]);
           continue outer;
         }
       }
 
+      gotoMap.push([token, itemSetList.length]);
       itemSetList.push(generateItemSet(syntax, next));
     }
   }
 
-  return itemSetList.map(({ kernels, additions }) => ({ kernels: [...kernels], additions: [...additions] }));
+  return itemSetList;
 };
 
 /**
@@ -52,7 +56,10 @@ export const generateParser = (syntax: Syntax) => {
  * @param items
  * @returns
  */
-const generateItemSet = (syntax: Syntax, items: Iterable<LR0Item>): { kernels: LR0ItemSet; additions: LR0ItemSet } => {
+const generateItemSet = (
+  syntax: Syntax,
+  items: Iterable<LR0Item>,
+): { kernels: LR0ItemSet; additions: LR0ItemSet; gotoMap: [LR0ItemToken, number][] } => {
   const additions = new LR0ItemSet();
   for (const item of items) {
     additions.append(closure(syntax, item));
@@ -61,5 +68,6 @@ const generateItemSet = (syntax: Syntax, items: Iterable<LR0Item>): { kernels: L
   return {
     kernels: new LR0ItemSet(items),
     additions,
+    gotoMap: [],
   };
 };
