@@ -1,5 +1,3 @@
-import { tokenToString } from "../left-to-right-leftmost/token-set";
-
 import { closure } from "./closure";
 import { groupByNextToken } from "./group-next-token";
 import { LR0ItemSet } from "./item-set";
