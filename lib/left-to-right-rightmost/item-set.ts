@@ -1,5 +1,3 @@
-import { tokenToString } from "../left-to-right-leftmost/token-set";
-
 import type { LR0Item } from "./lr0-item";
 
 /**
@@ -11,10 +9,10 @@ import type { LR0Item } from "./lr0-item";
 export const itemToString = (item: LR0Item): string => {
   return `${item.name} → ${item.tokens
     .slice(0, item.position)
-    .map((value) => tokenToString(value))
+    .map((value) => value.toKeyString())
     .join(" ")} . ${item.tokens
     .slice(item.position)
-    .map((value) => tokenToString(value))
+    .map((value) => value.toKeyString())
     .join(" ")}`;
 };
 

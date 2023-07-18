@@ -1,3 +1,5 @@
+import { WordToken, CharToken } from "@/lib/rules/define-rules";
+
 import type { TokenSet } from "./token-set";
 import type { DirectorSetToken } from "@/lib/rules/define-rules";
 
@@ -38,12 +40,12 @@ export const firstChars = (tokens: TokenSet<DirectorSetToken>): [number, number]
   const firstChars: [number, number][] = [];
 
   for (const token of tokens) {
-    if (token[0] === "word") {
+    if (token instanceof WordToken) {
       // eslint-disable-next-line unicorn/prefer-code-point
-      const char = token[1].charCodeAt(0);
+      const char = token.word.charCodeAt(0);
       firstChars.push([char, char]);
-    } else if (token[0] === "char") {
-      firstChars.push([token[1], token[2]]);
+    } else if (token instanceof CharToken) {
+      firstChars.push([token.min, token.max]);
     }
   }
 

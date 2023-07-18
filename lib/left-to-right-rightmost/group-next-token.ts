@@ -1,5 +1,3 @@
-import { tokenToString } from "../left-to-right-leftmost/token-set";
-
 import { LR0ItemSet } from "./item-set";
 
 import type { LR0Item } from "./lr0-item";
@@ -22,9 +20,9 @@ export const groupByNextToken = (items: Iterable<LR0Item>): [LR0ItemToken, LR0It
       continue;
     }
 
-    const set = record[tokenToString(token)]?.[1] ?? new LR0ItemSet();
+    const set = record[token.toKeyString()]?.[1] ?? new LR0ItemSet();
     set.add(item);
-    record[tokenToString(token)] = [token, set];
+    record[token.toKeyString()] = [token, set];
   }
 
   return Object.values(record);

@@ -71,13 +71,13 @@ const generateFollowSet = (
 
   for (const [index, token] of tokens.entries()) {
     // 非終端記号なら
-    if (token[0] === "ref") {
+    if (token.isNonTerminal()) {
       // 現在のトークンより後ろのファースト集合を作る
       const follows = tokens.slice(index + 1);
       const followFirstSet = getFirstSet(syntax, firstSetList, follows);
 
       // その非終端記号のフォロー集合に追加する
-      for (const ruleIndex of getRuleIndexes(syntax, token[1])) {
+      for (const ruleIndex of getRuleIndexes(syntax, token.name)) {
         const referenceFollowSet = followSetList[ruleIndex];
 
         if (referenceFollowSet !== undefined) {
