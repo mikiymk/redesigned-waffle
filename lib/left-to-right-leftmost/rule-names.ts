@@ -1,4 +1,4 @@
-import type { Syntax } from "./define-rules";
+import type { Syntax } from "@/lib/rules/define-rules";
 
 /**
  * 構文ルールリストからルールの名前を一覧します。

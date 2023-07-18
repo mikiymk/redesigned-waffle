@@ -3,7 +3,7 @@ import { tokenToString } from "../left-to-right-leftmost/token-set";
 import { LR0ItemSet } from "./item-set";
 
 import type { LR0Item } from "./lr0-item";
-import type { LR0ItemToken } from "../left-to-right-leftmost/define-rules";
+import type { LR0ItemToken } from "@/lib/rules/define-rules";
 
 /**
  * アイテムを次のトークンでグループ分けします。

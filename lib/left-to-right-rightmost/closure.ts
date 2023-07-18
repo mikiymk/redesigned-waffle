@@ -3,7 +3,7 @@ import { getRuleIndexes } from "../left-to-right-leftmost/rule-indexes";
 import { getLR0Item } from "./lr0-item";
 
 import type { LR0Item } from "./lr0-item";
-import type { Syntax } from "../left-to-right-leftmost/define-rules";
+import type { Syntax } from "@/lib/rules/define-rules";
 
 /**
  * ドットが非終端記号の前にある場合、その非終端記号を展開したアイテムリストを作る

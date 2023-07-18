@@ -1,7 +1,8 @@
-import { epsilon } from "./define-rules";
+import { epsilon } from "@/lib/rules/define-rules";
+
 import { TokenSet } from "./token-set";
 
-import type { DirectorSetToken, FirstSetToken, FollowSetToken } from "./define-rules";
+import type { DirectorSetToken, FirstSetToken, FollowSetToken } from "@/lib/rules/define-rules";
 
 /**
  * ファースト集合リストとフォロー集合リストからディレクター集合リストを作成する

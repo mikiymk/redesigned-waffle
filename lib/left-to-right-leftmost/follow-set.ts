@@ -1,9 +1,10 @@
-import { eof, epsilon } from "./define-rules";
+import { eof, epsilon } from "@/lib/rules/define-rules";
+
 import { getFirstSet } from "./first-set";
 import { getRuleIndexes } from "./rule-indexes";
 import { TokenSet } from "./token-set";
 
-import type { FirstSetToken, FollowSetToken, Syntax } from "./define-rules";
+import type { FirstSetToken, FollowSetToken, Syntax } from "@/lib/rules/define-rules";
 
 /**
  * 各ルールについて、続く文字の文字を求める。

@@ -1,4 +1,4 @@
-import type { Token } from "./define-rules";
+import type { Token } from "@/lib/rules/define-rules";
 
 type TokenString = `word "${string}"` | `char ${number}..${number}` | `ref "${string}"` | "epsilon" | "eof";
 

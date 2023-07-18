@@ -1,11 +1,11 @@
 import { expect, test } from "vitest";
 
-import { reference, rule, word } from "../left-to-right-leftmost/define-rules";
+import { reference, rule, word } from "@/lib/rules/define-rules";
 
 import { closure } from "./closure";
 import { getLR0Item } from "./lr0-item";
 
-import type { Syntax } from "../left-to-right-leftmost/define-rules";
+import type { Syntax } from "@/lib/rules/define-rules";
 
 // (0) S → E
 // (1) E → E * B

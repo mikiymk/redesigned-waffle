@@ -1,15 +1,16 @@
+import { eof, reference } from "@/lib/rules/define-rules";
+
 import { peek, EOF, get } from "../core/reader";
 
-import { eof, reference } from "./define-rules";
 import { getDirectorSetList } from "./director-set";
 import { getFirstSetList } from "./first-set";
 import { getFollowSetList } from "./follow-set";
 import { getMatchRuleIndex } from "./get-match-rule";
 import { isLLSyntax } from "./is-ll-syntax";
 
-import type { Syntax, Token } from "./define-rules";
 import type { ParseReader } from "../core/reader";
 import type { Result } from "../util/parser";
+import type { Syntax, Token } from "@/lib/rules/define-rules";
 
 type Tree = string | { index: number; children: Tree[] };
 

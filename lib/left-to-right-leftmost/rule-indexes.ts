@@ -1,4 +1,4 @@
-import type { Syntax } from "./define-rules";
+import type { Syntax } from "@/lib/rules/define-rules";
 
 /**
  *

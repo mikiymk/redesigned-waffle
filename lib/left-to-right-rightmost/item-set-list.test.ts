@@ -1,12 +1,13 @@
 import { expect, test } from "vitest";
 
-import { reference, rule, word } from "../left-to-right-leftmost/define-rules";
+import { reference, rule, word } from "@/lib/rules/define-rules";
+
 import { tokenToString } from "../left-to-right-leftmost/token-set";
 
 import { generateParser } from "./generate-parser";
 import { LR0ItemSet, itemToString } from "./item-set";
 
-import type { Syntax } from "../left-to-right-leftmost/define-rules";
+import type { Syntax } from "@/lib/rules/define-rules";
 
 // (0) S → E
 // (1) E → E * B

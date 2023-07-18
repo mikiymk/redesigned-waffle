@@ -5,7 +5,7 @@ import { getLR0Item } from "./lr0-item";
 import { nextItemSet } from "./next-item";
 
 import type { LR0Item } from "./lr0-item";
-import type { LR0ItemToken, Syntax } from "../left-to-right-leftmost/define-rules";
+import type { LR0ItemToken, Syntax } from "@/lib/rules/define-rules";
 
 /**
  *

@@ -1,11 +1,12 @@
 import { describe, expect, test } from "vitest";
 
+import { reference, rule, word } from "@/lib/rules/define-rules";
+
 import { fromString } from "../core/reader";
 
-import { reference, rule, word } from "./define-rules";
 import { generateParser } from "./generate-parser";
 
-import type { Syntax } from "./define-rules";
+import type { Syntax } from "@/lib/rules/define-rules";
 
 const syntax: Syntax = [
   rule("start", reference("S")),

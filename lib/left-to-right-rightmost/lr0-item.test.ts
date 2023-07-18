@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { epsilon, reference, rule, word } from "../left-to-right-leftmost/define-rules";
+import { epsilon, reference, rule, word } from "@/lib/rules/define-rules";
 
 import { getLR0Item } from "./lr0-item";
 

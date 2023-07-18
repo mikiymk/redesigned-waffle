@@ -1,5 +1,5 @@
-import type { DirectorSetToken } from "./define-rules";
 import type { TokenSet } from "./token-set";
+import type { DirectorSetToken } from "@/lib/rules/define-rules";
 
 /**
  * ２つのトークン集合が最初の１文字について互いに素かどうかを判定する。

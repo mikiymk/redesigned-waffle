@@ -1,4 +1,4 @@
-import type { LR0ItemToken, Rule, SyntaxToken } from "../left-to-right-leftmost/define-rules";
+import type { LR0ItemToken, Rule, SyntaxToken } from "@/lib/rules/define-rules";
 
 export type LR0Item = {
   name: string;

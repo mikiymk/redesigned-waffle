@@ -1,6 +1,7 @@
 import { expect, test } from "vitest";
 
-import { char, word } from "./define-rules";
+import { char, word } from "@/lib/rules/define-rules";
+
 import { isDisjoint } from "./is-disjoint";
 import { TokenSet } from "./token-set";
 

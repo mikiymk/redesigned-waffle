@@ -1,8 +1,9 @@
-import { epsilon } from "./define-rules";
+import { epsilon } from "@/lib/rules/define-rules";
+
 import { getRuleIndexes } from "./rule-indexes";
 import { TokenSet } from "./token-set";
 
-import type { FirstSetToken, Syntax, SyntaxToken } from "./define-rules";
+import type { FirstSetToken, Syntax, SyntaxToken } from "@/lib/rules/define-rules";
 
 /**
  * 各ルールについて、最初の文字を求める。
