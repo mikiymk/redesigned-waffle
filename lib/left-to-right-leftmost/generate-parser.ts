@@ -126,17 +126,19 @@ export const generateParser = (syntax: Syntax) => {
     const tree: Tree[] = [];
     for (const ident of output.reverse()) {
       if (typeof ident === "number") {
-        const [_, tokens] = syntax[ident]!;
+        const tokens = syntax[ident]?.[1];
 
-        tree.push({
-          index: ident,
-          children: tree.splice(-tokens.length, tokens.length).reverse(),
-        });
+        if (tokens) {
+          tree.push({
+            index: ident,
+            children: tree.splice(-tokens.length, tokens.length).reverse(),
+          });
+        }
       } else {
         tree.push(ident);
       }
     }
 
-    return [true, tree[0]!];
+    return [true, tree[0] ?? ""];
   };
 };

@@ -1,8 +1,6 @@
-
 import { isDisjoint } from "./is-disjoint";
 import { getRuleIndexes } from "./rule-indexes";
 import { getRuleNames } from "./rule-names";
-
 
 import type { TokenSet } from "./token-set";
 import type { Result } from "../util/parser";
