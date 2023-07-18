@@ -1,11 +1,17 @@
 import { closure } from "./closure";
 import { groupByNextToken } from "./group-next-token";
 import { LR0ItemSet } from "./item-set";
-import { getLR0Item } from "./lr0-item";
-import { nextItem } from "./next-item";
+import { LR0Item, getLR0Item } from "./lr0-item";
+import { nextItem, nextItemSet } from "./next-item";
 
 import type { Syntax } from "../left-to-right-leftmost/define-rules";
 
+/**
+ *
+ * @param syntax
+ * @returns
+ */
+// eslint-disable-next-line import/no-unused-modules
 export const generateParser = (syntax: Syntax) => {
   const firstRule = syntax[0];
   if (firstRule === undefined) {
@@ -14,23 +20,46 @@ export const generateParser = (syntax: Syntax) => {
 
   const firstItem = getLR0Item(firstRule);
 
-  const itemSetList = [new LR0ItemSet([firstItem, ...closure(syntax, firstItem)])];
+  const itemSetList = [generateItemSet(syntax, [firstItem])];
 
-  for (const itemSet of itemSetList) {
-    const groups = groupByNextToken(itemSet);
+  for (const { kernels, additions } of itemSetList) {
+    // アイテム集合をグループ分けする
+    const groups = groupByNextToken(new LR0ItemSet([...kernels, ...additions]));
 
-    for (const group of groups) {
-      const newSet = new LR0ItemSet();
+    // 各グループについて
+    outer: for (const [firstToken, itemSet] of groups) {
+      // もし既存のアイテム集合に同じものがあったら
+      // 新しく追加しない
 
-      for (const item of group) {
-        const next = nextItem(item);
-        if (next !== undefined) {
-          newSet.add(next);
+      const next = nextItemSet(itemSet);
+
+      for (const { kernels } of itemSetList) {
+        if (kernels.equals(next)) {
+          continue outer;
         }
       }
-      itemSetList.push(newSet);
+
+      itemSetList.push(generateItemSet(syntax, next));
     }
   }
 
-  return itemSetList;
+  return itemSetList.map(({ kernels, additions }) => ({ kernels: [...kernels], additions: [...additions] }));
+};
+
+/**
+ *
+ * @param syntax
+ * @param items
+ * @returns
+ */
+const generateItemSet = (syntax: Syntax, items: Iterable<LR0Item>): { kernels: LR0ItemSet; additions: LR0ItemSet } => {
+  const additions = new LR0ItemSet();
+  for (const item of items) {
+    additions.append(closure(syntax, item));
+  }
+
+  return {
+    kernels: new LR0ItemSet(items),
+    additions,
+  };
 };

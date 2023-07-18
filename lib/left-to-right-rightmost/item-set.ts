@@ -8,7 +8,7 @@ import type { LR0Item } from "./lr0-item";
  * @param item トークン
  * @returns 文字列
  */
-const itemToString = (item: LR0Item): string => {
+export const itemToString = (item: LR0Item): string => {
   return `${item.name} → ${item.tokens
     .slice(0, item.position)
     .map((value) => tokenToString(value))
@@ -144,5 +144,22 @@ export class LR0ItemSet {
    */
   asString(): string {
     return `LR0ItemSet [${[...this.set.keys()].join(", ")}]`;
+  }
+
+  /**
+   * 2つのアイテム集合が同じか比較します。
+   * @param other 比較対象
+   * @returns 同じならtrue
+   */
+  equals(other: LR0ItemSet): boolean {
+    if (this.size !== other.size) return false;
+
+    for (const item of this) {
+      if (!other.has(item)) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }
