@@ -1,15 +1,16 @@
+import { CharToken, EOFToken, EmptyToken, ReferenceToken, WordToken, eof, reference } from "@/lib/rules/define-rules";
+
 import { peek, EOF, get } from "../core/reader";
 
-import { eof, reference } from "./define-rules";
 import { getDirectorSetList } from "./director-set";
 import { getFirstSetList } from "./first-set";
 import { getFollowSetList } from "./follow-set";
 import { getMatchRuleIndex } from "./get-match-rule";
 import { isLLSyntax } from "./is-ll-syntax";
 
-import type { Syntax, Token } from "./define-rules";
 import type { ParseReader } from "../core/reader";
 import type { Result } from "../util/parser";
+import type { Syntax, Token } from "@/lib/rules/define-rules";
 
 type Tree = string | { index: number; children: Tree[] };
 
@@ -43,7 +44,7 @@ export const generateParser = (syntax: Syntax) => {
     const output: (number | string)[] = [];
 
     // 入力に対してループする
-    loop: for (;;) {
+    for (;;) {
       // スタックのトップ
       const token = stack.pop();
       // 次の入力
@@ -60,81 +61,64 @@ export const generateParser = (syntax: Syntax) => {
 
       if (token === undefined) {
         return [false, new Error("invalid sequence")];
-      }
-
-      switch (token[0]) {
-        case "eof": {
-          // EOFなら読み込みを終了する
-          if (peeked === EOF) {
-            break loop;
-          }
-
-          return [false, new Error("leftover string")];
-        }
-
-        case "ref": {
-          // 非終端記号の場合
-          const [ok, ruleIndex] = getMatchRuleIndex(syntax, directorSetList, token[1], peekedCode);
-          if (!ok) {
-            return [false, new Error(`no rule ${token[1]} matches first char ${peeked.toString()}`)];
-          }
-
-          // 破壊的メソッドの影響を与えないために新しい配列を作る
-          const tokens = [...(syntax[ruleIndex]?.[1] ?? [])];
-
-          // 構文スタックに逆順で追加する
-          for (const token of tokens.reverse()) {
-            stack.push(token);
-          }
-
-          output.push(ruleIndex);
+      } else if (token instanceof EOFToken) {
+        // EOFなら読み込みを終了する
+        if (peeked === EOF) {
           break;
         }
 
-        case "word": {
-          // 文字列の場合
-
-          const word = token[1];
-          let nextChar = peeked;
-
-          // 文字列の各文字をループ
-          for (const char of word) {
-            if (nextChar === char) {
-              get(pr);
-            } else if (nextChar === EOF) {
-              return [false, new Error("expect " + word + " but reaches end")];
-            } else {
-              return [false, new Error("expect " + word + " but found " + nextChar)];
-            }
-
-            nextChar = peek(pr);
-          }
-
-          // 成功したら出力
-          output.push(word);
-
-          break;
+        return [false, new Error("leftover string")];
+      } else if (token instanceof ReferenceToken) {
+        // 非終端記号の場合
+        const [ok, ruleIndex] = getMatchRuleIndex(syntax, directorSetList, token.name, peekedCode);
+        if (!ok) {
+          return [false, new Error(`no rule ${token.name} matches first char ${peeked.toString()}`)];
         }
 
-        case "char": {
-          // 文字
+        // 破壊的メソッドの影響を与えないために新しい配列を作る
+        const tokens = [...(syntax[ruleIndex]?.[1] ?? [])];
 
-          const min = token[1];
-          const max = token[2];
+        // 構文スタックに逆順で追加する
+        for (const token of tokens.reverse()) {
+          stack.push(token);
+        }
 
-          if (peeked !== EOF && min <= peekedCode && peekedCode <= max) {
-            output.push(peeked);
-          } else if (peeked === EOF) {
-            return [false, new Error(`expect char ${min}..${max}but reaches end`)];
+        output.push(ruleIndex);
+      } else if (token instanceof WordToken) {
+        // 文字列の場合
+
+        const { word } = token;
+        let nextChar = peeked;
+
+        // 文字列の各文字をループ
+        for (const char of word) {
+          if (nextChar === char) {
+            get(pr);
+          } else if (nextChar === EOF) {
+            return [false, new Error("expect " + word + " but reaches end")];
           } else {
-            return [false, new Error(`expect char ${min}..${max}but found ${peeked}`)];
+            return [false, new Error("expect " + word + " but found " + nextChar)];
           }
-          break;
+
+          nextChar = peek(pr);
         }
 
-        case "epsilon": {
-          continue;
+        // 成功したら出力
+        output.push(word);
+      } else if (token instanceof CharToken) {
+        // 文字
+
+        const { min, max } = token;
+
+        if (peeked !== EOF && min <= peekedCode && peekedCode <= max) {
+          output.push(peeked);
+        } else if (peeked === EOF) {
+          return [false, new Error(`expect char ${min}..${max}but reaches end`)];
+        } else {
+          return [false, new Error(`expect char ${min}..${max}but found ${peeked}`)];
         }
+      } else if (token instanceof EmptyToken) {
+        continue;
       }
     }
 
@@ -142,17 +126,19 @@ export const generateParser = (syntax: Syntax) => {
     const tree: Tree[] = [];
     for (const ident of output.reverse()) {
       if (typeof ident === "number") {
-        const [_, tokens] = syntax[ident]!;
+        const tokens = syntax[ident]?.[1];
 
-        tree.push({
-          index: ident,
-          children: tree.splice(-tokens.length, tokens.length).reverse(),
-        });
+        if (tokens) {
+          tree.push({
+            index: ident,
+            children: tree.splice(-tokens.length, tokens.length).reverse(),
+          });
+        }
       } else {
         tree.push(ident);
       }
     }
 
-    return [true, tree[0]!];
+    return [true, tree[0] ?? ""];
   };
 };

@@ -1,12 +1,11 @@
 import { expect, test } from "vitest";
 
-import { reference, rule, word } from "../left-to-right-leftmost/define-rules";
-import { tokenToString } from "../left-to-right-leftmost/token-set";
+import { reference, rule, word } from "@/lib/rules/define-rules";
 
 import { generateParser } from "./generate-parser";
 import { LR0ItemSet, itemToString } from "./item-set";
 
-import type { Syntax } from "../left-to-right-leftmost/define-rules";
+import type { Syntax } from "@/lib/rules/define-rules";
 
 // (0) S → E
 // (1) E → E * B
@@ -31,7 +30,7 @@ test("generate parser", () => {
     console.log("item set", count++);
     for (const item of kernels) console.log("  ", itemToString(item));
     for (const item of additions) console.log(" +", itemToString(item));
-    for (const [token, number] of gotoMap) console.log(" :", tokenToString(token), "=>", number);
+    for (const [token, number] of gotoMap) console.log(" :", token.toString(), "=>", number);
 
     console.log();
   }

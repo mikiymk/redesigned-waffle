@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import { char, epsilon, reference, rule, word } from "./define-rules";
+import { char, epsilon, reference, rule, word } from "@/lib/rules/define-rules";
+
 import { getFirstSetList } from "./first-set";
 import { TokenSet } from "./token-set";
 

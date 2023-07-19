@@ -1,42 +1,10 @@
-import type { Token } from "./define-rules";
-
-type TokenString = `word "${string}"` | `char ${number}..${number}` | `ref "${string}"` | "epsilon" | "eof";
-
-/**
- * トークンを文字列にする
- * Setに入れるため
- * @param token トークン
- * @returns 文字列
- */
-export const tokenToString = (token: Token): TokenString => {
-  switch (token[0]) {
-    case "char": {
-      return `char ${token[1]}..${token[2]}`;
-    }
-
-    case "epsilon": {
-      return "epsilon";
-    }
-
-    case "ref": {
-      return `ref "${token[1].replaceAll('"', '\\"').replaceAll("\\", "\\\\")}"`;
-    }
-
-    case "word": {
-      return `word "${token[1].replaceAll('"', '\\"').replaceAll("\\", "\\\\")}"`;
-    }
-
-    case "eof": {
-      return "eof";
-    }
-  }
-};
+import type { Token } from "@/lib/rules/define-rules";
 
 /**
  * トークンの集合（同じトークンが最大で１つ含まれる）
  */
 export class TokenSet<T extends Token> {
-  set = new Map<TokenString, T>();
+  set = new Map<string, T>();
 
   /**
    * 新しいトークンの集合を作成します。
@@ -44,7 +12,7 @@ export class TokenSet<T extends Token> {
    */
   constructor(tokens: Iterable<T> = []) {
     for (const token of tokens) {
-      this.set.set(tokenToString(token), token);
+      this.set.set(token.toKeyString(), token);
     }
   }
 
@@ -62,7 +30,7 @@ export class TokenSet<T extends Token> {
    * @returns 含まれる場合は `true`
    */
   has(token: Token): token is T {
-    return this.set.has(tokenToString(token));
+    return this.set.has(token.toKeyString());
   }
 
   /**
@@ -71,7 +39,7 @@ export class TokenSet<T extends Token> {
    * @returns トークンを追加した自身
    */
   add(token: T): this {
-    this.set.set(tokenToString(token), token);
+    this.set.set(token.toKeyString(), token);
 
     return this;
   }
@@ -82,7 +50,7 @@ export class TokenSet<T extends Token> {
    * @returns トークンが存在して削除された場合は `true`
    */
   delete(token: T): boolean {
-    return this.set.delete(tokenToString(token));
+    return this.set.delete(token.toKeyString());
   }
 
   /**
@@ -92,7 +60,7 @@ export class TokenSet<T extends Token> {
    */
   append(tokens: Iterable<T>): this {
     for (const token of tokens) {
-      this.set.set(tokenToString(token), token);
+      this.set.set(token.toKeyString(), token);
     }
 
     return this;

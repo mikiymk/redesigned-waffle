@@ -1,6 +1,7 @@
 import { expect, test } from "vitest";
 
-import { reference, rule, word } from "./define-rules";
+import { reference, rule, word } from "@/lib/rules/define-rules";
+
 import { getDirectorSetList } from "./director-set";
 import { getFirstSetList } from "./first-set";
 import { getFollowSetList } from "./follow-set";

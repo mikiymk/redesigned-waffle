@@ -1,8 +1,9 @@
-import { epsilon } from "./define-rules";
+import { CharToken, EmptyToken, ReferenceToken, WordToken, epsilon } from "@/lib/rules/define-rules";
+
 import { getRuleIndexes } from "./rule-indexes";
 import { TokenSet } from "./token-set";
 
-import type { FirstSetToken, Syntax, SyntaxToken } from "./define-rules";
+import type { FirstSetToken, Syntax, SyntaxToken } from "@/lib/rules/define-rules";
 
 /**
  * 各ルールについて、最初の文字を求める。
@@ -76,45 +77,38 @@ export const getFirstSet = (
   const set = new TokenSet<FirstSetToken>();
   // ルールから最初のトークンを取り出す
   for (const [index, token] of tokens.entries()) {
-    switch (token[0]) {
-      case "char":
-      case "word": {
-        // もし、文字なら、それを文字集合に追加する
+    if (token instanceof WordToken || token instanceof CharToken) {
+      // もし、文字なら、それを文字集合に追加する
+      set.add(token);
+      return set;
+    } else if (token instanceof EmptyToken) {
+      if (tokens[index + 1] === undefined) {
+        // もし、空かつその後にトークンがないなら、空を文字集合に追加する
+
         set.add(token);
         return set;
+      } else {
+        // もし、空かつその後にトークンがあるなら、後ろのトークンを文字集合に追加する
+        continue;
       }
+    } else if (token instanceof ReferenceToken) {
+      // もし、他のルールなら、そのルールの文字集合を文字集合に追加する
+      for (const index of getRuleIndexes(syntax, token.name)) {
+        const referenceFirstSet = firstSetList[index];
+        if (!referenceFirstSet) continue;
 
-      case "epsilon": {
-        if (tokens[index + 1] === undefined) {
-          // もし、空かつその後にトークンがないなら、空を文字集合に追加する
-
+        for (const token of referenceFirstSet) {
           set.add(token);
-          return set;
-        } else {
-          // もし、空かつその後にトークンがあるなら、後ろのトークンを文字集合に追加する
-          continue;
         }
       }
 
-      case "ref": {
-        // もし、他のルールなら、そのルールの文字集合を文字集合に追加する
-        for (const index of getRuleIndexes(syntax, token[1])) {
-          const referenceFirstSet = firstSetList[index];
-          if (!referenceFirstSet) continue;
-
-          for (const token of referenceFirstSet) {
-            set.add(token);
-          }
-        }
-
-        // 空トークンが入っているなら、次のトークンを追加する
-        if (set.has(epsilon) && tokens[index + 1] !== undefined) {
-          set.delete(epsilon);
-          continue;
-        }
-
-        return set;
+      // 空トークンが入っているなら、次のトークンを追加する
+      if (set.has(epsilon) && tokens[index + 1] !== undefined) {
+        set.delete(epsilon);
+        continue;
       }
+
+      return set;
     }
   }
 

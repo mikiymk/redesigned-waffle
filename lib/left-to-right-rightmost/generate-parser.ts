@@ -5,14 +5,13 @@ import { getLR0Item } from "./lr0-item";
 import { nextItemSet } from "./next-item";
 
 import type { LR0Item } from "./lr0-item";
-import type { LR0ItemToken, Syntax } from "../left-to-right-leftmost/define-rules";
+import type { LR0ItemToken, Syntax } from "@/lib/rules/define-rules";
 
 /**
- *
- * @param syntax
- * @returns
+ * 構文ルールリストからアイテム集合のリストを作ります。
+ * @param syntax 構文ルールリスト
+ * @returns LR(0)状態遷移テーブル
  */
-// eslint-disable-next-line import/no-unused-modules
 export const generateParser = (syntax: Syntax) => {
   const firstRule = syntax[0];
   if (firstRule === undefined) {
@@ -49,10 +48,10 @@ export const generateParser = (syntax: Syntax) => {
 };
 
 /**
- *
- * @param syntax
- * @param items
- * @returns
+ * 1つのアイテム集合を作ります。
+ * @param syntax 構文ルールリスト
+ * @param items LR(0)アイテムリスト
+ * @returns 展開したアイテムリスト
  */
 const generateItemSet = (
   syntax: Syntax,

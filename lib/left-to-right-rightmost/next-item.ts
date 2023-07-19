@@ -18,7 +18,7 @@ export const nextItemSet = (itemSet: LR0ItemSet): LR0ItemSet => {
  * @param item LR(0)アイテム
  * @returns ドットを１つ進めたLR(0)アイテム。最後だった場合は`undefined`
  */
-export const nextItem = (item: LR0Item): LR0Item | undefined => {
+const nextItem = (item: LR0Item): LR0Item | undefined => {
   return item.tokens[item.position] === undefined
     ? undefined
     : {

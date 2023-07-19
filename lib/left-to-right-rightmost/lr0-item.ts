@@ -1,4 +1,6 @@
-import type { LR0ItemToken, Rule, SyntaxToken } from "../left-to-right-leftmost/define-rules";
+import { EmptyToken } from "@/lib/rules/define-rules";
+
+import type { LR0ItemToken, Rule, SyntaxToken } from "@/lib/rules/define-rules";
 
 export type LR0Item = {
   name: string;
@@ -21,7 +23,7 @@ export const getLR0Item = (rule: Rule): LR0Item => {
 
   // 空白トークンは無視する
   const tokens: LR0ItemToken[] = rule[1].filter(
-    (token): token is Exclude<SyntaxToken, ["epsilon"]> => token[0] !== "epsilon",
+    (token): token is Exclude<SyntaxToken, EmptyToken> => !(token instanceof EmptyToken),
   );
 
   return {

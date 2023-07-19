@@ -1,9 +1,10 @@
 import { expect, test } from "vitest";
 
-import { char, word } from "./define-rules";
+import { char, word } from "@/lib/rules/define-rules";
+
 import { TokenSet } from "./token-set";
 
-import type { Token } from "./define-rules";
+import type { Token } from "@/lib/rules/define-rules";
 
 test("construct token set", () => {
   const tokenSet = new TokenSet<Token>([]);

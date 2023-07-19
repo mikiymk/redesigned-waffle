@@ -1,7 +1,8 @@
 import { createSignal } from "solid-js";
 
 /**
- *
+ * アプリルート
+ * @returns JSX
  */
 export const App = () => {
   const [text, setText] = createSignal("");
