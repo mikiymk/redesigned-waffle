@@ -95,6 +95,10 @@ export class ParseTableRow {
    * @returns アクション
    */
   getMatch(char: string | EOF): MatchResult {
+    if (!this.#collected) {
+      throw new Error("not collected");
+    }
+
     if (this.#reduce !== undefined) {
       return ["reduce", this.#reduce];
     }
@@ -119,6 +123,10 @@ export class ParseTableRow {
    * @returns 遷移先の状態番号
    */
   getGoto(nonTermName: string): number {
+    if (!this.#collected) {
+      throw new Error("not collected");
+    }
+
     for (const [token, newState] of this.#goto) {
       if (token.name === nonTermName) {
         return newState;

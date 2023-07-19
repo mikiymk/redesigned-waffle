@@ -1,4 +1,4 @@
-import { get, peek } from "@/lib/core/reader";
+import { peek } from "@/lib/core/reader";
 
 import { generateParseTable } from "./transition-table";
 
