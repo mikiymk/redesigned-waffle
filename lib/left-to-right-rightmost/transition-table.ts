@@ -1,3 +1,7 @@
+import { getDirectorSetList } from "../left-to-right-leftmost/director-set";
+import { getFirstSetList } from "../left-to-right-leftmost/first-set";
+import { getFollowSetList } from "../left-to-right-leftmost/follow-set";
+
 import { groupByNextToken } from "./group-next-token";
 import { LR0ItemSet } from "./item-set";
 import { LR0Item } from "./lr0-item";
@@ -18,6 +22,15 @@ export const generateParseTable = (syntax: Syntax) => {
   if (firstRule === undefined) {
     throw new Error("syntax needs 1 or more rules");
   }
+
+  const firstSet = getFirstSetList(syntax);
+  const followSet = getFollowSetList(syntax, firstSet);
+  const lookaheadSet = getDirectorSetList(firstSet, followSet);
+
+  console.log("first set", firstSet);
+  console.log("follow set", followSet);
+  console.log("lookahead set", lookaheadSet);
+  console.log();
 
   const firstItem = new LR0Item(firstRule);
 
@@ -46,7 +59,7 @@ export const generateParseTable = (syntax: Syntax) => {
       itemSetList.push(new ParseTableRow(syntax, next));
     }
 
-    row.collectRow();
+    row.collectRow(followSet);
   }
 
   return itemSetList;

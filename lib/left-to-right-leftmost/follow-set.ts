@@ -19,9 +19,7 @@ export const getFollowSetList = (
   // ルールリストと同じ長さで文字集合リストを作る
   const followSetList = syntax.map(() => new TokenSet<FollowSetToken>());
 
-  for (const ruleIndex of getRuleIndexes(syntax, "start")) {
-    followSetList[ruleIndex]?.add(eof);
-  }
+  followSetList[0]?.add(eof);
 
   for (;;) {
     let updated = false;
