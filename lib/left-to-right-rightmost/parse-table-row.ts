@@ -77,6 +77,12 @@ export class ParseTableRow {
       throw new Error("reduce-reduce conflict: " + reduceNumbers.join(","));
     }
 
+    if (this.#reduce !== undefined && this.gotoMap.length > 0) {
+      throw new Error(
+        "shift-reduce conflict: " + this.gotoMap.map((v) => v[1]).join(", ") + " and " + reduceNumbers.join(","),
+      );
+    }
+
     // shiftを調べる
     for (const [token, number] of this.gotoMap) {
       if (token instanceof ReferenceToken) {
