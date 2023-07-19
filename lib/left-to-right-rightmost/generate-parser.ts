@@ -13,21 +13,31 @@ import type { ParseReader } from "@/lib/core/reader";
 export const generateParser = (syntax: Syntax) => {
   const table = generateParseTable(syntax);
 
+  for (const [index, row] of table.entries()) {
+    console.log("rule", index);
+    console.log(row.printDebugInfo());
+  }
+
   return (pr: ParseReader) => {
     const output: (number | string)[] = [];
     const stack = [0];
-    let state = 0;
 
-    for (;;) {
+    parse_loop: for (;;) {
       const nextChar = peek(pr);
 
+      const state = stack.at(-1) ?? 0;
       const [action, parameter] = table[state]?.getMatch(nextChar) ?? ["error"];
+
+      console.log("stack:   ", stack);
+      console.log("peek:    ", nextChar);
+      console.log("action:  ", action, parameter);
+      console.log("output:  ", output);
+      console.log();
 
       switch (action) {
         case "shift": {
           get(pr);
           stack.push(parameter);
-          state = parameter;
           break;
         }
 
@@ -54,12 +64,11 @@ export const generateParser = (syntax: Syntax) => {
           }
 
           stack.push(newState);
-          state = newState;
           break;
         }
 
         case "accept": {
-          return output;
+          break parse_loop;
         }
 
         default: {
@@ -67,5 +76,9 @@ export const generateParser = (syntax: Syntax) => {
         }
       }
     }
+
+    console.log("parse end");
+
+    return output;
   };
 };

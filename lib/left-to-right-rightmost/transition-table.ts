@@ -23,7 +23,9 @@ export const generateParseTable = (syntax: Syntax) => {
 
   const itemSetList = [new ParseTableRow(syntax, [firstItem])];
 
-  for (const { kernels, additions, gotoMap } of itemSetList) {
+  for (const row of itemSetList) {
+    const { kernels, additions, gotoMap } = row;
+
     // アイテム集合をグループ分けする
     const groups = groupByNextToken(new LR0ItemSet([...kernels, ...additions]));
 
@@ -43,6 +45,8 @@ export const generateParseTable = (syntax: Syntax) => {
       gotoMap.push([token, itemSetList.length]);
       itemSetList.push(new ParseTableRow(syntax, next));
     }
+
+    row.collectRow();
   }
 
   return itemSetList;

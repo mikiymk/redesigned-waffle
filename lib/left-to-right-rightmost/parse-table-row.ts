@@ -5,7 +5,7 @@ import { closure } from "./closure";
 import { LR0ItemSet } from "./item-set";
 
 import type { LR0Item } from "./lr0-item";
-import type { LR0ItemToken, Syntax } from "../rules/define-rules";
+import type { CharToken, LR0ItemToken, Syntax, WordToken } from "../rules/define-rules";
 
 type MatchResult = ["reduce", number] | ["shift", number] | ["accept"] | ["error"];
 
@@ -18,6 +18,12 @@ export class ParseTableRow {
   readonly gotoMap: [LR0ItemToken, number][] = [];
 
   readonly #syntax;
+
+  #collected = false;
+  #reduce: number | undefined;
+  #accept = false;
+  #shift: [WordToken | CharToken, number][] = [];
+  #goto: [ReferenceToken, number][] = [];
 
   /**
    * 1つのアイテム集合を作ります。
@@ -35,20 +41,10 @@ export class ParseTableRow {
   }
 
   /**
-   * shift-reduce衝突またはreduce-reduce衝突があるか調べます
-   * @returns 衝突があるなら `true`
+   * shift, reduce, gotoなどを計算します。
    */
-  isConflict(): boolean {
-    // todo
-    return true;
-  }
-
-  /**
-   * 次の文字を読み込んでアクションを返します
-   * @param char 次の文字
-   * @returns アクション
-   */
-  getMatch(char: string | EOF): MatchResult {
+  collectRow() {
+    const reduceNumbers = [];
     // reduceとacceptを調べる
     for (const item of [...this.kernels, ...this.additions]) {
       if (item.isLast()) {
@@ -61,25 +57,54 @@ export class ParseTableRow {
           throw new Error("item is not in grammar");
         }
 
-        if (ruleNumber === 0 && char === EOF) {
+        if (ruleNumber === 0) {
           // 初期状態の場合はaccept
-          return ["accept"];
+          this.#accept = true;
         }
 
         // その他のルールではreduce
-        return ["reduce", ruleNumber];
+        reduceNumbers.push(ruleNumber);
       }
     }
 
-    // shiftを調べる
-    for (const [token, newState] of this.gotoMap) {
-      if (token instanceof ReferenceToken) {
-        // shiftは終端記号のみ調べる
-        continue;
-      }
+    if (!this.#accept && reduceNumbers.length === 1) {
+      this.#reduce = reduceNumbers[0];
+    }
 
+    if (reduceNumbers.length > 1) {
+      throw new Error("reduce-reduce conflict: " + reduceNumbers.join(","));
+    }
+
+    // shiftを調べる
+    for (const [token, number] of this.gotoMap) {
+      if (token instanceof ReferenceToken) {
+        this.#goto.push([token, number]);
+      } else {
+        this.#shift.push([token, number]);
+      }
+    }
+
+    this.#collected = true;
+  }
+
+  /**
+   * 次の文字を読み込んでアクションを返します
+   * @param char 次の文字
+   * @returns アクション
+   */
+  getMatch(char: string | EOF): MatchResult {
+    if (this.#reduce !== undefined) {
+      return ["reduce", this.#reduce];
+    }
+
+    if (this.#accept && char === EOF) {
+      return ["accept"];
+    }
+
+    // shiftを調べる
+    for (const [token, number] of this.#shift) {
       if (token.matchFirstChar(char)) {
-        return ["shift", newState];
+        return ["shift", number];
       }
     }
 
@@ -92,8 +117,8 @@ export class ParseTableRow {
    * @returns 遷移先の状態番号
    */
   getGoto(nonTermName: string): number {
-    for (const [token, newState] of this.gotoMap) {
-      if (token instanceof ReferenceToken && token.name === nonTermName) {
+    for (const [token, newState] of this.#goto) {
+      if (token.name === nonTermName) {
         return newState;
       }
     }
@@ -101,5 +126,40 @@ export class ParseTableRow {
     throw new Error(
       "not goto " + nonTermName + " in " + this.gotoMap.map(([t, n]) => `${t.toString()}→${n}`).join(", "),
     );
+  }
+
+  /**
+   * デバッグ情報を表示します。
+   */
+  printDebugInfo() {
+    console.log("table-row:");
+    console.log(" kernels:");
+    for (const item of this.kernels) {
+      console.log("  ", item.toString());
+    }
+
+    console.log(" additions:");
+    for (const item of this.additions) {
+      console.log("  ", item.toString());
+    }
+
+    console.log(" goto-raw:");
+    for (const [token, number] of this.gotoMap) {
+      console.log("  ", token.toString(), "→", number);
+    }
+
+    console.log(" collect info:");
+    console.log("  shift:");
+    for (const [token, number] of this.#shift) {
+      console.log("   ", token.toString(), "→", number);
+    }
+    console.log("  goto:");
+    for (const [token, number] of this.#goto) {
+      console.log("   ", token.toString(), "→", number);
+    }
+    console.log("  reduce:", this.#reduce);
+    console.log("  accept:", this.#accept);
+
+    console.log();
   }
 }

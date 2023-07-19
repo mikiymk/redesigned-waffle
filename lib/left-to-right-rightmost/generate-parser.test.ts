@@ -27,41 +27,13 @@ describe("parsing", () => {
 
     const result = parser(fromString(source));
 
-    expect(result).toStrictEqual([
-      true,
-      {
-        index: 0,
-        children: [
-          {
-            index: 2,
-            children: [
-              "(",
-              {
-                index: 1,
-                children: [
-                  {
-                    index: 3,
-                    children: ["1"],
-                  },
-                ],
-              },
-              "+",
-              {
-                index: 3,
-                children: ["1"],
-              },
-              ")",
-            ],
-          },
-        ],
-      },
-    ]);
+    expect(result).toStrictEqual([3, 1, 3, 2]);
   });
 
   test("parse failure", () => {
     const source = "(1+)";
 
-    expect(parser(fromString(source))).toStrictEqual([false, new Error("no rule F matches first char )")]);
+    expect(parser(fromString(source))).toStrictEqual([false, new Error("nomatch input")]);
   });
 });
 
@@ -86,38 +58,12 @@ describe("parsing 2", () => {
 
     const result = parser(fromString(source));
 
-    expect(result).toStrictEqual([
-      true,
-      {
-        index: 0,
-        children: [
-          {
-            index: 2,
-            children: [
-              {
-                index: 3,
-                children: [
-                  {
-                    index: 5,
-                    children: ["1"],
-                  },
-                ],
-              },
-              "+",
-              {
-                index: 5,
-                children: ["1"],
-              },
-            ],
-          },
-        ],
-      },
-    ]);
+    expect(result).toStrictEqual([5, 3, 5, 2]);
   });
 
   test("parse failure", () => {
     const source = "1+2";
 
-    expect(parser(fromString(source))).toStrictEqual([false, new Error("no rule F matches first char )")]);
+    expect(parser(fromString(source))).toStrictEqual([false, new Error("nomatch input")]);
   });
 });

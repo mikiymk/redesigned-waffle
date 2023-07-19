@@ -72,4 +72,16 @@ export class LR0Item {
       .map((value) => value.toKeyString())
       .join(" ")}`;
   }
+
+  /**
+   * トークンを文字列にする
+   * @returns 文字列
+   */
+  toString(): string {
+    return `${this.rule[0]} → [${[
+      ...this.rule[1].slice(0, this.position).map((value) => value.toKeyString()),
+      ".",
+      ...this.rule[1].slice(this.position).map((value) => value.toKeyString()),
+    ].join(" , ")}]`;
+  }
 }
