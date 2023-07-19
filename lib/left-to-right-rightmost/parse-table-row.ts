@@ -5,7 +5,8 @@ import { closure } from "./closure";
 import { LR0ItemSet } from "./item-set";
 
 import type { LR0Item } from "./lr0-item";
-import type { CharToken, LR0ItemToken, Syntax, WordToken } from "../rules/define-rules";
+import type { TokenSet } from "../left-to-right-leftmost/token-set";
+import type { CharToken, DirectorSetToken, LR0ItemToken, Syntax, WordToken } from "../rules/define-rules";
 
 type TermToken = WordToken | CharToken;
 type NonTermToken = ReferenceToken;
@@ -22,7 +23,7 @@ export class ParseTableRow {
   readonly #syntax;
 
   #collected = false;
-  #reduce: number | undefined;
+  #reduce: [TokenSet<DirectorSetToken>, number][] = [];
   #accept = false;
   #shift: [TermToken, number][] = [];
   #goto: [NonTermToken, number][] = [];
@@ -44,9 +45,9 @@ export class ParseTableRow {
 
   /**
    * shift, reduce, gotoなどを計算します。
+   * @param resolverSet 解決用トークン集合リスト
    */
-  collectRow() {
-    const reduceNumbers = [];
+  collectRow(resolverSet: TokenSet<DirectorSetToken>[]) {
     // reduceとacceptを調べる
     for (const item of [...this.kernels, ...this.additions]) {
       if (item.isLast()) {
@@ -62,19 +63,15 @@ export class ParseTableRow {
         if (ruleNumber === 0) {
           // 初期状態の場合はaccept
           this.#accept = true;
+        } else {
+          // その他のルールではreduce
+          const resolver = resolverSet[ruleNumber];
+          if (resolver === undefined) {
+            throw new Error("not match resolver set and syntax");
+          }
+          this.#reduce.push([resolver, ruleNumber]);
         }
-
-        // その他のルールではreduce
-        reduceNumbers.push(ruleNumber);
       }
-    }
-
-    if (!this.#accept && reduceNumbers.length === 1) {
-      this.#reduce = reduceNumbers[0];
-    }
-
-    if (reduceNumbers.length > 1) {
-      throw new Error("reduce-reduce conflict: " + reduceNumbers.join(","));
     }
 
     // shiftを調べる
@@ -99,12 +96,15 @@ export class ParseTableRow {
       throw new Error("not collected");
     }
 
-    if (this.#reduce !== undefined) {
-      return ["reduce", this.#reduce];
-    }
-
     if (this.#accept && char === EOF) {
       return ["accept"];
+    }
+
+    // reduceを調べる
+    for (const [set, number] of this.#reduce) {
+      if (set.matchFirstChar(char)) {
+        return ["reduce", number];
+      }
     }
 
     // shiftを調べる

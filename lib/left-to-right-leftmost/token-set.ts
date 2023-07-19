@@ -1,3 +1,6 @@
+import { ReferenceToken } from "@/lib/rules/define-rules";
+
+import type { EOF } from "../core/reader";
 import type { Token } from "@/lib/rules/define-rules";
 
 /**
@@ -117,6 +120,25 @@ export class TokenSet<T extends Token> {
     for (const [_, token] of this.set) {
       yield token;
     }
+  }
+
+  /**
+   * 与えられた文字がこのトークン集合の最初の文字として有効か判定します。
+   * @param char 文字
+   * @returns 文字がマッチするか
+   */
+  matchFirstChar(char: string | EOF): boolean {
+    for (const token of this) {
+      if (token instanceof ReferenceToken) {
+        throw new TypeError("cannot use matchFirstChar() at ReferenceToken set");
+      }
+
+      if (token.matchFirstChar(char)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**
