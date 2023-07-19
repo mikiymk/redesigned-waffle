@@ -2,7 +2,10 @@
  * @file
  */
 
-import { EOF } from "../core/reader";
+import { EOF, get, peek } from "../core/reader";
+
+import type { ParseReader } from "../core/reader";
+import type { Result } from "../util/parser";
 
 /**
  * 言語の構文
@@ -43,6 +46,13 @@ type BaseToken = {
 
 type TerminalToken = {
   /**
+   * リーダーからトークンにマッチする文字列を読み込みます
+   * @param pr 読み込み機
+   * @returns 読み込んだ文字列
+   */
+  read(pr: ParseReader): Result<string>;
+
+  /**
    * 与えられた文字がこのトークンの最初の文字として有効か判定します。
    * @param char 文字
    * @returns 文字がマッチするか
@@ -67,6 +77,23 @@ export class WordToken implements BaseToken, TerminalToken {
     }
 
     this.word = word;
+  }
+
+  /**
+   * リーダーからトークンにマッチする文字列を読み込みます
+   * @param pr 読み込み機
+   * @returns 読み込んだ文字列
+   */
+  read(pr: ParseReader): Result<string> {
+    for (const c of this.word) {
+      if (peek(pr) === c) {
+        get(pr);
+      } else {
+        return [false, new Error("not word")];
+      }
+    }
+
+    return [true, this.word];
   }
 
   /**
@@ -139,6 +166,24 @@ export class CharToken implements BaseToken, TerminalToken {
 
     this.min = minCode;
     this.max = maxCode;
+  }
+
+  /**
+   * リーダーからトークンにマッチする文字列を読み込みます
+   * @param pr 読み込み機
+   * @returns 読み込んだ文字列
+   */
+  read(pr: ParseReader): Result<string> {
+    const char = peek(pr);
+    if (char === EOF) return [false, new Error("end of file")];
+    const charCode = char.codePointAt(0);
+
+    if (charCode && this.min <= charCode && charCode <= this.max) {
+      get(pr);
+      return [true, char];
+    } else {
+      return [false, new Error("not word")];
+    }
   }
 
   /**
@@ -244,6 +289,14 @@ export class ReferenceToken implements BaseToken {
  */
 export class EmptyToken implements BaseToken, TerminalToken {
   /**
+   * リーダーからトークンにマッチする文字列を読み込みます
+   * @returns 読み込んだ文字列
+   */
+  read(): Result<string> {
+    return [true, ""];
+  }
+
+  /**
    * 与えられた文字がこのトークンの最初の文字として有効か判定します。
    * @returns 文字がマッチするか
    */
@@ -289,6 +342,19 @@ export class EmptyToken implements BaseToken, TerminalToken {
  * 文字終了トークン
  */
 export class EOFToken implements BaseToken, TerminalToken {
+  /**
+   * リーダーからトークンにマッチする文字列を読み込みます
+   * @param pr 読み込み機
+   * @returns 読み込んだ文字列
+   */
+  read(pr: ParseReader): Result<string> {
+    const char = peek(pr);
+    if (char === EOF) {
+      return [true, ""];
+    }
+    return [false, new Error("not end of file")];
+  }
+
   /**
    * 与えられた文字がこのトークンの最初の文字として有効か判定します。
    * @param char 文字

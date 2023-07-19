@@ -26,7 +26,7 @@ export const generateParser = (syntax: Syntax) => {
       const nextChar = peek(pr);
 
       const state = stack.at(-1) ?? 0;
-      const [action, parameter] = table[state]?.getMatch(nextChar) ?? ["error"];
+      const [action, parameter, token] = table[state]?.getMatch(nextChar) ?? ["error"];
 
       console.log("stack:   ", stack);
       console.log("peek:    ", nextChar);
@@ -36,7 +36,12 @@ export const generateParser = (syntax: Syntax) => {
 
       switch (action) {
         case "shift": {
-          get(pr);
+          const [ok, word] = token.read(pr);
+          if (!ok) {
+            return [false, word];
+          }
+
+          output.push(word);
           stack.push(parameter);
           break;
         }
@@ -79,6 +84,35 @@ export const generateParser = (syntax: Syntax) => {
 
     console.log("parse end");
 
-    return output;
+    // 規則適用列から構文木に変換する
+    type Tree = string | { name: string; children: Tree[] };
+    const tree: Tree[] = [];
+
+    for (const index of [...output, 0]) {
+      if (typeof index === "number") {
+        const rule = syntax[index];
+        if (rule !== undefined) {
+          const [name, tokens] = rule;
+          const length = tokens.length;
+          const children: Tree[] = [];
+          for (let index = 0; index < length; index++) {
+            const item = tree.pop();
+            if (item !== undefined) {
+              children.push(item);
+            }
+          }
+          children.reverse();
+          tree.push({ name, children });
+        }
+      } else {
+        tree.push(index);
+      }
+    }
+
+    if (tree.length === 1) {
+      return [true, tree[0]];
+    }
+
+    return [false, new Error("cannot construct syntax tree")];
   };
 };

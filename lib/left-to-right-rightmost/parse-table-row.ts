@@ -7,7 +7,9 @@ import { LR0ItemSet } from "./item-set";
 import type { LR0Item } from "./lr0-item";
 import type { CharToken, LR0ItemToken, Syntax, WordToken } from "../rules/define-rules";
 
-type MatchResult = ["reduce", number] | ["shift", number] | ["accept"] | ["error"];
+type TermToken = WordToken | CharToken;
+type NonTermToken = ReferenceToken;
+type MatchResult = ["reduce", number] | ["shift", number, TermToken] | ["accept"] | ["error"];
 
 /**
  *
@@ -22,8 +24,8 @@ export class ParseTableRow {
   #collected = false;
   #reduce: number | undefined;
   #accept = false;
-  #shift: [WordToken | CharToken, number][] = [];
-  #goto: [ReferenceToken, number][] = [];
+  #shift: [TermToken, number][] = [];
+  #goto: [NonTermToken, number][] = [];
 
   /**
    * 1つのアイテム集合を作ります。
@@ -104,7 +106,7 @@ export class ParseTableRow {
     // shiftを調べる
     for (const [token, number] of this.#shift) {
       if (token.matchFirstChar(char)) {
-        return ["shift", number];
+        return ["shift", number, token];
       }
     }
 

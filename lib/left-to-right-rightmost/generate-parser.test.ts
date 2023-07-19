@@ -27,7 +27,35 @@ describe("parsing", () => {
 
     const result = parser(fromString(source));
 
-    expect(result).toStrictEqual([3, 1, 3, 2]);
+    expect(result).toStrictEqual([
+      true,
+      {
+        name: "start",
+        children: [
+          {
+            name: "S",
+            children: [
+              "(",
+              {
+                name: "S",
+                children: [
+                  {
+                    name: "F",
+                    children: ["1"],
+                  },
+                ],
+              },
+              "+",
+              {
+                name: "F",
+                children: ["1"],
+              },
+              ")",
+            ],
+          },
+        ],
+      },
+    ]);
   });
 
   test("parse failure", () => {
@@ -58,7 +86,33 @@ describe("parsing 2", () => {
 
     const result = parser(fromString(source));
 
-    expect(result).toStrictEqual([5, 3, 5, 2]);
+    expect(result).toStrictEqual([
+      true,
+      {
+        name: "S",
+        children: [
+          {
+            name: "E",
+            children: [
+              {
+                name: "E",
+                children: [
+                  {
+                    name: "B",
+                    children: ["1"],
+                  },
+                ],
+              },
+              "+",
+              {
+                name: "B",
+                children: ["1"],
+              },
+            ],
+          },
+        ],
+      },
+    ]);
   });
 
   test("parse failure", () => {
