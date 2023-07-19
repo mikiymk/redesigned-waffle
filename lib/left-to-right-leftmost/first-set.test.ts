@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import { char, empty, reference, rule, word } from "@/lib/rules/define-rules";
 
 import { getFirstSetList } from "./first-set";
-import { TokenSet } from "./token-set";
+import { TokenSet } from "../token-set/token-set";
 
 describe("get first-set from syntax", () => {
   const syntax = [

@@ -2,7 +2,7 @@ import { eof, empty } from "@/lib/rules/define-rules";
 
 import { getFirstSet } from "./first-set";
 import { getRuleIndexes } from "./rule-indexes";
-import { TokenSet } from "./token-set";
+import { TokenSet } from "../token-set/token-set";
 
 import type { FirstSetToken, FollowSetToken, Syntax } from "@/lib/rules/define-rules";
 

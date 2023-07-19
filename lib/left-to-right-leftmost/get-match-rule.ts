@@ -1,7 +1,7 @@
 import { firstChars } from "./is-disjoint";
 import { getRuleIndexes } from "./rule-indexes";
 
-import type { TokenSet } from "./token-set";
+import type { TokenSet } from "../token-set/token-set";
 import type { Result } from "../util/parser";
 import type { DirectorSetToken, Syntax } from "@/lib/rules/define-rules";
 

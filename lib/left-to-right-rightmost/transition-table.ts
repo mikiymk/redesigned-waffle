@@ -3,7 +3,7 @@ import { getFirstSetList } from "../left-to-right-leftmost/first-set";
 import { getFollowSetList } from "../left-to-right-leftmost/follow-set";
 
 import { groupByNextToken } from "./group-next-token";
-import { LR0ItemSet } from "./item-set";
+import { LR0ItemSet } from "../token-set/lr0-item-set";
 import { LR0Item } from "./lr0-item";
 import { nextItemSet } from "./next-item";
 import { ParseTableRow } from "./parse-table-row";

@@ -1,7 +1,7 @@
 import { CharToken, EmptyToken, ReferenceToken, WordToken, empty } from "@/lib/rules/define-rules";
 
 import { getRuleIndexes } from "./rule-indexes";
-import { TokenSet } from "./token-set";
+import { TokenSet } from "../token-set/token-set";
 
 import type { FirstSetToken, Syntax, SyntaxToken } from "@/lib/rules/define-rules";
 

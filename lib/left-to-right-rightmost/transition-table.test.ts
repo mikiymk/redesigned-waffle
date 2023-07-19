@@ -2,7 +2,7 @@ import { expect, test } from "vitest";
 
 import { reference, rule, word } from "@/lib/rules/define-rules";
 
-import { LR0ItemSet } from "./item-set";
+import { LR0ItemSet } from "../token-set/lr0-item-set";
 import { LR0Item } from "./lr0-item";
 import { generateParseTable } from "./transition-table";
 

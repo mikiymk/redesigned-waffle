@@ -4,7 +4,7 @@ import { char, eof, empty, reference, rule, word } from "@/lib/rules/define-rule
 
 import { getFirstSetList } from "./first-set";
 import { getFollowSetList } from "./follow-set";
-import { TokenSet } from "./token-set";
+import { TokenSet } from "../token-set/token-set";
 
 describe("get first-set from syntax", () => {
   test("basic token", () => {

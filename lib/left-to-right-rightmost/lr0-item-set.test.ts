@@ -2,7 +2,7 @@ import { expect, test } from "vitest";
 
 import { rule, word } from "@/lib/rules/define-rules";
 
-import { LR0ItemSet } from "./item-set";
+import { LR0ItemSet } from "./lr0-item-set";
 import { LR0Item } from "./lr0-item";
 
 test("construct item set", () => {

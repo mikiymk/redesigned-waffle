@@ -1,4 +1,4 @@
-import { LR0ItemSet } from "./item-set";
+import { LR0ItemSet } from "../token-set/lr0-item-set";
 
 import type { LR0Item } from "./lr0-item";
 import type { LR0ItemToken } from "@/lib/rules/define-rules";

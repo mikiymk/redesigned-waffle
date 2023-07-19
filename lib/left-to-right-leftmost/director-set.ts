@@ -1,6 +1,6 @@
 import { empty } from "@/lib/rules/define-rules";
 
-import { TokenSet } from "./token-set";
+import { TokenSet } from "../token-set/token-set";
 
 import type { DirectorSetToken, FirstSetToken, FollowSetToken } from "@/lib/rules/define-rules";
 

@@ -79,23 +79,6 @@ export class TokenSet<T extends Token> {
   }
 
   /**
-   * 自身と与えられたトークンの集合から新しく積集合を作成します
-   * @param tokens トークンの集合
-   * @returns 新しいトークンの集合
-   */
-  intersection(tokens: Iterable<T>): TokenSet<T> {
-    const newSet = new TokenSet<T>([]);
-
-    for (const token of tokens) {
-      if (this.has(token)) {
-        newSet.add(token);
-      }
-    }
-
-    return newSet;
-  }
-
-  /**
    * 自身と与えられたトークンの集合から新しく差集合を作成します
    * @param tokens トークンの集合
    * @returns 新しいトークンの集合

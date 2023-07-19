@@ -3,7 +3,7 @@ import { expect, test } from "vitest";
 import { char, word } from "@/lib/rules/define-rules";
 
 import { isDisjoint } from "./is-disjoint";
-import { TokenSet } from "./token-set";
+import { TokenSet } from "../token-set/token-set";
 
 test("disjoint word", () => {
   const tokenSet1 = new TokenSet([word("word")]);
