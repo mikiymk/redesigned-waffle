@@ -1,17 +1,19 @@
-import { closure } from "./closure";
 import { groupByNextToken } from "./group-next-token";
 import { LR0ItemSet } from "./item-set";
 import { LR0Item } from "./lr0-item";
 import { nextItemSet } from "./next-item";
+import { ParseTableRow } from "./parse-table-row";
 
-import type { LR0ItemToken, Syntax } from "@/lib/rules/define-rules";
+import type { Syntax } from "@/lib/rules/define-rules";
 
 /**
  * 構文ルールリストからアイテム集合のリストを作ります。
  * @param syntax 構文ルールリスト
  * @returns LR(0)状態遷移テーブル
  */
-export const transitionTable = (syntax: Syntax) => {
+export const generateParseTable = (syntax: Syntax) => {
+  // 最初のルール
+  // S → E $ であり、Sは他のいずれのルールでも右辺に登場しません。
   const firstRule = syntax[0];
   if (firstRule === undefined) {
     throw new Error("syntax needs 1 or more rules");
@@ -19,7 +21,7 @@ export const transitionTable = (syntax: Syntax) => {
 
   const firstItem = new LR0Item(firstRule);
 
-  const itemSetList = [generateItemSet(syntax, [firstItem])];
+  const itemSetList = [new ParseTableRow(syntax, [firstItem])];
 
   for (const { kernels, additions, gotoMap } of itemSetList) {
     // アイテム集合をグループ分けする
@@ -39,31 +41,9 @@ export const transitionTable = (syntax: Syntax) => {
       }
 
       gotoMap.push([token, itemSetList.length]);
-      itemSetList.push(generateItemSet(syntax, next));
+      itemSetList.push(new ParseTableRow(syntax, next));
     }
   }
 
   return itemSetList;
-};
-
-/**
- * 1つのアイテム集合を作ります。
- * @param syntax 構文ルールリスト
- * @param items LR(0)アイテムリスト
- * @returns 展開したアイテムリスト
- */
-const generateItemSet = (
-  syntax: Syntax,
-  items: Iterable<LR0Item>,
-): { kernels: LR0ItemSet; additions: LR0ItemSet; gotoMap: [LR0ItemToken, number][] } => {
-  const additions = new LR0ItemSet();
-  for (const item of items) {
-    additions.append(closure(syntax, item));
-  }
-
-  return {
-    kernels: new LR0ItemSet(items),
-    additions,
-    gotoMap: [],
-  };
 };

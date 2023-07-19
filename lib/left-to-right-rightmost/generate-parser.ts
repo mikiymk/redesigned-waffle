@@ -1,6 +1,6 @@
 import { get, peek } from "@/lib/core/reader";
 
-import { transitionTable } from "./transition-table";
+import { generateParseTable } from "./transition-table";
 
 import type { Syntax } from "../rules/define-rules";
 import type { ParseReader } from "@/lib/core/reader";
@@ -11,7 +11,7 @@ import type { ParseReader } from "@/lib/core/reader";
  * @returns パーサー
  */
 export const generateParser = (syntax: Syntax) => {
-  const table = transitionTable(syntax);
+  const table = generateParseTable(syntax);
 
   return (pr: ParseReader) => {
     const output: (number | string)[] = [];
@@ -21,25 +21,37 @@ export const generateParser = (syntax: Syntax) => {
     for (;;) {
       const nextChar = peek(pr);
 
-      const [action, arg] = table[state]?.getMatch(nextChar);
+      const [action, parameter] = table[state]?.getMatch(nextChar) ?? ["error"];
 
       switch (action) {
         case "shift": {
           get(pr);
-          stack.push(arg);
-          state = arg;
+          stack.push(parameter);
+          state = parameter;
           break;
         }
 
         case "reduce": {
-          output.push(arg);
-          const [name, tokens] = syntax[arg];
+          output.push(parameter);
+          const rule = syntax[parameter];
+          if (rule === undefined) {
+            return [];
+          }
+
+          const [name, tokens] = rule;
           for (const _ of tokens) {
             stack.pop();
           }
 
           const reduceState = stack.at(-1);
-          const newState = table[state]?.getGoto(name);
+          if (reduceState === undefined) {
+            return [];
+          }
+
+          const newState = table[reduceState]?.getGoto(name);
+          if (newState === undefined) {
+            return [];
+          }
 
           stack.push(newState);
           state = newState;
@@ -51,7 +63,7 @@ export const generateParser = (syntax: Syntax) => {
         }
 
         default: {
-          throw new Error("no rule");
+          return [];
         }
       }
     }

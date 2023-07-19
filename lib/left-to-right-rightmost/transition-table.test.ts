@@ -4,7 +4,7 @@ import { reference, rule, word } from "@/lib/rules/define-rules";
 
 import { LR0ItemSet } from "./item-set";
 import { LR0Item } from "./lr0-item";
-import { transitionTable } from "./transition-table";
+import { generateParseTable } from "./transition-table";
 
 import type { Syntax } from "@/lib/rules/define-rules";
 
@@ -24,7 +24,7 @@ const syntax: Syntax = [
 ];
 
 test("generate parser", () => {
-  const result = transitionTable(syntax);
+  const result = generateParseTable(syntax);
   let count = 0;
 
   for (const { kernels, additions, gotoMap } of result) {
