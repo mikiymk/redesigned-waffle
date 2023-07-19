@@ -48,7 +48,15 @@ export class LR0Item {
    * @returns ドットを１つ進めたLR(0)アイテム。最後だった場合は`undefined`
    */
   nextItem(): LR0Item | undefined {
-    return this.nextToken() === undefined ? undefined : new LR0Item(this.rule, this.position + 1);
+    return this.isLast() ? undefined : new LR0Item(this.rule, this.position + 1);
+  }
+
+  /**
+   * このアイテムが最後かどうか判定します
+   * @returns ドットの次のトークンがなければ`true`
+   */
+  isLast(): boolean {
+    return this.nextToken() === undefined;
   }
 
   /**

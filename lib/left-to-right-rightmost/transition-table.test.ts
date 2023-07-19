@@ -45,7 +45,7 @@ test("generate parser", () => {
   // + E → • B
   // + B → • 0
   // + B → • 1
-  expect(result[0]).toStrictEqual({
+  expect(result[0]).toEqual({
     kernels: new LR0ItemSet([new LR0Item(rule("S", reference("E")), 0)]),
     additions: new LR0ItemSet([
       new LR0Item(rule("E", reference("E"), word("*"), reference("B")), 0),

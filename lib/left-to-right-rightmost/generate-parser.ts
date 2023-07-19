@@ -63,7 +63,7 @@ export const generateParser = (syntax: Syntax) => {
         }
 
         default: {
-          return [];
+          return [false, new Error("nomatch input")];
         }
       }
     }
