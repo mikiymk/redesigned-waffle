@@ -42,6 +42,6 @@ test("invalid ll", () => {
 
   expect(result).toStrictEqual([
     false,
-    new Error('left TokenSet [word "word"] and right TokenSet [word "wish"] is not disjoint'),
+    new Error('left TokenSet [w "word"] and right TokenSet [w "wish"] is not disjoint'),
   ]);
 });

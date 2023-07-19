@@ -82,7 +82,7 @@ export class WordToken implements BaseToken {
    * @returns 文字列
    */
   toKeyString(): string {
-    return `w "${this.word.replaceAll('"', '\\"').replaceAll("\\", "\\\\")}")`;
+    return `w "${this.word.replaceAll('"', '\\"').replaceAll("\\", "\\\\")}"`;
   }
 
   /**
@@ -199,7 +199,7 @@ export class ReferenceToken implements BaseToken {
    * @returns 文字列
    */
   toKeyString(): string {
-    return `r "${this.name.replaceAll('"', '\\"').replaceAll("\\", "\\\\")}")`;
+    return `r "${this.name.replaceAll('"', '\\"').replaceAll("\\", "\\\\")}"`;
   }
 
   /**
