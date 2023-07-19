@@ -1,4 +1,4 @@
-import { epsilon } from "@/lib/rules/define-rules";
+import { empty } from "@/lib/rules/define-rules";
 
 import { TokenSet } from "./token-set";
 
@@ -39,7 +39,7 @@ const generateDirectorSet = (
   firstSet: TokenSet<FirstSetToken>,
   followSet: TokenSet<FollowSetToken>,
 ): TokenSet<DirectorSetToken> => {
-  return firstSet.has(epsilon)
-    ? firstSet.difference([epsilon]).union(followSet)
+  return firstSet.has(empty)
+    ? firstSet.difference([empty]).union(followSet)
     : (firstSet as TokenSet<DirectorSetToken>);
 };

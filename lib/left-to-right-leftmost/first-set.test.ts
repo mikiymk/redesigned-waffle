@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { char, epsilon, reference, rule, word } from "@/lib/rules/define-rules";
+import { char, empty, reference, rule, word } from "@/lib/rules/define-rules";
 
 import { getFirstSetList } from "./first-set";
 import { TokenSet } from "./token-set";
@@ -19,7 +19,7 @@ describe("get first-set from syntax", () => {
 
     rule("basic token", word("word")),
     rule("basic token", char("A", "Z")),
-    rule("basic token", epsilon),
+    rule("basic token", empty),
 
     rule("reference token", reference("basic token")),
 
@@ -48,7 +48,7 @@ describe("get first-set from syntax", () => {
       new TokenSet([
         word("word"),
         char("A", "Z"),
-        epsilon,
+        empty,
         word("after defined"),
         word("word lr"),
         word("lead rr"),
@@ -57,8 +57,8 @@ describe("get first-set from syntax", () => {
         word("word in-lr"),
       ]),
 
-      new TokenSet([word("word"), char("A", "Z"), epsilon]),
-      new TokenSet([word("word"), char("A", "Z"), epsilon]),
+      new TokenSet([word("word"), char("A", "Z"), empty]),
+      new TokenSet([word("word"), char("A", "Z"), empty]),
       new TokenSet([word("word"), char("A", "Z"), word("after defined")]),
       new TokenSet([word("word lr")]),
       new TokenSet([word("lead rr"), word("word rr")]),
@@ -68,10 +68,10 @@ describe("get first-set from syntax", () => {
       // basic token
       new TokenSet([word("word")]),
       new TokenSet([char("A", "Z")]),
-      new TokenSet([epsilon]),
+      new TokenSet([empty]),
 
       // reference token
-      new TokenSet([word("word"), char("A", "Z"), epsilon]),
+      new TokenSet([word("word"), char("A", "Z"), empty]),
 
       // reference token and after
       new TokenSet([word("word"), char("A", "Z"), word("after defined")]),
@@ -106,16 +106,16 @@ describe("get first-set from syntax", () => {
 
       rule("basic token", word("word")),
       rule("basic token", char("A", "Z")),
-      rule("basic token", epsilon),
+      rule("basic token", empty),
     ];
 
     const result = getFirstSetList(syntax);
     const expected = [
-      new TokenSet([word("word"), char("A", "Z"), epsilon]),
+      new TokenSet([word("word"), char("A", "Z"), empty]),
 
       new TokenSet([word("word")]),
       new TokenSet([char("A", "Z")]),
-      new TokenSet([epsilon]),
+      new TokenSet([empty]),
     ];
 
     expect(result).toStrictEqual(expected);
@@ -129,18 +129,18 @@ describe("get first-set from syntax", () => {
 
       rule("basic token", word("word")),
       rule("basic token", char("A", "Z")),
-      rule("basic token", epsilon),
+      rule("basic token", empty),
     ];
 
     const result = getFirstSetList(syntax);
     const expected = [
-      new TokenSet([word("word"), char("A", "Z"), epsilon]),
+      new TokenSet([word("word"), char("A", "Z"), empty]),
 
-      new TokenSet([word("word"), char("A", "Z"), epsilon]),
+      new TokenSet([word("word"), char("A", "Z"), empty]),
 
       new TokenSet([word("word")]),
       new TokenSet([char("A", "Z")]),
-      new TokenSet([epsilon]),
+      new TokenSet([empty]),
     ];
 
     expect(result).toStrictEqual(expected);
@@ -154,7 +154,7 @@ describe("get first-set from syntax", () => {
 
       rule("basic token", word("word")),
       rule("basic token", char("A", "Z")),
-      rule("basic token", epsilon),
+      rule("basic token", empty),
     ];
 
     const result = getFirstSetList(syntax);
@@ -165,7 +165,7 @@ describe("get first-set from syntax", () => {
 
       new TokenSet([word("word")]),
       new TokenSet([char("A", "Z")]),
-      new TokenSet([epsilon]),
+      new TokenSet([empty]),
     ];
 
     expect(result).toStrictEqual(expected);

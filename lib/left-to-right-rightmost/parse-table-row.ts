@@ -1,15 +1,14 @@
 import { EOF } from "../core/reader";
-import { ReferenceToken, equalsRule } from "../rules/define-rules";
+import { equalsRule } from "../rules/define-rules";
+import { ReferenceToken } from "../rules/reference-token";
 
 import { closure } from "./closure";
 import { LR0ItemSet } from "./item-set";
 
 import type { LR0Item } from "./lr0-item";
 import type { TokenSet } from "../left-to-right-leftmost/token-set";
-import type { CharToken, DirectorSetToken, LR0ItemToken, Syntax, WordToken } from "../rules/define-rules";
+import type { DirectorSetToken, LR0ItemToken, NonTermToken, Syntax, TermToken } from "../rules/define-rules";
 
-type TermToken = WordToken | CharToken;
-type NonTermToken = ReferenceToken;
 type MatchResult = ["reduce", number] | ["shift", number, TermToken] | ["accept"] | ["error"];
 
 /**

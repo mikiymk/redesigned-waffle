@@ -1,4 +1,4 @@
-import { CharToken, EmptyToken, ReferenceToken, WordToken, epsilon } from "@/lib/rules/define-rules";
+import { CharToken, EmptyToken, ReferenceToken, WordToken, empty } from "@/lib/rules/define-rules";
 
 import { getRuleIndexes } from "./rule-indexes";
 import { TokenSet } from "./token-set";
@@ -103,8 +103,8 @@ export const getFirstSet = (
       }
 
       // 空トークンが入っているなら、次のトークンを追加する
-      if (set.has(epsilon) && tokens[index + 1] !== undefined) {
-        set.delete(epsilon);
+      if (set.has(empty) && tokens[index + 1] !== undefined) {
+        set.delete(empty);
         continue;
       }
 
@@ -113,5 +113,5 @@ export const getFirstSet = (
   }
 
   // トークン列が空なら、空を返す
-  return new TokenSet([epsilon]);
+  return new TokenSet([empty]);
 };

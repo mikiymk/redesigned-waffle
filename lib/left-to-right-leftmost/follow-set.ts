@@ -1,4 +1,4 @@
-import { eof, epsilon } from "@/lib/rules/define-rules";
+import { eof, empty } from "@/lib/rules/define-rules";
 
 import { getFirstSet } from "./first-set";
 import { getRuleIndexes } from "./rule-indexes";
@@ -82,10 +82,10 @@ const generateFollowSet = (
           const length = referenceFollowSet.size;
 
           // 空を除いた集合を追加する
-          referenceFollowSet.append(followFirstSet.difference(new TokenSet([epsilon])));
+          referenceFollowSet.append(followFirstSet.difference(new TokenSet([empty])));
 
           // 空が含まれるなら、このルールのフォロー集合を追加する
-          if (followFirstSet.has(epsilon)) {
+          if (followFirstSet.has(empty)) {
             referenceFollowSet.append(followSet);
           }
 

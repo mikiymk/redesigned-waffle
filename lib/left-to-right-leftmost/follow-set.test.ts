@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { char, eof, epsilon, reference, rule, word } from "@/lib/rules/define-rules";
+import { char, eof, empty, reference, rule, word } from "@/lib/rules/define-rules";
 
 import { getFirstSetList } from "./first-set";
 import { getFollowSetList } from "./follow-set";
@@ -13,7 +13,7 @@ describe("get first-set from syntax", () => {
 
       rule("basic token", word("word"), word("after word")),
       rule("basic token", char("A", "Z"), word("after char")),
-      rule("basic token", epsilon),
+      rule("basic token", empty),
     ];
 
     const firstSet = getFirstSetList(syntax);
@@ -23,7 +23,7 @@ describe("get first-set from syntax", () => {
 
       new TokenSet([word("word")]),
       new TokenSet([char("A", "Z")]),
-      new TokenSet([epsilon]),
+      new TokenSet([empty]),
     ];
     expect(firstSet).toStrictEqual(expectedFirstSet);
 

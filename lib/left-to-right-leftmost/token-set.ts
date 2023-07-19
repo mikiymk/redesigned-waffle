@@ -1,4 +1,4 @@
-import { ReferenceToken } from "@/lib/rules/define-rules";
+import { ReferenceToken } from "../rules/reference-token";
 
 import type { EOF } from "../core/reader";
 import type { Token } from "@/lib/rules/define-rules";
