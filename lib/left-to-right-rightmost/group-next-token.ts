@@ -12,7 +12,7 @@ export const groupByNextToken = (items: Iterable<LR0Item>): [LR0ItemToken, LR0It
   const record: Record<string, [LR0ItemToken, LR0ItemSet]> = {};
 
   for (const item of items) {
-    const token = item.tokens[item.position];
+    const token = item.nextToken();
 
     if (token === undefined) {
       // ドットの後ろにトークンがない状態は、空のルールから生まれる。

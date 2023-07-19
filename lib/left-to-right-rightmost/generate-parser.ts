@@ -1,10 +1,9 @@
 import { closure } from "./closure";
 import { groupByNextToken } from "./group-next-token";
 import { LR0ItemSet } from "./item-set";
-import { getLR0Item } from "./lr0-item";
+import { LR0Item } from "./lr0-item";
 import { nextItemSet } from "./next-item";
 
-import type { LR0Item } from "./lr0-item";
 import type { LR0ItemToken, Syntax } from "@/lib/rules/define-rules";
 
 /**
@@ -18,7 +17,7 @@ export const generateParser = (syntax: Syntax) => {
     throw new Error("syntax needs 1 or more rules");
   }
 
-  const firstItem = getLR0Item(firstRule);
+  const firstItem = new LR0Item(firstRule);
 
   const itemSetList = [generateItemSet(syntax, [firstItem])];
 

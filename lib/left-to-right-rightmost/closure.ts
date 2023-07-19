@@ -2,9 +2,8 @@ import { ReferenceToken } from "@/lib/rules/define-rules";
 
 import { getRuleIndexes } from "../left-to-right-leftmost/rule-indexes";
 
-import { getLR0Item } from "./lr0-item";
+import { LR0Item } from "./lr0-item";
 
-import type { LR0Item } from "./lr0-item";
 import type { Syntax } from "@/lib/rules/define-rules";
 
 /**
@@ -15,7 +14,7 @@ import type { Syntax } from "@/lib/rules/define-rules";
  */
 export const closure = (syntax: Syntax, item: LR0Item): LR0Item[] => {
   // アイテムからドットの後ろのトークンを得る
-  const nextToken = item.tokens[item.position];
+  const nextToken = item.nextToken();
 
   if (nextToken instanceof ReferenceToken) {
     // 次のトークンが非終端記号なら
@@ -46,7 +45,7 @@ const expansion = (syntax: Syntax, ruleName: string, calledRule: Set<string> = n
       throw new Error("no match rule and syntax");
     }
 
-    items.push(getLR0Item(rule));
+    items.push(new LR0Item(rule));
 
     // さらにそのルールの先頭が非終端記号だった場合、再帰的に追加する
     const firstToken = rule[1][0];

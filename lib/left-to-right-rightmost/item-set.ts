@@ -1,22 +1,6 @@
 import type { LR0Item } from "./lr0-item";
 
 /**
- * トークンを文字列にする
- * Setに入れるため
- * @param item トークン
- * @returns 文字列
- */
-export const itemToString = (item: LR0Item): string => {
-  return `${item.name} → ${item.tokens
-    .slice(0, item.position)
-    .map((value) => value.toKeyString())
-    .join(" ")} . ${item.tokens
-    .slice(item.position)
-    .map((value) => value.toKeyString())
-    .join(" ")}`;
-};
-
-/**
  * トークンの集合（同じトークンが最大で１つ含まれる）
  */
 // eslint-disable-next-line import/no-unused-modules
@@ -29,7 +13,7 @@ export class LR0ItemSet {
    */
   constructor(items: Iterable<LR0Item> = []) {
     for (const token of items) {
-      this.set.set(itemToString(token), token);
+      this.set.set(token.toKeyString(), token);
     }
   }
 
@@ -47,7 +31,7 @@ export class LR0ItemSet {
    * @returns 含まれる場合は `true`
    */
   has(token: LR0Item): boolean {
-    return this.set.has(itemToString(token));
+    return this.set.has(token.toKeyString());
   }
 
   /**
@@ -56,7 +40,7 @@ export class LR0ItemSet {
    * @returns トークンを追加した自身
    */
   add(token: LR0Item): this {
-    this.set.set(itemToString(token), token);
+    this.set.set(token.toKeyString(), token);
 
     return this;
   }
@@ -67,7 +51,7 @@ export class LR0ItemSet {
    * @returns トークンが存在して削除された場合は `true`
    */
   delete(token: LR0Item): boolean {
-    return this.set.delete(itemToString(token));
+    return this.set.delete(token.toKeyString());
   }
 
   /**
@@ -77,7 +61,7 @@ export class LR0ItemSet {
    */
   append(tokens: Iterable<LR0Item>): this {
     for (const token of tokens) {
-      this.set.set(itemToString(token), token);
+      this.set.set(token.toKeyString(), token);
     }
 
     return this;
