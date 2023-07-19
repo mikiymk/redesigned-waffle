@@ -309,6 +309,10 @@ export const rule = (name: string, ...tokens: SyntaxToken[]): Rule => {
     throw new Error(`rule token length must 1 or greater. received: ${tokens.length} items`);
   }
 
+  if (tokens.includes(epsilon) && tokens.length !== 1) {
+    throw new Error(`rule token length, including empty tokens, must be 1. received: ${tokens.length} items`);
+  }
+
   return [name, tokens];
 };
 

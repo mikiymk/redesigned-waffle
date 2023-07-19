@@ -11,7 +11,7 @@ import type { LR0ItemToken, Syntax } from "@/lib/rules/define-rules";
  * @param syntax 構文ルールリスト
  * @returns LR(0)状態遷移テーブル
  */
-export const generateParser = (syntax: Syntax) => {
+export const transitionTable = (syntax: Syntax) => {
   const firstRule = syntax[0];
   if (firstRule === undefined) {
     throw new Error("syntax needs 1 or more rules");
