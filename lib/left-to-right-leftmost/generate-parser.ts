@@ -34,10 +34,23 @@ export const generateParser = (syntax: Syntax) => {
     throw error[1];
   }
 
-  console.log("syntax:        ", syntax);
-  console.log("first set:     ", firstSetList);
-  console.log("follow set:    ", followSetList);
-  console.log("director set:  ", directorSetList);
+  console.log("# generate parser");
+  console.log("syntax:");
+  for (const [name, tokens] of syntax) {
+    console.log(" ", name, ...tokens.map((token) => token.toString()));
+  }
+  console.log("first set:");
+  for (const set of firstSetList) {
+    console.log(" ", set.asString());
+  }
+  console.log("follow set:");
+  for (const set of followSetList) {
+    console.log(" ", set.asString());
+  }
+  console.log("director set:");
+  for (const set of directorSetList) {
+    console.log(" ", set.asString());
+  }
   console.log();
 
   // パーサー
