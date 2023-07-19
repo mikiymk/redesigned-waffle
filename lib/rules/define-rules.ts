@@ -2,7 +2,10 @@
  * @file
  */
 
-import { EOF } from "../core/reader";
+import { EOF, get, peek } from "../core/reader";
+
+import type { ParseReader } from "../core/reader";
+import type { Result } from "../util/parser";
 
 /**
  * 言語の構文
@@ -15,13 +18,6 @@ export type Syntax = Rule[];
 export type Rule = [string, SyntaxToken[]];
 
 type BaseToken = {
-  /**
-   * 与えられた文字がこのトークンの最初の文字として有効か判定します。
-   * @param char 文字
-   * @returns 文字がマッチするか
-   */
-  matchFirstChar(char: string | EOF): boolean | undefined;
-
   /**
    * 終端記号かどうかを判定します。
    * @returns 終端記号なら`true`、非終端記号なら`false`
@@ -39,13 +35,36 @@ type BaseToken = {
    * @returns 文字列
    */
   toString(): string;
+
+  /**
+   * 2つのトークンが等しいかどうか調べます
+   * @param other もう一つのトークン
+   * @returns 等しいなら`true`
+   */
+  equals(other: BaseToken): boolean;
+};
+
+type TerminalToken = {
+  /**
+   * リーダーからトークンにマッチする文字列を読み込みます
+   * @param pr 読み込み機
+   * @returns 読み込んだ文字列
+   */
+  read(pr: ParseReader): Result<string>;
+
+  /**
+   * 与えられた文字がこのトークンの最初の文字として有効か判定します。
+   * @param char 文字
+   * @returns 文字がマッチするか
+   */
+  matchFirstChar(char: string | EOF): boolean;
 };
 
 /**
  * 文字列トークン
  * キーワードや演算子など
  */
-export class WordToken implements BaseToken {
+export class WordToken implements BaseToken, TerminalToken {
   readonly word;
 
   /**
@@ -58,6 +77,23 @@ export class WordToken implements BaseToken {
     }
 
     this.word = word;
+  }
+
+  /**
+   * リーダーからトークンにマッチする文字列を読み込みます
+   * @param pr 読み込み機
+   * @returns 読み込んだ文字列
+   */
+  read(pr: ParseReader): Result<string> {
+    for (const c of this.word) {
+      if (peek(pr) === c) {
+        get(pr);
+      } else {
+        return [false, new Error("not word")];
+      }
+    }
+
+    return [true, this.word];
   }
 
   /**
@@ -92,13 +128,22 @@ export class WordToken implements BaseToken {
   toString(): string {
     return `word(${this.word})`;
   }
+
+  /**
+   * 2つのトークンが等しいかどうか調べます
+   * @param other もう一つのトークン
+   * @returns 等しいなら`true`
+   */
+  equals(other: BaseToken): boolean {
+    return other instanceof WordToken && other.word === this.word;
+  }
 }
 
 /**
  * 文字範囲トークン
  * 数字や文字列用
  */
-export class CharToken implements BaseToken {
+export class CharToken implements BaseToken, TerminalToken {
   readonly min;
   readonly max;
 
@@ -121,6 +166,24 @@ export class CharToken implements BaseToken {
 
     this.min = minCode;
     this.max = maxCode;
+  }
+
+  /**
+   * リーダーからトークンにマッチする文字列を読み込みます
+   * @param pr 読み込み機
+   * @returns 読み込んだ文字列
+   */
+  read(pr: ParseReader): Result<string> {
+    const char = peek(pr);
+    if (char === EOF) return [false, new Error("end of file")];
+    const charCode = char.codePointAt(0);
+
+    if (charCode && this.min <= charCode && charCode <= this.max) {
+      get(pr);
+      return [true, char];
+    } else {
+      return [false, new Error("not word")];
+    }
   }
 
   /**
@@ -158,6 +221,15 @@ export class CharToken implements BaseToken {
   toString(): string {
     return `char(${this.min}..${this.max})`;
   }
+
+  /**
+   * 2つのトークンが等しいかどうか調べます
+   * @param other もう一つのトークン
+   * @returns 等しいなら`true`
+   */
+  equals(other: BaseToken): boolean {
+    return other instanceof CharToken && other.min === this.min && other.max === this.max;
+  }
 }
 
 /**
@@ -176,14 +248,6 @@ export class ReferenceToken implements BaseToken {
     }
 
     this.name = name;
-  }
-
-  /**
-   * 与えられた文字がこのトークンの最初の文字として有効か判定します。
-   * @returns 文字がマッチするか
-   */
-  matchFirstChar(): undefined {
-    return undefined;
   }
 
   /**
@@ -209,18 +273,35 @@ export class ReferenceToken implements BaseToken {
   toString(): string {
     return `rule(${this.name})`;
   }
+
+  /**
+   * 2つのトークンが等しいかどうか調べます
+   * @param other もう一つのトークン
+   * @returns 等しいなら`true`
+   */
+  equals(other: BaseToken): boolean {
+    return other instanceof ReferenceToken && other.name === this.name;
+  }
 }
 
 /**
  * 空文字トークン
  */
-export class EmptyToken implements BaseToken {
+export class EmptyToken implements BaseToken, TerminalToken {
+  /**
+   * リーダーからトークンにマッチする文字列を読み込みます
+   * @returns 読み込んだ文字列
+   */
+  read(): Result<string> {
+    return [true, ""];
+  }
+
   /**
    * 与えられた文字がこのトークンの最初の文字として有効か判定します。
    * @returns 文字がマッチするか
    */
-  matchFirstChar(): undefined {
-    return undefined;
+  matchFirstChar(): false {
+    return false;
   }
 
   /**
@@ -246,12 +327,34 @@ export class EmptyToken implements BaseToken {
   toString(): string {
     return "empty";
   }
+
+  /**
+   * 2つのトークンが等しいかどうか調べます
+   * @param other もう一つのトークン
+   * @returns 等しいなら`true`
+   */
+  equals(other: BaseToken): boolean {
+    return other instanceof EmptyToken;
+  }
 }
 
 /**
  * 文字終了トークン
  */
-export class EOFToken implements BaseToken {
+export class EOFToken implements BaseToken, TerminalToken {
+  /**
+   * リーダーからトークンにマッチする文字列を読み込みます
+   * @param pr 読み込み機
+   * @returns 読み込んだ文字列
+   */
+  read(pr: ParseReader): Result<string> {
+    const char = peek(pr);
+    if (char === EOF) {
+      return [true, ""];
+    }
+    return [false, new Error("not end of file")];
+  }
+
   /**
    * 与えられた文字がこのトークンの最初の文字として有効か判定します。
    * @param char 文字
@@ -284,6 +387,15 @@ export class EOFToken implements BaseToken {
   toString(): string {
     return "eof";
   }
+
+  /**
+   * 2つのトークンが等しいかどうか調べます
+   * @param other もう一つのトークン
+   * @returns 等しいなら`true`
+   */
+  equals(other: BaseToken): boolean {
+    return other instanceof EOFToken;
+  }
 }
 
 export type SyntaxToken = WordToken | CharToken | ReferenceToken | EmptyToken;
@@ -307,6 +419,10 @@ export const rule = (name: string, ...tokens: SyntaxToken[]): Rule => {
 
   if (tokens.length === 0) {
     throw new Error(`rule token length must 1 or greater. received: ${tokens.length} items`);
+  }
+
+  if (tokens.includes(epsilon) && tokens.length !== 1) {
+    throw new Error(`rule token length, including empty tokens, must be 1. received: ${tokens.length} items`);
   }
 
   return [name, tokens];
@@ -352,3 +468,17 @@ export const reference = (terminal: string): ReferenceToken => {
  */
 export const epsilon: EmptyToken = new EmptyToken();
 export const eof: EOFToken = new EOFToken();
+
+/**
+ * 2つのルールを比較します
+ * @param rule1 ルール
+ * @param rule2 ルール
+ * @returns 2つのルールが等しいなら`true`
+ */
+export const equalsRule = (rule1: Rule, rule2: Rule): boolean => {
+  return (
+    rule1[0] === rule2[0] &&
+    rule1[1].length === rule2[1].length &&
+    rule1[1].every((value, index) => rule2[1][index]?.equals(value))
+  );
+};

@@ -1,70 +1,118 @@
-import { closure } from "./closure";
-import { groupByNextToken } from "./group-next-token";
-import { LR0ItemSet } from "./item-set";
-import { getLR0Item } from "./lr0-item";
-import { nextItemSet } from "./next-item";
+import { peek } from "@/lib/core/reader";
 
-import type { LR0Item } from "./lr0-item";
-import type { LR0ItemToken, Syntax } from "@/lib/rules/define-rules";
+import { generateParseTable } from "./transition-table";
+
+import type { Syntax } from "../rules/define-rules";
+import type { ParseReader } from "@/lib/core/reader";
 
 /**
- * 構文ルールリストからアイテム集合のリストを作ります。
+ * 構文ルールリストからLL(1)パーサーを作成します。
  * @param syntax 構文ルールリスト
- * @returns LR(0)状態遷移テーブル
+ * @returns パーサー
  */
 export const generateParser = (syntax: Syntax) => {
-  const firstRule = syntax[0];
-  if (firstRule === undefined) {
-    throw new Error("syntax needs 1 or more rules");
+  const table = generateParseTable(syntax);
+
+  for (const [index, row] of table.entries()) {
+    console.log("rule", index);
+    console.log(row.printDebugInfo());
   }
 
-  const firstItem = getLR0Item(firstRule);
+  return (pr: ParseReader) => {
+    const output: (number | string)[] = [];
+    const stack = [0];
 
-  const itemSetList = [generateItemSet(syntax, [firstItem])];
+    parse_loop: for (;;) {
+      const nextChar = peek(pr);
 
-  for (const { kernels, additions, gotoMap } of itemSetList) {
-    // アイテム集合をグループ分けする
-    const groups = groupByNextToken(new LR0ItemSet([...kernels, ...additions]));
+      const state = stack.at(-1) ?? 0;
+      const [action, parameter, token] = table[state]?.getMatch(nextChar) ?? ["error"];
 
-    // 各グループについて
-    outer: for (const [token, itemSet] of groups) {
-      const next = nextItemSet(itemSet);
+      console.log("stack:   ", stack);
+      console.log("peek:    ", nextChar);
+      console.log("action:  ", action, parameter);
+      console.log("output:  ", output);
+      console.log();
 
-      // もし既存のアイテム集合に同じものがあったら
-      // 新しく追加しない
-      for (const [index, { kernels }] of itemSetList.entries()) {
-        if (kernels.equals(next)) {
-          gotoMap.push([token, index]);
-          continue outer;
+      switch (action) {
+        case "shift": {
+          const [ok, word] = token.read(pr);
+          if (!ok) {
+            return [false, word];
+          }
+
+          output.push(word);
+          stack.push(parameter);
+          break;
+        }
+
+        case "reduce": {
+          output.push(parameter);
+          const rule = syntax[parameter];
+          if (rule === undefined) {
+            return [];
+          }
+
+          const [name, tokens] = rule;
+          for (const _ of tokens) {
+            stack.pop();
+          }
+
+          const reduceState = stack.at(-1);
+          if (reduceState === undefined) {
+            return [];
+          }
+
+          const newState = table[reduceState]?.getGoto(name);
+          if (newState === undefined) {
+            return [];
+          }
+
+          stack.push(newState);
+          break;
+        }
+
+        case "accept": {
+          break parse_loop;
+        }
+
+        default: {
+          return [false, new Error("nomatch input")];
         }
       }
-
-      gotoMap.push([token, itemSetList.length]);
-      itemSetList.push(generateItemSet(syntax, next));
     }
-  }
 
-  return itemSetList;
-};
+    console.log("parse end");
 
-/**
- * 1つのアイテム集合を作ります。
- * @param syntax 構文ルールリスト
- * @param items LR(0)アイテムリスト
- * @returns 展開したアイテムリスト
- */
-const generateItemSet = (
-  syntax: Syntax,
-  items: Iterable<LR0Item>,
-): { kernels: LR0ItemSet; additions: LR0ItemSet; gotoMap: [LR0ItemToken, number][] } => {
-  const additions = new LR0ItemSet();
-  for (const item of items) {
-    additions.append(closure(syntax, item));
-  }
+    // 規則適用列から構文木に変換する
+    type Tree = string | { name: string; children: Tree[] };
+    const tree: Tree[] = [];
 
-  return {
-    kernels: new LR0ItemSet(items),
-    additions,
-    gotoMap: [],
+    for (const index of [...output, 0]) {
+      if (typeof index === "number") {
+        const rule = syntax[index];
+        if (rule !== undefined) {
+          const [name, tokens] = rule;
+          const length = tokens.length;
+          const children: Tree[] = [];
+          for (let index = 0; index < length; index++) {
+            const item = tree.pop();
+            if (item !== undefined) {
+              children.push(item);
+            }
+          }
+          children.reverse();
+          tree.push({ name, children });
+        }
+      } else {
+        tree.push(index);
+      }
+    }
+
+    if (tree.length === 1) {
+      return [true, tree[0]];
+    }
+
+    return [false, new Error("cannot construct syntax tree")];
   };
 };

@@ -3,7 +3,7 @@ import { expect, test } from "vitest";
 import { reference, rule, word } from "@/lib/rules/define-rules";
 
 import { closure } from "./closure";
-import { getLR0Item } from "./lr0-item";
+import { LR0Item } from "./lr0-item";
 
 import type { Syntax } from "@/lib/rules/define-rules";
 
@@ -24,27 +24,27 @@ const syntax: Syntax = [
 
 test("closure test non-terminal", () => {
   // S → • E
-  const item = getLR0Item(syntax[0]!);
+  const item = new LR0Item(syntax[0]!);
 
   const result = closure(syntax, item);
 
   expect(result).toStrictEqual([
     // + E → • E * B
-    getLR0Item(rule("E", reference("E"), word("*"), reference("B"))),
+    new LR0Item(rule("E", reference("E"), word("*"), reference("B"))),
     // + E → • E + B
-    getLR0Item(rule("E", reference("E"), word("+"), reference("B"))),
+    new LR0Item(rule("E", reference("E"), word("+"), reference("B"))),
     // + E → • B
-    getLR0Item(rule("E", reference("B"))),
+    new LR0Item(rule("E", reference("B"))),
     // + B → • 0
-    getLR0Item(rule("B", word("0"))),
+    new LR0Item(rule("B", word("0"))),
     // + B → • 1
-    getLR0Item(rule("B", word("1"))),
+    new LR0Item(rule("B", word("1"))),
   ]);
 });
 
 test("closure test terminal", () => {
   // B → • 0
-  const item = getLR0Item(syntax[4]!);
+  const item = new LR0Item(syntax[4]!);
 
   const result = closure(syntax, item);
 

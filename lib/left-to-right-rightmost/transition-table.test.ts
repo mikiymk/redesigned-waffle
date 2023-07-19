@@ -2,8 +2,9 @@ import { expect, test } from "vitest";
 
 import { reference, rule, word } from "@/lib/rules/define-rules";
 
-import { generateParser } from "./generate-parser";
-import { LR0ItemSet, itemToString } from "./item-set";
+import { LR0ItemSet } from "./item-set";
+import { LR0Item } from "./lr0-item";
+import { generateParseTable } from "./transition-table";
 
 import type { Syntax } from "@/lib/rules/define-rules";
 
@@ -23,13 +24,13 @@ const syntax: Syntax = [
 ];
 
 test("generate parser", () => {
-  const result = generateParser(syntax);
+  const result = generateParseTable(syntax);
   let count = 0;
 
   for (const { kernels, additions, gotoMap } of result) {
     console.log("item set", count++);
-    for (const item of kernels) console.log("  ", itemToString(item));
-    for (const item of additions) console.log(" +", itemToString(item));
+    for (const item of kernels) console.log("  ", item.toKeyString());
+    for (const item of additions) console.log(" +", item.toKeyString());
     for (const [token, number] of gotoMap) console.log(" :", token.toString(), "=>", number);
 
     console.log();
@@ -44,14 +45,14 @@ test("generate parser", () => {
   // + E → • B
   // + B → • 0
   // + B → • 1
-  expect(result[0]).toStrictEqual({
-    kernels: new LR0ItemSet([{ name: "S", tokens: [reference("E")], position: 0 }]),
+  expect(result[0]).toEqual({
+    kernels: new LR0ItemSet([new LR0Item(rule("S", reference("E")), 0)]),
     additions: new LR0ItemSet([
-      { name: "E", tokens: [reference("E"), word("*"), reference("B")], position: 0 },
-      { name: "E", tokens: [reference("E"), word("+"), reference("B")], position: 0 },
-      { name: "E", tokens: [reference("B")], position: 0 },
-      { name: "B", tokens: [word("0")], position: 0 },
-      { name: "B", tokens: [word("1")], position: 0 },
+      new LR0Item(rule("E", reference("E"), word("*"), reference("B")), 0),
+      new LR0Item(rule("E", reference("E"), word("+"), reference("B")), 0),
+      new LR0Item(rule("E", reference("B")), 0),
+      new LR0Item(rule("B", word("0")), 0),
+      new LR0Item(rule("B", word("1")), 0),
     ]),
     gotoMap: [
       [reference("E"), 1],
@@ -64,7 +65,7 @@ test("generate parser", () => {
   // item set 1
   // B → 0 •
   expect(result).toContainEqual({
-    kernels: new LR0ItemSet([{ name: "B", tokens: [word("0")], position: 1 }]),
+    kernels: new LR0ItemSet([new LR0Item(rule("B", word("0")), 1)]),
     additions: new LR0ItemSet(),
     gotoMap: [],
   });
@@ -72,7 +73,7 @@ test("generate parser", () => {
   // item set 2
   // B → 1 •
   expect(result).toContainEqual({
-    kernels: new LR0ItemSet([{ name: "B", tokens: [word("1")], position: 1 }]),
+    kernels: new LR0ItemSet([new LR0Item(rule("B", word("1")), 1)]),
     additions: new LR0ItemSet(),
     gotoMap: [],
   });
@@ -83,9 +84,9 @@ test("generate parser", () => {
   // E → E • + B
   expect(result).toContainEqual({
     kernels: new LR0ItemSet([
-      { name: "S", tokens: [reference("E")], position: 1 },
-      { name: "E", tokens: [reference("E"), word("*"), reference("B")], position: 1 },
-      { name: "E", tokens: [reference("E"), word("+"), reference("B")], position: 1 },
+      new LR0Item(rule("S", reference("E")), 1),
+      new LR0Item(rule("E", reference("E"), word("*"), reference("B")), 1),
+      new LR0Item(rule("E", reference("E"), word("+"), reference("B")), 1),
     ]),
     additions: new LR0ItemSet(),
     gotoMap: [
@@ -97,7 +98,7 @@ test("generate parser", () => {
   // item set 4
   // E → B •
   expect(result).toContainEqual({
-    kernels: new LR0ItemSet([{ name: "E", tokens: [reference("B")], position: 1 }]),
+    kernels: new LR0ItemSet([new LR0Item(rule("E", reference("B")), 1)]),
     additions: new LR0ItemSet(),
     gotoMap: [],
   });
@@ -107,11 +108,8 @@ test("generate parser", () => {
   // + B → • 0
   // + B → • 1
   expect(result).toContainEqual({
-    kernels: new LR0ItemSet([{ name: "E", tokens: [reference("E"), word("*"), reference("B")], position: 2 }]),
-    additions: new LR0ItemSet([
-      { name: "B", tokens: [word("0")], position: 0 },
-      { name: "B", tokens: [word("1")], position: 0 },
-    ]),
+    kernels: new LR0ItemSet([new LR0Item(rule("E", reference("E"), word("*"), reference("B")), 2)]),
+    additions: new LR0ItemSet([new LR0Item(rule("B", word("0")), 0), new LR0Item(rule("B", word("1")), 0)]),
     gotoMap: [
       [reference("B"), 7],
       [word("0"), 3],
@@ -124,11 +122,8 @@ test("generate parser", () => {
   // + B → • 0
   // + B → • 1
   expect(result).toContainEqual({
-    kernels: new LR0ItemSet([{ name: "E", tokens: [reference("E"), word("+"), reference("B")], position: 2 }]),
-    additions: new LR0ItemSet([
-      { name: "B", tokens: [word("0")], position: 0 },
-      { name: "B", tokens: [word("1")], position: 0 },
-    ]),
+    kernels: new LR0ItemSet([new LR0Item(rule("E", reference("E"), word("+"), reference("B")), 2)]),
+    additions: new LR0ItemSet([new LR0Item(rule("B", word("0")), 0), new LR0Item(rule("B", word("1")), 0)]),
     gotoMap: [
       [reference("B"), 8],
       [word("0"), 3],
@@ -139,7 +134,7 @@ test("generate parser", () => {
   // item set 7
   // E → E * B •
   expect(result).toContainEqual({
-    kernels: new LR0ItemSet([{ name: "E", tokens: [reference("E"), word("*"), reference("B")], position: 3 }]),
+    kernels: new LR0ItemSet([new LR0Item(rule("E", reference("E"), word("*"), reference("B")), 3)]),
     additions: new LR0ItemSet(),
     gotoMap: [],
   });
@@ -147,7 +142,7 @@ test("generate parser", () => {
   // item set 8
   // E → E + B •
   expect(result).toContainEqual({
-    kernels: new LR0ItemSet([{ name: "E", tokens: [reference("E"), word("+"), reference("B")], position: 3 }]),
+    kernels: new LR0ItemSet([new LR0Item(rule("E", reference("E"), word("+"), reference("B")), 3)]),
     additions: new LR0ItemSet(),
     gotoMap: [],
   });

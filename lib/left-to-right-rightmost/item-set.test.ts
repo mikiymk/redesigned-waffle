@@ -3,7 +3,7 @@ import { expect, test } from "vitest";
 import { rule, word } from "@/lib/rules/define-rules";
 
 import { LR0ItemSet } from "./item-set";
-import { getLR0Item } from "./lr0-item";
+import { LR0Item } from "./lr0-item";
 
 test("construct item set", () => {
   const tokenSet = new LR0ItemSet([]);
@@ -14,9 +14,9 @@ test("construct item set", () => {
 });
 
 test("set has item", () => {
-  const tokenSet = new LR0ItemSet([getLR0Item(rule("S", word("any")))]);
+  const tokenSet = new LR0ItemSet([new LR0Item(rule("S", word("any")))]);
 
-  const result = tokenSet.has(getLR0Item(rule("S", word("any"))));
+  const result = tokenSet.has(new LR0Item(rule("S", word("any"))));
 
   expect(result).toBe(true);
 });
@@ -24,23 +24,23 @@ test("set has item", () => {
 test("add token", () => {
   const tokenSet = new LR0ItemSet([]);
 
-  tokenSet.add(getLR0Item(rule("S", word("any"))));
+  tokenSet.add(new LR0Item(rule("S", word("any"))));
 
-  expect(tokenSet.has(getLR0Item(rule("S", word("any"))))).toBe(true);
-  expect(tokenSet.has(getLR0Item(rule("S", word("all"))))).toBe(false);
+  expect(tokenSet.has(new LR0Item(rule("S", word("any"))))).toBe(true);
+  expect(tokenSet.has(new LR0Item(rule("S", word("all"))))).toBe(false);
 });
 
 test("equals item set", () => {
-  const set1 = new LR0ItemSet([getLR0Item(rule("S", word("any")))]);
-  const set2 = new LR0ItemSet([getLR0Item(rule("S", word("any")))]);
+  const set1 = new LR0ItemSet([new LR0Item(rule("S", word("any")))]);
+  const set2 = new LR0ItemSet([new LR0Item(rule("S", word("any")))]);
 
   expect(set1.equals(set2)).toBe(true);
 });
 
 test("not equals item set", () => {
-  const set1 = new LR0ItemSet([getLR0Item(rule("S", word("any")))]);
-  const set2 = new LR0ItemSet([getLR0Item(rule("S", word("all")))]);
-  const set3 = new LR0ItemSet([getLR0Item(rule("F", word("any")))]);
+  const set1 = new LR0ItemSet([new LR0Item(rule("S", word("any")))]);
+  const set2 = new LR0ItemSet([new LR0Item(rule("S", word("all")))]);
+  const set3 = new LR0ItemSet([new LR0Item(rule("F", word("any")))]);
 
   expect(set1.equals(set2)).toBe(false);
   expect(set2.equals(set3)).toBe(false);
