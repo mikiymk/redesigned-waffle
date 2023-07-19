@@ -3,11 +3,11 @@ import { equalsRule } from "../rules/define-rules";
 import { ReferenceToken } from "../rules/reference-token";
 
 import { closure } from "./closure";
-import { LR0ItemSet } from "../token-set/lr0-item-set";
+import { LR0ItemSet } from "./lr0-item-set";
 
 import type { LR0Item } from "./lr0-item";
+import type { DirectorSetToken, LR0ItemToken, NonTermToken, Syntax, TermToken} from "../rules/define-rules";
 import type { TokenSet } from "../token-set/token-set";
-import type { DirectorSetToken, LR0ItemToken, NonTermToken, Syntax, TermToken } from "../rules/define-rules";
 
 type MatchResult = ["reduce", number] | ["shift", number, TermToken] | ["accept"] | ["error"];
 

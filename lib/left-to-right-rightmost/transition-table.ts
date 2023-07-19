@@ -1,10 +1,11 @@
-import { getDirectorSetList } from "../left-to-right-leftmost/director-set";
-import { getFirstSetList } from "../left-to-right-leftmost/first-set";
-import { getFollowSetList } from "../left-to-right-leftmost/follow-set";
+
+import { getDirectorSetList } from "../token-set/director-set-list";
+import { getFirstSetList } from "../token-set/first-set-list";
+import { getFollowSetList } from "../token-set/follow-set-list";
 
 import { groupByNextToken } from "./group-next-token";
-import { LR0ItemSet } from "../token-set/lr0-item-set";
 import { LR0Item } from "./lr0-item";
+import { LR0ItemSet } from "./lr0-item-set";
 import { nextItemSet } from "./next-item";
 import { ParseTableRow } from "./parse-table-row";
 
@@ -44,6 +45,7 @@ export const generateParseTable = (syntax: Syntax) => {
 
     // 各グループについて
     outer: for (const [token, itemSet] of groups) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const next = nextItemSet(itemSet);
 
       // もし既存のアイテム集合に同じものがあったら

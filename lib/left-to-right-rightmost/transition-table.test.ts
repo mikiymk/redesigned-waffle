@@ -2,8 +2,8 @@ import { expect, test } from "vitest";
 
 import { reference, rule, word } from "@/lib/rules/define-rules";
 
-import { LR0ItemSet } from "../token-set/lr0-item-set";
 import { LR0Item } from "./lr0-item";
+import { LR0ItemSet } from "./lr0-item-set";
 import { generateParseTable } from "./transition-table";
 
 import type { Syntax } from "@/lib/rules/define-rules";

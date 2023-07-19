@@ -1,10 +1,15 @@
-import { CharToken, EOFToken, EmptyToken, ReferenceToken, WordToken, eof, reference } from "@/lib/rules/define-rules";
+import { eof, reference } from "@/lib/rules/define-rules";
 
 import { peek, EOF, get } from "../core/reader";
+import { CharToken } from "../rules/char-token";
+import { EmptyToken } from "../rules/empty-token";
+import { EOFToken } from "../rules/eof-token";
+import { ReferenceToken } from "../rules/reference-token";
+import { WordToken } from "../rules/word-token";
+import { getDirectorSetList } from "../token-set/director-set-list";
+import { getFirstSetList } from "../token-set/first-set-list";
+import { getFollowSetList } from "../token-set/follow-set-list";
 
-import { getDirectorSetList } from "./director-set";
-import { getFirstSetList } from "./first-set";
-import { getFollowSetList } from "./follow-set";
 import { getMatchRuleIndex } from "./get-match-rule";
 import { isLLSyntax } from "./is-ll-syntax";
 

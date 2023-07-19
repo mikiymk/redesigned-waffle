@@ -1,9 +1,15 @@
-import { CharToken, EmptyToken, ReferenceToken, WordToken, empty } from "@/lib/rules/define-rules";
+import { empty } from "@/lib/rules/define-rules";
 
-import { getRuleIndexes } from "./rule-indexes";
+import { getRuleIndexes } from "../left-to-right-leftmost/rule-indexes";
+import { CharToken } from "../rules/char-token";
+import { EmptyToken } from "../rules/empty-token";
+import { ReferenceToken } from "../rules/reference-token";
+import { WordToken } from "../rules/word-token";
+
 import { TokenSet } from "./token-set";
 
 import type { FirstSetToken, Syntax, SyntaxToken } from "@/lib/rules/define-rules";
+
 
 /**
  * 各ルールについて、最初の文字を求める。

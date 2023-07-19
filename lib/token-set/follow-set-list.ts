@@ -1,12 +1,14 @@
 import { eof, empty } from "@/lib/rules/define-rules";
 
-import { TokenSet } from "./token-set";
+import { getRuleIndexes } from "../left-to-right-leftmost/rule-indexes";
 
 import { getFirstSet } from "./first-set-list";
-import { getRuleIndexes } from "./rule-indexes";
+import { TokenSet } from "./token-set";
+
 
 
 import type { FirstSetToken, FollowSetToken, Syntax } from "@/lib/rules/define-rules";
+
 
 /**
  * 各ルールについて、続く文字の文字を求める。
