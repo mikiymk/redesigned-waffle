@@ -2,11 +2,10 @@ import { describe, expect, test } from "vitest";
 
 import { reference, rule, word } from "@/lib/rules/define-rules";
 
-import { fromString } from "../core/reader";
+import { ParseReader } from "../core/reader";
 
 import { generateParser } from "./generate-parser";
 
-import type { ParseReader } from "../core/reader";
 import type { Syntax } from "@/lib/rules/define-rules";
 
 describe("parsing", () => {
@@ -21,40 +20,33 @@ describe("parsing", () => {
     expect(() => generateParser(syntax)).not.toThrow();
   });
 
-  let parser: (pr: ParseReader) => unknown;
-  try {
-    parser = generateParser(syntax);
-  } catch {
-    /** @returns zero */
-    parser = () => 0;
-  }
-
   test("parse success", () => {
+    const parser = generateParser(syntax);
     const source = "(1+1)";
 
-    const result = parser(fromString(source));
+    const result = parser(new ParseReader(source));
 
     expect(result).toStrictEqual([
       true,
       {
-        name: "start",
+        index: 0,
         children: [
           {
-            name: "S",
+            index: 2,
             children: [
               "(",
               {
-                name: "S",
+                index: 1,
                 children: [
                   {
-                    name: "F",
+                    index: 3,
                     children: ["1"],
                   },
                 ],
               },
               "+",
               {
-                name: "F",
+                index: 3,
                 children: ["1"],
               },
               ")",
@@ -66,9 +58,10 @@ describe("parsing", () => {
   });
 
   test("parse failure", () => {
+    const parser = generateParser(syntax);
     const source = "(1+)";
 
-    expect(parser(fromString(source))).toStrictEqual([false, new Error("nomatch input")]);
+    expect(parser(new ParseReader(source))).toStrictEqual([false, new Error("nomatch input")]);
   });
 });
 
@@ -86,39 +79,32 @@ describe("parsing 2", () => {
     expect(() => generateParser(syntax)).not.toThrow();
   });
 
-  let parser: (pr: ParseReader) => unknown;
-  try {
-    parser = generateParser(syntax);
-  } catch {
-    /** @returns zero */
-    parser = () => 0;
-  }
-
   test("parse success", () => {
+    const parser = generateParser(syntax);
     const source = "1+1";
 
-    const result = parser(fromString(source));
+    const result = parser(new ParseReader(source));
 
     expect(result).toStrictEqual([
       true,
       {
-        name: "S",
+        index: 0,
         children: [
           {
-            name: "E",
+            index: 2,
             children: [
               {
-                name: "E",
+                index: 3,
                 children: [
                   {
-                    name: "B",
+                    index: 5,
                     children: ["1"],
                   },
                 ],
               },
               "+",
               {
-                name: "B",
+                index: 5,
                 children: ["1"],
               },
             ],
@@ -129,9 +115,10 @@ describe("parsing 2", () => {
   });
 
   test("parse failure", () => {
+    const parser = generateParser(syntax);
     const source = "1+2";
 
-    expect(parser(fromString(source))).toStrictEqual([false, new Error("nomatch input")]);
+    expect(parser(new ParseReader(source))).toStrictEqual([false, new Error("nomatch input")]);
   });
 });
 
@@ -142,34 +129,27 @@ describe("parsing 3", () => {
     expect(() => generateParser(syntax)).not.toThrow();
   });
 
-  let parser: (pr: ParseReader) => unknown;
-  try {
-    parser = generateParser(syntax);
-  } catch {
-    /** @returns zero */
-    parser = () => 0;
-  }
-
   test("parse success", () => {
+    const parser = generateParser(syntax);
     const source = "111";
 
-    const result = parser(fromString(source));
+    const result = parser(new ParseReader(source));
 
     expect(result).toStrictEqual([
       true,
       {
-        name: "S",
+        index: 0,
         children: [
           {
-            name: "E",
+            index: 1,
             children: [
               "1",
               {
-                name: "E",
+                index: 1,
                 children: [
                   "1",
                   {
-                    name: "E",
+                    index: 2,
                     children: ["1"],
                   },
                 ],
@@ -182,9 +162,10 @@ describe("parsing 3", () => {
   });
 
   test("parse failure", () => {
+    const parser = generateParser(syntax);
     const source = "112";
 
-    expect(parser(fromString(source))).toStrictEqual([false, new Error("nomatch input")]);
+    expect(parser(new ParseReader(source))).toStrictEqual([false, new Error("nomatch input")]);
   });
 });
 
@@ -201,29 +182,22 @@ describe("parsing 4", () => {
     expect(() => generateParser(syntax)).not.toThrow();
   });
 
-  let parser: (pr: ParseReader) => unknown;
-  try {
-    parser = generateParser(syntax);
-  } catch {
-    /** @returns zero */
-    parser = () => 0;
-  }
-
   test("parse success", () => {
+    const parser = generateParser(syntax);
     const source = "12";
 
-    const result = parser(fromString(source));
+    const result = parser(new ParseReader(source));
 
     expect(result).toStrictEqual([
       true,
       {
-        name: "S",
+        index: 0,
         children: [
           {
-            name: "E",
+            index: 2,
             children: [
               {
-                name: "B",
+                index: 4,
                 children: ["1"],
               },
               "2",
@@ -235,8 +209,9 @@ describe("parsing 4", () => {
   });
 
   test("parse failure", () => {
+    const parser = generateParser(syntax);
     const source = "10";
 
-    expect(parser(fromString(source))).toStrictEqual([false, new Error("nomatch input")]);
+    expect(parser(new ParseReader(source))).toStrictEqual([false, new Error("nomatch input")]);
   });
 });

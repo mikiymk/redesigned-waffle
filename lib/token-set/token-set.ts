@@ -1,4 +1,4 @@
-import { ReferenceToken } from "@/lib/rules/define-rules";
+import { ReferenceToken } from "../rules/reference-token";
 
 import type { EOF } from "../core/reader";
 import type { Token } from "@/lib/rules/define-rules";
@@ -76,23 +76,6 @@ export class TokenSet<T extends Token> {
    */
   union<U extends Token>(tokens: Iterable<U>): TokenSet<T | U> {
     return new TokenSet<T | U>(this).append(tokens);
-  }
-
-  /**
-   * 自身と与えられたトークンの集合から新しく積集合を作成します
-   * @param tokens トークンの集合
-   * @returns 新しいトークンの集合
-   */
-  intersection(tokens: Iterable<T>): TokenSet<T> {
-    const newSet = new TokenSet<T>([]);
-
-    for (const token of tokens) {
-      if (this.has(token)) {
-        newSet.add(token);
-      }
-    }
-
-    return newSet;
   }
 
   /**

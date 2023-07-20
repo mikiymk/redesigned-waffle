@@ -1,9 +1,15 @@
-import { CharToken, EmptyToken, ReferenceToken, WordToken, epsilon } from "@/lib/rules/define-rules";
+import { empty } from "@/lib/rules/define-rules";
 
-import { getRuleIndexes } from "./rule-indexes";
+import { getRuleIndexes } from "../left-to-right-leftmost/rule-indexes";
+import { CharToken } from "../rules/char-token";
+import { EmptyToken } from "../rules/empty-token";
+import { ReferenceToken } from "../rules/reference-token";
+import { WordToken } from "../rules/word-token";
+
 import { TokenSet } from "./token-set";
 
 import type { FirstSetToken, Syntax, SyntaxToken } from "@/lib/rules/define-rules";
+
 
 /**
  * 各ルールについて、最初の文字を求める。
@@ -103,8 +109,8 @@ export const getFirstSet = (
       }
 
       // 空トークンが入っているなら、次のトークンを追加する
-      if (set.has(epsilon) && tokens[index + 1] !== undefined) {
-        set.delete(epsilon);
+      if (set.has(empty) && tokens[index + 1] !== undefined) {
+        set.delete(empty);
         continue;
       }
 
@@ -113,5 +119,5 @@ export const getFirstSet = (
   }
 
   // トークン列が空なら、空を返す
-  return new TokenSet([epsilon]);
+  return new TokenSet([empty]);
 };

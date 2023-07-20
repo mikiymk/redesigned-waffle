@@ -1,6 +1,6 @@
-import { ReferenceToken } from "@/lib/rules/define-rules";
 
 import { getRuleIndexes } from "../left-to-right-leftmost/rule-indexes";
+import { ReferenceToken } from "../rules/reference-token";
 
 import { LR0Item } from "./lr0-item";
 

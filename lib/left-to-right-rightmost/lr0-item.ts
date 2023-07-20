@@ -1,4 +1,5 @@
-import { EmptyToken } from "@/lib/rules/define-rules";
+
+import { EmptyToken } from "../rules/empty-token";
 
 import type { LR0ItemToken, Rule, SyntaxToken } from "@/lib/rules/define-rules";
 

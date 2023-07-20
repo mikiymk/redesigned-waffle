@@ -1,10 +1,9 @@
 import { describe, expect, test } from "vitest";
 
-import { char, eof, epsilon, reference, rule, word } from "@/lib/rules/define-rules";
+import { char, eof, empty, reference, rule, word } from "@/lib/rules/define-rules";
 
-import { getDirectorSetList } from "./director-set";
-import { getFirstSetList } from "./first-set";
-import { getFollowSetList } from "./follow-set";
+import { getFirstSetList } from "./first-set-list";
+import { getFollowSetList } from "./follow-set-list";
 import { TokenSet } from "./token-set";
 
 describe("get first-set from syntax", () => {
@@ -14,7 +13,7 @@ describe("get first-set from syntax", () => {
 
       rule("basic token", word("word"), word("after word")),
       rule("basic token", char("A", "Z"), word("after char")),
-      rule("basic token", epsilon),
+      rule("basic token", empty),
     ];
 
     const firstSet = getFirstSetList(syntax);
@@ -24,27 +23,16 @@ describe("get first-set from syntax", () => {
 
       new TokenSet([word("word")]),
       new TokenSet([char("A", "Z")]),
-      new TokenSet([epsilon]),
+      new TokenSet([empty]),
     ];
     expect(firstSet).toStrictEqual(expectedFirstSet);
 
-    const followSet = getFollowSetList(syntax, firstSet);
-    const expectedFollowSet = [
+    const result = getFollowSetList(syntax, firstSet);
+    const expected = [
       new TokenSet([eof]),
 
       new TokenSet([word("after basic token")]),
       new TokenSet([word("after basic token")]),
-      new TokenSet([word("after basic token")]),
-    ];
-
-    expect(followSet).toStrictEqual(expectedFollowSet);
-
-    const result = getDirectorSetList(firstSet, followSet);
-    const expected = [
-      new TokenSet([word("word"), char("A", "Z"), word("after basic token")]),
-
-      new TokenSet([word("word")]),
-      new TokenSet([char("A", "Z")]),
       new TokenSet([word("after basic token")]),
     ];
 

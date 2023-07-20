@@ -1,6 +1,8 @@
-import { WordToken, CharToken } from "@/lib/rules/define-rules";
 
-import type { TokenSet } from "./token-set";
+import { CharToken } from "../rules/char-token";
+import { WordToken } from "../rules/word-token";
+
+import type { TokenSet } from "../token-set/token-set";
 import type { DirectorSetToken } from "@/lib/rules/define-rules";
 
 /**

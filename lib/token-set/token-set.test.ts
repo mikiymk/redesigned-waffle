@@ -86,25 +86,6 @@ test("union set", () => {
   expect(newSet.has(word("c"))).toBe(true);
 });
 
-test("intersection set", () => {
-  const tokenSet1 = new TokenSet<Token>([word("a"), word("b")]);
-  const tokenSet2 = new TokenSet<Token>([word("b"), word("c")]);
-
-  const newSet = tokenSet1.intersection(tokenSet2);
-
-  expect(tokenSet1.has(word("a"))).toBe(true);
-  expect(tokenSet1.has(word("b"))).toBe(true);
-  expect(tokenSet1.has(word("c"))).toBe(false);
-
-  expect(tokenSet2.has(word("a"))).toBe(false);
-  expect(tokenSet2.has(word("b"))).toBe(true);
-  expect(tokenSet2.has(word("c"))).toBe(true);
-
-  expect(newSet.has(word("a"))).toBe(false);
-  expect(newSet.has(word("b"))).toBe(true);
-  expect(newSet.has(word("c"))).toBe(false);
-});
-
 test("difference set", () => {
   const tokenSet1 = new TokenSet<Token>([word("a"), word("b")]);
   const tokenSet2 = new TokenSet<Token>([word("b"), word("c")]);

@@ -1,15 +1,14 @@
 import { EOF } from "../core/reader";
-import { ReferenceToken, equalsRule } from "../rules/define-rules";
+import { equalsRule } from "../rules/define-rules";
+import { ReferenceToken } from "../rules/reference-token";
 
 import { closure } from "./closure";
-import { LR0ItemSet } from "./item-set";
+import { LR0ItemSet } from "./lr0-item-set";
 
 import type { LR0Item } from "./lr0-item";
-import type { TokenSet } from "../left-to-right-leftmost/token-set";
-import type { CharToken, DirectorSetToken, LR0ItemToken, Syntax, WordToken } from "../rules/define-rules";
+import type { DirectorSetToken, LR0ItemToken, NonTermToken, Syntax, TermToken } from "../rules/define-rules";
+import type { TokenSet } from "../token-set/token-set";
 
-type TermToken = WordToken | CharToken;
-type NonTermToken = ReferenceToken;
 type MatchResult = ["reduce", number] | ["shift", number, TermToken] | ["accept"] | ["error"];
 
 /**
@@ -143,32 +142,42 @@ export class ParseTableRow {
    */
   printDebugInfo() {
     console.log("table-row:");
-    console.log(" kernels:");
+    console.log(" items:");
     for (const item of this.kernels) {
       console.log("  ", item.toString());
     }
-
-    console.log(" additions:");
     for (const item of this.additions) {
       console.log("  ", item.toString());
     }
 
-    console.log(" goto-raw:");
-    for (const [token, number] of this.gotoMap) {
-      console.log("  ", token.toString(), "→", number);
+    if (this.#shift.length > 0) {
+      console.log("  shift:");
+      for (const [token, number] of this.#shift) {
+        console.log("   ", token.toString(), "→", number);
+      }
+    }
+    if (this.#goto.length > 0) {
+      console.log("  goto:");
+      for (const [token, number] of this.#goto) {
+        console.log("   ", token.toString(), "→", number);
+      }
+    }
+    if (this.#reduce.length > 0) {
+      console.log("  reduce:");
+      for (const [token, number] of this.#reduce) {
+        console.log("   ", token.asString(), "→", number);
+      }
+    }
+    if (this.#accept) {
+      console.log("  accept:", this.#accept);
     }
 
-    console.log(" collect info:");
-    console.log("  shift:");
-    for (const [token, number] of this.#shift) {
-      console.log("   ", token.toString(), "→", number);
+    if (this.#reduce.length > 1) {
+      console.log("  reduce-reduce");
     }
-    console.log("  goto:");
-    for (const [token, number] of this.#goto) {
-      console.log("   ", token.toString(), "→", number);
+    if (this.#reduce.length > 0 && this.#shift.length > 0) {
+      console.log("  shift-reduce");
     }
-    console.log("  reduce:", this.#reduce);
-    console.log("  accept:", this.#accept);
 
     console.log();
   }

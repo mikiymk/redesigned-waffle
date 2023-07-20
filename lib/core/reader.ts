@@ -1,25 +1,48 @@
 export const EOF = Symbol("EOF");
 export type EOF = typeof EOF;
 
-const Source = "source";
-const Position = "position";
-
-export type ParseReader = {
-  readonly [Source]: string;
-  [Position]: number;
-};
-
 /**
- * 文字列から読み込み用オブジェクトを作成します。
- * @param source パースする文字列
- * @returns パーサー用読み込み可能オブジェクト
+ * パーサー用文字読みクラス
  */
-export const fromString = (source: string): ParseReader => {
-  return {
-    [Source]: source,
-    [Position]: 0,
-  };
-};
+export class ParseReader implements Iterator<string, EOF, undefined> {
+  readonly source;
+  position = 0;
+
+  /**
+   * 文字列から読み込み用オブジェクトを作成します。
+   * @param source パースする文字列
+   */
+  constructor(source: string) {
+    this.source = source;
+  }
+
+  /**
+   * 次の文字を読み、進める
+   * @returns 文字列の終わりになったらEOFシンボル
+   */
+  next(): IteratorResult<string, EOF> {
+    const next = this.peek();
+    if (!next.done) this.position++;
+    return next;
+  }
+
+  /**
+   * 次の文字を読む
+   * @returns 文字列の終わりになったらEOFシンボル
+   */
+  peek(): IteratorResult<string, EOF> {
+    const char = this.source[this.position];
+    return char === undefined
+      ? {
+          done: true,
+          value: EOF,
+        }
+      : {
+          done: false,
+          value: char,
+        };
+  }
+}
 
 /**
  * 読み込みオブジェクトから１文字を読み込み、読み込み位置を１つ進めます。
@@ -27,7 +50,7 @@ export const fromString = (source: string): ParseReader => {
  * @returns 読み込んだ１文字。読み込みが終わりの場合、EOF
  */
 export const get = (pr: ParseReader): string | EOF => {
-  return pr[Source][pr[Position]++] ?? EOF;
+  return pr.next().value;
 };
 
 /**
@@ -36,27 +59,5 @@ export const get = (pr: ParseReader): string | EOF => {
  * @returns 読み込んだ１文字。読み込みが終わりの場合、EOF
  */
 export const peek = (pr: ParseReader): string | EOF => {
-  return pr[Source][pr[Position]] ?? EOF;
-};
-
-/**
- * パーサー読み込みオブジェクトを複製します。
- * ソース文字列は同一ですが、一方を読み進めたとき、もう一方の読み込み位置は変わりません。
- * @param pr パーサー読み込みオブジェクト
- * @returns 複製された読み込みオブジェクト
- */
-export const clone = (pr: ParseReader): ParseReader => {
-  return {
-    [Source]: pr[Source],
-    [Position]: pr[Position],
-  };
-};
-
-/**
- * 複製されたパーサー読み込みオブジェクトの位置を元のオブジェクトに反映します。
- * @param base 位置を変更する読み込みオブジェクト
- * @param moveTo 新しい位置にある読み込みオブジェクト
- */
-export const setPosition = (base: ParseReader, moveTo: ParseReader) => {
-  base[Position] = moveTo[Position];
+  return pr.peek().value;
 };

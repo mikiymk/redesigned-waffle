@@ -93,7 +93,9 @@
             "missingExports": false,
             "unusedExports": true
           }
-        ]
+        ],
+
+        "jsdoc/require-jsdoc": "off"
       }
     }
   ]
