@@ -29,24 +29,24 @@ describe("parsing", () => {
     expect(result).toStrictEqual([
       true,
       {
-        name: "start",
+        index: 0,
         children: [
           {
-            name: "S",
+            index: 2,
             children: [
               "(",
               {
-                name: "S",
+                index: 1,
                 children: [
                   {
-                    name: "F",
+                    index: 3,
                     children: ["1"],
                   },
                 ],
               },
               "+",
               {
-                name: "F",
+                index: 3,
                 children: ["1"],
               },
               ")",
@@ -88,23 +88,23 @@ describe("parsing 2", () => {
     expect(result).toStrictEqual([
       true,
       {
-        name: "S",
+        index: 0,
         children: [
           {
-            name: "E",
+            index: 2,
             children: [
               {
-                name: "E",
+                index: 3,
                 children: [
                   {
-                    name: "B",
+                    index: 5,
                     children: ["1"],
                   },
                 ],
               },
               "+",
               {
-                name: "B",
+                index: 5,
                 children: ["1"],
               },
             ],
@@ -138,18 +138,18 @@ describe("parsing 3", () => {
     expect(result).toStrictEqual([
       true,
       {
-        name: "S",
+        index: 0,
         children: [
           {
-            name: "E",
+            index: 1,
             children: [
               "1",
               {
-                name: "E",
+                index: 1,
                 children: [
                   "1",
                   {
-                    name: "E",
+                    index: 2,
                     children: ["1"],
                   },
                 ],
@@ -191,13 +191,13 @@ describe("parsing 4", () => {
     expect(result).toStrictEqual([
       true,
       {
-        name: "S",
+        index: 0,
         children: [
           {
-            name: "E",
+            index: 2,
             children: [
               {
-                name: "B",
+                index: 4,
                 children: ["1"],
               },
               "2",
