@@ -1,4 +1,3 @@
-
 import { getRuleIndexes } from "../left-to-right-leftmost/rule-indexes";
 import { ReferenceToken } from "../rules/reference-token";
 

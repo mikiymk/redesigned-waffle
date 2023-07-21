@@ -12,11 +12,13 @@ import { WordToken } from "./word-token";
  * 言語の構文
  */
 export type Syntax = Rule[];
+export type AugmentedSyntax = AugmentedRule[];
 
 /**
  * 構文の名前付きルール
  */
 export type Rule = [string, SyntaxToken[]];
+export type AugmentedRule = [string | symbol, SyntaxToken[]];
 
 export type SyntaxToken = WordToken | CharToken | ReferenceToken | EmptyToken;
 export type FirstSetToken = WordToken | CharToken | EmptyToken;
