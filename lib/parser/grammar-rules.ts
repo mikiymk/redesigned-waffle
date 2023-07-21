@@ -82,6 +82,18 @@ export class GrammarRules {
   }
 
   /**
+   * ルールからルール番号を返す
+   * @param name ルールの名前
+   * @returns ルール番号リスト
+   */
+  indexes(name: string): number[] {
+    const indexes = this.ruleNameMap[name];
+    if (indexes) return indexes;
+
+    throw new RangeError(`name "${name}" is not in rules`);
+  }
+
+  /**
    * オブジェクトの情報を出力する
    * @param indent インデント数
    */

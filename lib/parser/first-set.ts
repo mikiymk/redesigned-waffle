@@ -32,6 +32,19 @@ export class FirstSets {
   }
 
   /**
+   * ルール番号からルールに対応したFirst集合を返す
+   * @param index ルール番号
+   * @returns First集合
+   */
+  get(index: number): ObjectSet<FirstSetToken> {
+    const set = this.sets[index];
+
+    if (set) return set;
+
+    throw new RangeError("out of bounce");
+  }
+
+  /**
    * 初期化メソッド
    */
   private initialize() {
@@ -61,20 +74,18 @@ export class FirstSets {
    * @param set 集合オブジェクト
    * @param tokens 作るルールのトークン列
    */
-  private getFirstSet(set: ObjectSet<FirstSetToken>, tokens: number[]): void {
+  getFirstSet(set: ObjectSet<FirstSetToken>, tokens: number[]): void {
     // ルールから最初のトークンを取り出す
     for (const [index, tokenNumber] of tokens.entries()) {
       const token = this.tokens.get(tokenNumber);
       if (token instanceof WordToken || token instanceof CharToken) {
         // もし、文字なら、それを文字集合に追加する
         set.add(token);
-        return;
       } else if (token instanceof EmptyToken) {
         if (tokens[index + 1] === undefined) {
           // もし、空かつその後にトークンがないなら、空を文字集合に追加する
 
           set.add(token);
-          return;
         } else {
           // もし、空かつその後にトークンがあるなら、後ろのトークンを文字集合に追加する
           continue;
@@ -90,9 +101,8 @@ export class FirstSets {
           set.delete(empty);
           continue;
         }
-
-        return;
       }
+      return;
     }
   }
 

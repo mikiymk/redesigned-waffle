@@ -1,12 +1,11 @@
 import { reference } from "../rules/define-rules";
-import { getFollowSetList } from "../token-set/follow-set-list";
 
 import { FirstSets } from "./first-set";
+import { FollowSets } from "./follow-set";
 import { GrammarRules } from "./grammar-rules";
 import { Tokens } from "./tokens";
 
-import type { AugmentedSyntax, FollowSetToken, Syntax } from "../rules/define-rules";
-import type { TokenSet } from "../token-set/token-set";
+import type { AugmentedSyntax, Syntax } from "../rules/define-rules";
 
 const StartSymbol = Symbol("Start");
 
@@ -25,7 +24,7 @@ export class ParseBuilder {
   readonly firstSets: FirstSets;
 
   /** Follow集合 */
-  followSets: TokenSet<FollowSetToken>[] | undefined;
+  readonly followSets: FollowSets;
 
   /**
    *
@@ -37,20 +36,7 @@ export class ParseBuilder {
     this.tokens = new Tokens(this.augmentedGrammars);
     this.rules = new GrammarRules(this.augmentedGrammars, this.tokens);
     this.firstSets = new FirstSets(this.tokens, this.rules);
-  }
-
-  /**
-   *
-   * @returns 自身を返す
-   */
-  generateFollowSet() {
-    if (this.firstSets === undefined) {
-      throw new Error("first set is not collected.");
-    }
-
-    this.followSets = getFollowSetList(this.grammar, this.firstSets);
-
-    return this;
+    this.followSets = new FollowSets(this.tokens, this.rules, this.firstSets);
   }
 
   /**
