@@ -52,4 +52,17 @@ export class ParseBuilder {
 
     return this;
   }
+
+  /**
+   * オブジェクトの情報を出力する
+   * @param indent インデント数
+   */
+  debugPrint(indent: number = 0) {
+    const indentSpaces = " ".repeat(indent);
+    console.log(indentSpaces, "ParseBuilder:");
+
+    this.tokens.debugPrint(indent + 1);
+    this.rules.debugPrint(indent + 1);
+    this.firstSets.debugPrint(indent + 1);
+  }
 }

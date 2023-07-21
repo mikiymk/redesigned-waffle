@@ -3,14 +3,14 @@ import { ObjectSet } from "../util/object-set";
 import type { AugmentedSyntax, Token } from "../rules/define-rules";
 
 /**
- *
+ * トークンを番号管理する
  */
 export class Tokens {
   readonly tokens: Token[];
   readonly tokenKeys: string[];
 
   /**
-   *
+   * 文法に使われているトークンを求める
    * @param grammar 文法
    */
   constructor(grammar: AugmentedSyntax) {

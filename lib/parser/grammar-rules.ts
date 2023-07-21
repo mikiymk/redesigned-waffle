@@ -30,6 +30,15 @@ class InnerRule implements ToKey {
       ? `${this.name.toString()} [${this.tokens.join(",")}]`
       : `"${this.name.toString().replaceAll('"', '\\"').replaceAll("\\", "\\\\")}" [${this.tokens.join(",")}]`;
   }
+
+  /**
+   * オブジェクトの情報を出力する
+   * @param indent インデント数
+   */
+  debugPrint(indent: number = 0) {
+    const indentSpaces = " ".repeat(indent);
+    console.log(indentSpaces, this.toKeyString());
+  }
 }
 
 /**
@@ -70,5 +79,17 @@ export class GrammarRules {
     }
 
     this.ruleNameMap = Object.fromEntries(ruleNameMap);
+  }
+
+  /**
+   * オブジェクトの情報を出力する
+   * @param indent インデント数
+   */
+  debugPrint(indent: number = 0) {
+    const indentSpaces = " ".repeat(indent);
+    console.log(indentSpaces, "GrammarRules:", this.rules.length, "rules");
+    for (const rule of this.rules) {
+      rule.debugPrint(indent + 1);
+    }
   }
 }

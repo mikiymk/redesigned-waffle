@@ -19,9 +19,9 @@ export class FirstSets {
   readonly sets: ObjectSet<FirstSetToken>[];
 
   /**
-   *
-   * @param tokens
-   * @param rules
+   * 文法ルールリストからFirst集合リストを作成します。
+   * @param tokens トークン辞書
+   * @param rules ルール辞書
    */
   constructor(tokens: Tokens, rules: GrammarRules) {
     this.tokens = tokens;
@@ -32,7 +32,7 @@ export class FirstSets {
   }
 
   /**
-   *
+   * 初期化メソッド
    */
   private initialize() {
     for (;;) {
@@ -41,7 +41,7 @@ export class FirstSets {
       for (const [_, set, rule] of zip(this.sets, this.rules.rules)) {
         const length = set.size;
 
-        set.append(this.getFirstSet(rule.tokens));
+        this.getFirstSet(set, rule.tokens);
 
         // 集合に変化があったらマーク
         if (length !== set.size) {
@@ -58,24 +58,23 @@ export class FirstSets {
 
   /**
    * トークン列の最初の文字集合を作る
+   * @param set 集合オブジェクト
    * @param tokens 作るルールのトークン列
-   * @returns 作った最初の文字集合
    */
-  private getFirstSet(tokens: number[]): ObjectSet<FirstSetToken> {
-    const set = new ObjectSet<FirstSetToken>();
+  private getFirstSet(set: ObjectSet<FirstSetToken>, tokens: number[]): void {
     // ルールから最初のトークンを取り出す
     for (const [index, tokenNumber] of tokens.entries()) {
       const token = this.tokens.get(tokenNumber);
       if (token instanceof WordToken || token instanceof CharToken) {
         // もし、文字なら、それを文字集合に追加する
         set.add(token);
-        return set;
+        return;
       } else if (token instanceof EmptyToken) {
         if (tokens[index + 1] === undefined) {
           // もし、空かつその後にトークンがないなら、空を文字集合に追加する
 
           set.add(token);
-          return set;
+          return;
         } else {
           // もし、空かつその後にトークンがあるなら、後ろのトークンを文字集合に追加する
           continue;
@@ -92,11 +91,22 @@ export class FirstSets {
           continue;
         }
 
-        return set;
+        return;
       }
     }
+  }
 
-    // トークン列が空なら、空を返す
-    return new ObjectSet([empty]);
+  /**
+   * オブジェクトの情報を出力する
+   * @param indent インデント数
+   */
+  debugPrint(indent: number = 0) {
+    const indentSpaces = " ".repeat(indent);
+    console.log(indentSpaces, "FirstSet:");
+    for (const set of this.sets) {
+      for (const _token of set) {
+        // token.debugPrint(indent + 1);
+      }
+    }
   }
 }
