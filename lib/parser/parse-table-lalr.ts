@@ -123,6 +123,10 @@ class LaLRParseTableRow {
     // このアイテム集合のフォロー集合を求める
     const itemSetRules = [...this.kernels, ...this.additions].map((item) => item.rule);
 
+    for (const item of itemSetRules) {
+      item.debugPrint();
+    }
+
     const followSet = new ParseBuilder(itemSetRules.map((item) => [item.name, item.tokens])).followSets;
     const lookahead: Record<string | symbol, ObjectSet<FollowSetToken>> = {};
 
@@ -218,6 +222,25 @@ class LaLRParseTableRow {
       }
     }
   }
+
+  /**
+   * オブジェクトの情報を出力する
+   * @param indent インデント数
+   */
+  debugPrint(indent: number = 0) {
+    const indentSpaces = " ".repeat(indent);
+    let count = 0;
+
+    console.log(indentSpaces, "Kernel items:");
+    for (const item of this.kernels) {
+      console.log(indentSpaces, "", count++, item.toKeyString());
+    }
+
+    console.log(indentSpaces, "Additional items:");
+    for (const item of this.additions) {
+      console.log(indentSpaces, "", count++, item.toKeyString());
+    }
+  }
 }
 
 /**
@@ -250,7 +273,10 @@ export class LaLRParseTable {
 
     this.table.push(new LaLRParseTableRow(this.tokens, this.rules, [firstItem]));
 
+    this.table[0]?.debugPrint();
     for (const row of this.table) {
+      row.debugPrint();
+
       // アイテム集合をグループ分けする
       const groups = row.groups();
 

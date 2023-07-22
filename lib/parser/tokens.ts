@@ -92,9 +92,11 @@ export class Tokens {
    */
   debugPrint(indent: number = 0) {
     const indentSpaces = " ".repeat(indent);
+    let count = 0;
+
     console.log(indentSpaces, "Tokens:");
     for (const token of this.tokens) {
-      token.debugPrint(indent + 1);
+      console.log(indentSpaces, "", count++, token.toString());
     }
   }
 }

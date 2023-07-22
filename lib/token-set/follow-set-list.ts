@@ -5,10 +5,7 @@ import { getRuleIndexes } from "../left-to-right-leftmost/rule-indexes";
 import { getFirstSet } from "./first-set-list";
 import { TokenSet } from "./token-set";
 
-
-
 import type { FirstSetToken, FollowSetToken, Syntax } from "@/lib/rules/define-rules";
-
 
 /**
  * 各ルールについて、続く文字の文字を求める。

@@ -40,9 +40,7 @@ export class RuleItem implements ToKey {
    * @returns キー文字列
    */
   toKeyString() {
-    return typeof this.name === "symbol"
-      ? `${this.name.toString()} [${this.tokens.join(",")}]`
-      : `"${this.name.toString().replaceAll('"', '\\"').replaceAll("\\", "\\\\")}" [${this.tokens.join(",")}]`;
+    return `${primitiveToString(this.name)} [${this.tokens.join(",")}]`;
   }
 
   /**
@@ -113,9 +111,9 @@ export class GrammarRules {
    */
   indexes(name: RuleName): number[] {
     const indexes = this.ruleNameMap[name];
-    if (indexes) return indexes;
+    if (indexes !== undefined) return indexes;
 
-    throw new RangeError(`name "${primitiveToString(name)}" is not in rules`);
+    throw new RangeError(`name ${primitiveToString(name)} is not in rules`);
   }
 
   /**
@@ -153,9 +151,11 @@ export class GrammarRules {
    */
   debugPrint(indent: number = 0) {
     const indentSpaces = " ".repeat(indent);
+    let count = 0;
+
     console.log(indentSpaces, "GrammarRules:", this.rules.length, "rules");
     for (const rule of this.rules) {
-      rule.debugPrint(indent + 1);
+      console.log(indentSpaces, "", count++, rule.toKeyString());
     }
   }
 }
