@@ -7,7 +7,7 @@ import { ParseBuilder } from "./parse-builder";
 
 import type { GrammarRules, RuleItem } from "./grammar-rules";
 import type { Tokens } from "./tokens";
-import type { DirectorSetToken, FollowSetToken, Rule } from "../rules/define-rules";
+import type { DirectorSetToken, FollowSetToken } from "../rules/define-rules";
 
 /**
  * LALR(1)アイテム
@@ -123,7 +123,7 @@ class LaLRParseTableRow {
     // このアイテム集合のフォロー集合を求める
     const itemSetRules = [...this.kernels, ...this.additions].map((item) => item.rule);
 
-    const followSet = new ParseBuilder(itemSetRules.map((item) => [item.name, item.tokens]) as Rule[]).followSets;
+    const followSet = new ParseBuilder(itemSetRules.map((item) => [item.name, item.tokens])).followSets;
     const lookahead: Record<string | symbol, ObjectSet<FollowSetToken>> = {};
 
     for (const [_, rule, set] of zip(itemSetRules, followSet.followSets)) {

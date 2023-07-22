@@ -1,4 +1,4 @@
-import type { Syntax } from "@/lib/rules/define-rules";
+import type { RuleName, Syntax } from "@/lib/rules/define-rules";
 
 /**
  * 指定したルール名のルール番号を探します。
@@ -6,7 +6,7 @@ import type { Syntax } from "@/lib/rules/define-rules";
  * @param ruleName ルール名
  * @returns ルール名を持つルールの添字
  */
-export const getRuleIndexes = (syntax: Syntax, ruleName: string): number[] => {
+export const getRuleIndexes = (syntax: Syntax, ruleName: RuleName): number[] => {
   const indexes = [];
 
   for (const [index, element] of syntax.entries()) {

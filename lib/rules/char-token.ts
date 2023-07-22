@@ -96,4 +96,13 @@ export class CharToken implements BaseToken, TerminalToken {
   equals(other: BaseToken): boolean {
     return other instanceof CharToken && other.min === this.min && other.max === this.max;
   }
+
+  /**
+   * デバッグ用に出力をします。
+   * @param indent インデント数
+   */
+  debugPrint(indent: number = 0): void {
+    const indentSpaces = " ".repeat(indent);
+    console.log(indentSpaces, this.toString());
+  }
 }

@@ -1,12 +1,12 @@
 export type ToKey = {
-  toKeyString(): string;
+  toKeyString(): string | number | symbol;
 };
 
 /**
  * オブジェクトの集合 （同じハッシュキーになるオブジェクトが最大で１つ含まれる）
  */
 export class ObjectSet<T extends ToKey> {
-  map = new Map<string, T>();
+  map = new Map<string | number | symbol, T>();
 
   /**
    * 新しい集合を作成します。

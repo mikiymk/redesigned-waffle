@@ -112,10 +112,14 @@ export class FirstSets {
    */
   debugPrint(indent: number = 0) {
     const indentSpaces = " ".repeat(indent);
+    let count = 0;
+
     console.log(indentSpaces, "FirstSet:");
     for (const set of this.sets) {
-      for (const _token of set) {
-        // token.debugPrint(indent + 1);
+      console.log(indentSpaces, "", "rule", count++);
+
+      for (const token of set) {
+        token.debugPrint(indent + 2);
       }
     }
   }

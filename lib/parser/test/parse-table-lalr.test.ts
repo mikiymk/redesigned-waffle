@@ -16,12 +16,14 @@ test("basic", () => {
     rule("B", empty),
   ];
 
-  const followSets = new ParseBuilder(grammar).followSets;
+  const builder = new ParseBuilder(grammar);
 
-  expect(followSets.followSets[1]).toStrictEqual(new ObjectSet([eof]));
-  expect(followSets.followSets[2]).toStrictEqual(new ObjectSet([word("end")]));
-  expect(followSets.followSets[3]).toStrictEqual(new ObjectSet([word("end")]));
-  expect(followSets.followSets[4]).toStrictEqual(new ObjectSet([word("end")]));
+  builder.tokens.debugPrint();
+  builder.rules.debugPrint();
+
+  const parseTableLALR = builder.parseTableLALR;
+
+  expect(parseTableLALR.table).toStrictEqual(new ObjectSet([eof]));
 });
 
 test("reference", () => {

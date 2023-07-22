@@ -6,12 +6,12 @@ import { GrammarRules } from "./grammar-rules";
 import { LaLRParseTable } from "./parse-table-lalr";
 import { Tokens } from "./tokens";
 
-import type { AugmentedSyntax, Syntax } from "../rules/define-rules";
+import type { Syntax } from "../rules/define-rules";
 
 const StartSymbol = Symbol("Start");
 
 export type HaveGrammar = {
-  readonly augmentedGrammars: AugmentedSyntax;
+  readonly augmentedGrammars: Syntax;
 };
 
 export type HaveTokens = {
@@ -25,11 +25,10 @@ export type HaveRules = {
 /**
  *
  */
-// eslint-disable-next-line import/no-unused-modules
 export class ParseBuilder {
   /** 与えられた文法 */
   readonly grammar: Syntax;
-  readonly augmentedGrammars: AugmentedSyntax;
+  readonly augmentedGrammars: Syntax;
 
   /**
    *

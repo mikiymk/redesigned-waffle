@@ -1,5 +1,6 @@
 import { EmptyToken } from "../rules/empty-token";
 import { TokenSet } from "../token-set/token-set";
+import { primitiveToString } from "../util/primitive-to-string";
 
 import type { FollowSetToken, LR0ItemToken, Rule, SyntaxToken } from "@/lib/rules/define-rules";
 
@@ -68,7 +69,7 @@ export class LR0Item {
    * @returns 文字列
    */
   toKeyString(): string {
-    return `${this.rule[0]} → ${this.rule[1]
+    return `${primitiveToString(this.rule[0])} → ${this.rule[1]
       .slice(0, this.position)
       .map((value) => value.toKeyString())
       .join(" ")} . ${this.rule[1]
@@ -82,7 +83,7 @@ export class LR0Item {
    * @returns 文字列
    */
   toString(): string {
-    return `${this.rule[0]} → [${[
+    return `${primitiveToString(this.rule[0])} → [${[
       ...this.rule[1].slice(0, this.position).map((value) => value.toKeyString()),
       ".",
       ...this.rule[1].slice(this.position).map((value) => value.toKeyString()),

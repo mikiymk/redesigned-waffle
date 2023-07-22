@@ -3,6 +3,7 @@ import { equalsRule } from "../rules/define-rules";
 import { ReferenceToken } from "../rules/reference-token";
 import { getFirstSetList } from "../token-set/first-set-list";
 import { getFollowSetList } from "../token-set/follow-set-list";
+import { primitiveToString } from "../util/primitive-to-string";
 
 import { closure } from "./closure";
 import { LR0ItemSet } from "./lr0-item-set";
@@ -13,6 +14,7 @@ import type {
   FollowSetToken,
   LR0ItemToken,
   NonTermToken,
+  RuleName,
   Syntax,
   TermToken,
 } from "../rules/define-rules";
@@ -54,7 +56,7 @@ export class ParseTableRow {
     const itemSetRules = [...this.kernels, ...this.additions].map((item) => item.rule);
     const firstSet = getFirstSetList(itemSetRules);
     const followSet = getFollowSetList(itemSetRules, firstSet);
-    const lookahead: Record<string, TokenSet<FollowSetToken>> = {};
+    const lookahead: Record<RuleName, TokenSet<FollowSetToken>> = {};
     for (const [index, rule] of itemSetRules.entries()) {
       const set = followSet[index];
       if (set) {
@@ -147,7 +149,7 @@ export class ParseTableRow {
    * @param nonTermName 非終端記号
    * @returns 遷移先の状態番号
    */
-  getGoto(nonTermName: string): number {
+  getGoto(nonTermName: RuleName): number {
     if (!this.#collected) {
       throw new Error("not collected");
     }
@@ -159,7 +161,9 @@ export class ParseTableRow {
     }
 
     throw new Error(
-      "not goto " + nonTermName + " in " + this.gotoMap.map(([t, n]) => `${t.toString()}→${n}`).join(", "),
+      `not goto ${primitiveToString(nonTermName)} in ${this.gotoMap
+        .map(([t, n]) => `${t.toString()}→${n}`)
+        .join(", ")}`,
     );
   }
 

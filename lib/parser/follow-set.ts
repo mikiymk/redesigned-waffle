@@ -91,7 +91,7 @@ export class FollowSets {
             referenceFollowSet.append(followFirstSet.difference(new ObjectSet([empty])));
 
             // 空が含まれるなら、このルールのフォロー集合を追加する
-            if (followFirstSet.has(empty)) {
+            if (followFirstSet.size === 0 || followFirstSet.has(empty)) {
               referenceFollowSet.append(set);
             }
 
@@ -102,5 +102,23 @@ export class FollowSets {
     }
 
     return updated;
+  }
+
+  /**
+   * オブジェクトの情報を出力する
+   * @param indent インデント数
+   */
+  debugPrint(indent: number = 0) {
+    const indentSpaces = " ".repeat(indent);
+    let count = 0;
+
+    console.log(indentSpaces, "FollowSet:");
+    for (const set of this.followSets) {
+      console.log(indentSpaces, "", "rule", count++);
+
+      for (const token of set) {
+        token.debugPrint(indent + 2);
+      }
+    }
   }
 }

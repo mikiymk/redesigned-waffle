@@ -1,9 +1,10 @@
 import { EmptyToken } from "../rules/empty-token";
 import { ReferenceToken } from "../rules/reference-token";
 import { ObjectSet } from "../util/object-set";
+import { primitiveToString } from "../util/primitive-to-string";
 
 import type { HaveGrammar, HaveRules } from "./parse-builder";
-import type { Token } from "../rules/define-rules";
+import type { RuleName, Token } from "../rules/define-rules";
 
 /**
  * トークンを番号管理する
@@ -11,7 +12,7 @@ import type { Token } from "../rules/define-rules";
 export class Tokens {
   readonly builder: HaveGrammar & HaveRules;
   readonly tokens: Token[];
-  readonly tokenKeys: string[];
+  readonly tokenKeys: RuleName[];
 
   /**
    * 文法に使われているトークンを求める
@@ -59,7 +60,7 @@ export class Tokens {
       }
     }
 
-    throw new Error(`target token ${targetKey} is not in tokens.`);
+    throw new Error(`target token ${primitiveToString(targetKey)} is not in tokens.`);
   }
 
   /**
@@ -92,8 +93,8 @@ export class Tokens {
   debugPrint(indent: number = 0) {
     const indentSpaces = " ".repeat(indent);
     console.log(indentSpaces, "Tokens:");
-    for (const _token of this.tokens) {
-      // token.debugPrint(indent + 1);
+    for (const token of this.tokens) {
+      token.debugPrint(indent + 1);
     }
   }
 }

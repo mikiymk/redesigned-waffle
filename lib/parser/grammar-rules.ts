@@ -1,8 +1,9 @@
 import { ReferenceToken } from "../rules/reference-token";
 import { ObjectSet } from "../util/object-set";
+import { primitiveToString } from "../util/primitive-to-string";
 
 import type { HaveGrammar, HaveTokens } from "./parse-builder";
-import type { SyntaxToken } from "../rules/define-rules";
+import type { RuleName, SyntaxToken } from "../rules/define-rules";
 import type { ToKey } from "../util/object-set";
 
 /**
@@ -110,11 +111,11 @@ export class GrammarRules {
    * @param name ルールの名前
    * @returns ルール番号リスト
    */
-  indexes(name: string): number[] {
+  indexes(name: RuleName): number[] {
     const indexes = this.ruleNameMap[name];
     if (indexes) return indexes;
 
-    throw new RangeError(`name "${name}" is not in rules`);
+    throw new RangeError(`name "${primitiveToString(name)}" is not in rules`);
   }
 
   /**
@@ -123,7 +124,7 @@ export class GrammarRules {
    * @param calledRule 無限再帰を防ぐため、一度呼ばれたルール名を記録しておく
    * @returns ルールから予測される
    */
-  expansion(ruleName: string, calledRule: Set<string> = new Set()): number[] {
+  expansion(ruleName: RuleName, calledRule: Set<RuleName> = new Set()): number[] {
     if (calledRule.has(ruleName)) {
       return [];
     }

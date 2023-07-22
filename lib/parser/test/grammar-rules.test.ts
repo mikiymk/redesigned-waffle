@@ -3,40 +3,42 @@ import { expect, test } from "vitest";
 import { reference, rule, word } from "@/lib/rules/define-rules";
 
 import { GrammarRules } from "../grammar-rules";
-import { Tokens } from "../tokens";
+import { ParseBuilder } from "../parse-builder";
 
 const grammar = [rule("S", reference("E")), rule("E", word("1"))];
+const builder = new ParseBuilder(grammar);
 
 test("generate rules", () => {
-  const tokens = new Tokens(grammar);
-  expect(() => new GrammarRules(grammar, tokens)).not.toThrow();
+  expect(() => new GrammarRules(builder)).not.toThrow();
 });
 
 test("rules has rules", () => {
-  const tokens = new Tokens(grammar);
-  const rules = new GrammarRules(grammar, tokens);
-
-  const referenceE = tokens.indexOf(reference("E"));
-  const word1 = tokens.indexOf(word("1"));
+  const rules = new GrammarRules(builder);
 
   const result = rules.rules;
 
   expect(result).toContainEqual({
     name: "S",
-    tokens: [referenceE],
+    tokens: [reference("E")],
+    tokenIndexes: [builder.tokens.indexOf(reference("E"))],
+    firstToken: reference("E"),
   });
 
   expect(result).toContainEqual({
     name: "E",
-    tokens: [word1],
+    tokens: [word("1")],
+    tokenIndexes: [builder.tokens.indexOf(word("1"))],
+    firstToken: word("1"),
   });
 });
 
 test("rule names", () => {
-  const tokens = new Tokens(grammar);
-  const rules = new GrammarRules(grammar, tokens);
+  const rules = new GrammarRules(builder);
 
   const result = rules.ruleNames;
 
-  expect(result).toEqual(["S", "E"]);
+  expect(result).toHaveLength(3);
+
+  expect(result).toContain("S");
+  expect(result).toContain("E");
 });
