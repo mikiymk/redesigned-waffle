@@ -3,7 +3,7 @@ import { getRuleIndexes } from "./rule-indexes";
 
 import type { TokenSet } from "../token-set/token-set";
 import type { Result } from "../util/parser";
-import type { DirectorSetToken, Syntax } from "@/lib/rules/define-rules";
+import type { DirectorSetToken, RuleName, Syntax } from "@/lib/rules/define-rules";
 
 /**
  * 次の文字にマッチするルール番号を探します。
@@ -16,7 +16,7 @@ import type { DirectorSetToken, Syntax } from "@/lib/rules/define-rules";
 export const getMatchRuleIndex = (
   syntax: Syntax,
   directorSetList: TokenSet<DirectorSetToken>[],
-  ruleName: string,
+  ruleName: RuleName,
   peekedCode: number,
 ): Result<number> => {
   // 各ルールについてループする

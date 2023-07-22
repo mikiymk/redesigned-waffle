@@ -13,7 +13,8 @@
     "build:lib-type": "tsc --project ./tsconfig.lib.json",
     "serve": "vite",
     "watch:test": "vitest watch",
-    "watch:ts": "tsc --watch"
+    "watch:ts": "tsc --watch",
+    "check-all": "run-s format lint:ts lint:eslint test build:page build:lib build:lib-type"
   },
   "keywords": [],
   "author": "mikiymk",

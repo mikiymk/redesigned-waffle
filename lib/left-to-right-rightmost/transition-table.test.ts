@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { reference, rule, word } from "@/lib/rules/define-rules";
+import { eof, reference, rule, word } from "@/lib/rules/define-rules";
 
 import { LR0Item } from "./lr0-item";
 import { LR0ItemSet } from "./lr0-item-set";
@@ -45,14 +45,15 @@ test("generate parser", () => {
   // + E → • B
   // + B → • 0
   // + B → • 1
+
   expect(result[0]).toEqual({
-    kernels: new LR0ItemSet([new LR0Item(rule("S", reference("E")), 0)]),
+    kernels: new LR0ItemSet([new LR0Item(rule("S", reference("E")), 0, [eof])]),
     additions: new LR0ItemSet([
-      new LR0Item(rule("E", reference("E"), word("*"), reference("B")), 0),
-      new LR0Item(rule("E", reference("E"), word("+"), reference("B")), 0),
-      new LR0Item(rule("E", reference("B")), 0),
-      new LR0Item(rule("B", word("0")), 0),
-      new LR0Item(rule("B", word("1")), 0),
+      new LR0Item(rule("E", reference("E"), word("*"), reference("B")), 0, [eof, word("*"), word("+")]),
+      new LR0Item(rule("E", reference("E"), word("+"), reference("B")), 0, [eof, word("*"), word("+")]),
+      new LR0Item(rule("E", reference("B")), 0, [eof, word("*"), word("+")]),
+      new LR0Item(rule("B", word("0")), 0, [eof, word("*"), word("+")]),
+      new LR0Item(rule("B", word("1")), 0, [eof, word("*"), word("+")]),
     ]),
     gotoMap: [
       [reference("E"), 1],

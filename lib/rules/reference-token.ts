@@ -10,8 +10,8 @@ export class ReferenceToken implements BaseToken {
    * 非終端記号トークンを作る
    * @param name 参照する名前
    */
-  constructor(name: string) {
-    if (name.length === 0) {
+  constructor(name: string | symbol) {
+    if (typeof name === "string" && name.length === 0) {
       throw new Error("rule name must 1 or more characters");
     }
 
@@ -30,8 +30,10 @@ export class ReferenceToken implements BaseToken {
    * マップ用文字列に変換します。
    * @returns 文字列
    */
-  toKeyString(): string {
-    return `r "${this.name.replaceAll('"', '\\"').replaceAll("\\", "\\\\")}"`;
+  toKeyString(): string | symbol {
+    return typeof this.name === "string"
+      ? `r "${this.name.replaceAll('"', '\\"').replaceAll("\\", "\\\\")}"`
+      : this.name;
   }
 
   /**
@@ -39,7 +41,7 @@ export class ReferenceToken implements BaseToken {
    * @returns 文字列
    */
   toString(): string {
-    return `rule(${this.name})`;
+    return typeof this.name === "string" ? `rule(${this.name})` : `rule(${this.name.toString()})`;
   }
 
   /**
@@ -49,5 +51,14 @@ export class ReferenceToken implements BaseToken {
    */
   equals(other: BaseToken): boolean {
     return other instanceof ReferenceToken && other.name === this.name;
+  }
+
+  /**
+   * デバッグ用に出力をします。
+   * @param indent インデント数
+   */
+  debugPrint(indent: number = 0): void {
+    const indentSpaces = " ".repeat(indent);
+    console.log(indentSpaces, this.toString());
   }
 }

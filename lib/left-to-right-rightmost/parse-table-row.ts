@@ -1,12 +1,23 @@
 import { EOF } from "../core/reader";
 import { equalsRule } from "../rules/define-rules";
 import { ReferenceToken } from "../rules/reference-token";
+import { getFirstSetList } from "../token-set/first-set-list";
+import { getFollowSetList } from "../token-set/follow-set-list";
+import { primitiveToString } from "../util/primitive-to-string";
 
 import { closure } from "./closure";
 import { LR0ItemSet } from "./lr0-item-set";
 
 import type { LR0Item } from "./lr0-item";
-import type { DirectorSetToken, LR0ItemToken, NonTermToken, Syntax, TermToken } from "../rules/define-rules";
+import type {
+  DirectorSetToken,
+  FollowSetToken,
+  LR0ItemToken,
+  NonTermToken,
+  RuleName,
+  Syntax,
+  TermToken,
+} from "../rules/define-rules";
 import type { TokenSet } from "../token-set/token-set";
 
 type MatchResult = ["reduce", number] | ["shift", number, TermToken] | ["accept"] | ["error"];
@@ -40,13 +51,30 @@ export class ParseTableRow {
     for (const item of this.kernels) {
       this.additions.append(closure(syntax, item));
     }
+
+    // このアイテム集合のフォロー集合を求める
+    const itemSetRules = [...this.kernels, ...this.additions].map((item) => item.rule);
+    const firstSet = getFirstSetList(itemSetRules);
+    const followSet = getFollowSetList(itemSetRules, firstSet);
+    const lookahead: Record<RuleName, TokenSet<FollowSetToken>> = {};
+    for (const [index, rule] of itemSetRules.entries()) {
+      const set = followSet[index];
+      if (set) {
+        lookahead[rule[0]] = set;
+      }
+    }
+
+    // 各アイテムにフォロー集合のトークンを追加する
+    for (const item of [...this.kernels, ...this.additions]) {
+      const set = lookahead[item.rule[0]];
+      if (set) item.lookahead.append(set);
+    }
   }
 
   /**
    * shift, reduce, gotoなどを計算します。
-   * @param resolverSet 解決用トークン集合リスト
    */
-  collectRow(resolverSet: TokenSet<DirectorSetToken>[]) {
+  collectRow() {
     // reduceとacceptを調べる
     for (const item of [...this.kernels, ...this.additions]) {
       if (item.isLast()) {
@@ -64,7 +92,7 @@ export class ParseTableRow {
           this.#accept = true;
         } else {
           // その他のルールではreduce
-          const resolver = resolverSet[ruleNumber];
+          const resolver = item.lookahead;
           if (resolver === undefined) {
             throw new Error("not match resolver set and syntax");
           }
@@ -121,7 +149,7 @@ export class ParseTableRow {
    * @param nonTermName 非終端記号
    * @returns 遷移先の状態番号
    */
-  getGoto(nonTermName: string): number {
+  getGoto(nonTermName: RuleName): number {
     if (!this.#collected) {
       throw new Error("not collected");
     }
@@ -133,7 +161,9 @@ export class ParseTableRow {
     }
 
     throw new Error(
-      "not goto " + nonTermName + " in " + this.gotoMap.map(([t, n]) => `${t.toString()}→${n}`).join(", "),
+      `not goto ${primitiveToString(nonTermName)} in ${this.gotoMap
+        .map(([t, n]) => `${t.toString()}→${n}`)
+        .join(", ")}`,
     );
   }
 

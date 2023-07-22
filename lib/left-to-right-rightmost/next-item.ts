@@ -1,4 +1,3 @@
-
 import { LR0ItemSet } from "./lr0-item-set";
 
 import type { LR0Item } from "./lr0-item";
