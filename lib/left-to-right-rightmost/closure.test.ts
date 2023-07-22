@@ -24,7 +24,7 @@ const syntax: Syntax = [
 
 test("closure test non-terminal", () => {
   // S → • E
-  const item = new LR0Item(syntax[0]!);
+  const item = new LR0Item(syntax[0]!, 0, []);
 
   const result = closure(syntax, item);
 

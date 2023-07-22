@@ -1,10 +1,9 @@
-
 import { getRuleIndexes } from "../left-to-right-leftmost/rule-indexes";
 import { ReferenceToken } from "../rules/reference-token";
 
 import { LR0Item } from "./lr0-item";
 
-import type { Syntax } from "@/lib/rules/define-rules";
+import type { RuleName, Syntax } from "@/lib/rules/define-rules";
 
 /**
  * ドットが非終端記号の前にある場合、その非終端記号を展開したアイテムリストを作る
@@ -33,7 +32,7 @@ export const closure = (syntax: Syntax, item: LR0Item): LR0Item[] => {
  * @param calledRule 無限再帰を防ぐため、一度呼ばれたルール名を記録しておく
  * @returns ルールから予測される
  */
-const expansion = (syntax: Syntax, ruleName: string, calledRule: Set<string> = new Set()): LR0Item[] => {
+const expansion = (syntax: Syntax, ruleName: RuleName, calledRule: Set<RuleName> = new Set()): LR0Item[] => {
   calledRule.add(ruleName);
 
   const items: LR0Item[] = [];

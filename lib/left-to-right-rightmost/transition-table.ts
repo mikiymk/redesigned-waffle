@@ -1,3 +1,5 @@
+import { eof } from "@/lib/rules/define-rules";
+
 import { getDirectorSetList } from "../token-set/director-set-list";
 import { getFirstSetList } from "../token-set/first-set-list";
 import { getFollowSetList } from "../token-set/follow-set-list";
@@ -42,7 +44,7 @@ export const generateParseTable = (syntax: Syntax) => {
   }
   console.log();
 
-  const firstItem = new LR0Item(firstRule);
+  const firstItem = new LR0Item(firstRule, 0, [eof]);
 
   const itemSetList = [new ParseTableRow(syntax, [firstItem])];
 
@@ -70,7 +72,7 @@ export const generateParseTable = (syntax: Syntax) => {
       itemSetList.push(new ParseTableRow(syntax, next));
     }
 
-    row.collectRow(followSet);
+    row.collectRow();
   }
 
   return itemSetList;

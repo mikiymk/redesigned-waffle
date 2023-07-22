@@ -39,7 +39,5 @@ const generateDirectorSet = (
   firstSet: TokenSet<FirstSetToken>,
   followSet: TokenSet<FollowSetToken>,
 ): TokenSet<DirectorSetToken> => {
-  return firstSet.has(empty)
-    ? firstSet.difference([empty]).union(followSet)
-    : (firstSet as TokenSet<DirectorSetToken>);
+  return firstSet.has(empty) ? firstSet.difference([empty]).union(followSet) : (firstSet as TokenSet<DirectorSetToken>);
 };

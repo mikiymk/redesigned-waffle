@@ -16,7 +16,8 @@ export type Syntax = Rule[];
 /**
  * 構文の名前付きルール
  */
-export type Rule = [string, SyntaxToken[]];
+export type RuleName = string | symbol;
+export type Rule = [string | symbol, SyntaxToken[]];
 
 export type SyntaxToken = WordToken | CharToken | ReferenceToken | EmptyToken;
 export type FirstSetToken = WordToken | CharToken | EmptyToken;
@@ -81,7 +82,7 @@ export const char = <T extends string, U extends string>(min: StringChar<T>, max
  * @param terminal ルール名
  * @returns ルール用トークン
  */
-export const reference = (terminal: string): ReferenceToken => {
+export const reference = (terminal: string | symbol): ReferenceToken => {
   return new ReferenceToken(terminal);
 };
 

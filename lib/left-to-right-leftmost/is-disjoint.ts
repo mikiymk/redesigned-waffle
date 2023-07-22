@@ -1,4 +1,3 @@
-
 import { CharToken } from "../rules/char-token";
 import { WordToken } from "../rules/word-token";
 

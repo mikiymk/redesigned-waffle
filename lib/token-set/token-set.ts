@@ -7,7 +7,7 @@ import type { Token } from "@/lib/rules/define-rules";
  * トークンの集合（同じトークンが最大で１つ含まれる）
  */
 export class TokenSet<T extends Token> {
-  set = new Map<string, T>();
+  set = new Map<string | number | symbol, T>();
 
   /**
    * 新しいトークンの集合を作成します。

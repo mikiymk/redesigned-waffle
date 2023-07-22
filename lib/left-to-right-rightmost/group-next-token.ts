@@ -1,8 +1,7 @@
-
 import { LR0ItemSet } from "./lr0-item-set";
 
 import type { LR0Item } from "./lr0-item";
-import type { LR0ItemToken } from "@/lib/rules/define-rules";
+import type { LR0ItemToken, RuleName } from "@/lib/rules/define-rules";
 
 /**
  * アイテムを次のトークンでグループ分けします。
@@ -10,7 +9,7 @@ import type { LR0ItemToken } from "@/lib/rules/define-rules";
  * @returns グループ分けされたアイテム集合のリスト
  */
 export const groupByNextToken = (items: Iterable<LR0Item>): [LR0ItemToken, LR0ItemSet][] => {
-  const record: Record<string, [LR0ItemToken, LR0ItemSet]> = {};
+  const record: Record<RuleName, [LR0ItemToken, LR0ItemSet]> = {};
 
   for (const item of items) {
     const token = item.nextToken();

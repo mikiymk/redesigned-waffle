@@ -12,7 +12,7 @@ export type BaseToken = {
    * マップのキー用文字列に変換します。
    * @returns 文字列
    */
-  toKeyString(): string;
+  toKeyString(): string | number | symbol;
 
   /**
    * 表示用文字列に変換します。
@@ -26,6 +26,12 @@ export type BaseToken = {
    * @returns 等しいなら`true`
    */
   equals(other: BaseToken): boolean;
+
+  /**
+   * デバッグ用に出力をします。
+   * @param indent インデント数
+   */
+  debugPrint(indent?: number): void;
 };
 
 export type TerminalToken = {

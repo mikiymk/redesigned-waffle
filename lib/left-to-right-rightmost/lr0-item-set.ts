@@ -3,7 +3,6 @@ import type { LR0Item } from "./lr0-item";
 /**
  * トークンの集合（同じトークンが最大で１つ含まれる）
  */
-// eslint-disable-next-line import/no-unused-modules
 export class LR0ItemSet {
   set = new Map<string, LR0Item>();
 

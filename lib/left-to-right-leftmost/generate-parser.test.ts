@@ -2,7 +2,6 @@ import { describe, expect, test } from "vitest";
 
 import { reference, rule, word } from "@/lib/rules/define-rules";
 
-
 import { ParseReader } from "../core/reader";
 
 import { generateParser } from "./generate-parser";
@@ -62,6 +61,6 @@ describe("parsing", () => {
   test("parse failure", () => {
     const source = "(1+)";
 
-    expect(parser(new ParseReader(source))).toStrictEqual([false, new Error("no rule F matches first char )")]);
+    expect(parser(new ParseReader(source))).toStrictEqual([false, new Error('no rule "F" matches first char )')]);
   });
 });

@@ -10,7 +10,6 @@ import { TokenSet } from "./token-set";
 
 import type { FirstSetToken, Syntax, SyntaxToken } from "@/lib/rules/define-rules";
 
-
 /**
  * 各ルールについて、最初の文字を求める。
  * @param syntax 構文ルールリスト
