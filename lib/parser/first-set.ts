@@ -54,7 +54,7 @@ export class FirstSets {
       for (const [_, set, rule] of zip(this.sets, this.rules.rules)) {
         const length = set.size;
 
-        this.getFirstSet(set, rule.tokens);
+        this.getFirstSet(set, rule.tokenIndexes);
 
         // 集合に変化があったらマーク
         if (length !== set.size) {

@@ -46,7 +46,7 @@ export class FollowSets {
       for (const [_, set, rule] of zip(this.followSets, this.rules.rules)) {
         // 集合に変化があったらマーク
 
-        updated = this.generateFollowSet(set, rule.tokens) || updated;
+        updated = this.generateFollowSet(set, rule.tokenIndexes) || updated;
       }
 
       // 全てに変化がなかったら終了

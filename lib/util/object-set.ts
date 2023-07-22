@@ -119,4 +119,21 @@ export class ObjectSet<T extends ToKey> {
       yield item;
     }
   }
+
+  /**
+   * 2つの集合が同じかどうかを判定する
+   * @param other もう一つの集合
+   * @returns 集合の内容が同じなら`true`
+   */
+  equals(other: ObjectSet<T>): boolean {
+    if (other.size === this.size) {
+      for (const item of this) {
+        if (!other.has(item)) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
 }
