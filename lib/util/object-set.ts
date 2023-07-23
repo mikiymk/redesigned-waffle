@@ -114,8 +114,8 @@ export class ObjectSet<T extends ToKey> {
   /**
    * @yields 要素
    */
-  *[Symbol.iterator]() {
-    for (const [_, item] of this.map) {
+  *[Symbol.iterator](): Generator<T, void, undefined> {
+    for (const item of this.map.values()) {
       yield item;
     }
   }

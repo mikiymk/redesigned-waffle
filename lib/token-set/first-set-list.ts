@@ -21,12 +21,12 @@ export const getFirstSetList = (syntax: Syntax): ObjectSet<FirstSetToken>[] => {
   for (;;) {
     let updated = false;
     // 各ルールについてループする
-    for (const index of syntax.keys()) {
-      const length = firstSet[index]?.size;
+    for (const [index, set] of firstSet.entries()) {
+      const length = set.size;
       generateFirstSet(syntax, firstSet, index);
 
       // 集合に変化があったらマーク
-      if (length !== firstSet[index]?.size) {
+      if (length !== set.size) {
         updated = true;
       }
     }

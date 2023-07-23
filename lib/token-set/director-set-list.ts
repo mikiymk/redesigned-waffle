@@ -1,6 +1,7 @@
 import { empty } from "@/lib/rules/define-rules";
 
 import { ObjectSet } from "../util/object-set";
+import { zip } from "../util/zip-array";
 
 import type { DirectorSetToken, FirstSetToken, FollowSetToken } from "@/lib/rules/define-rules";
 
@@ -16,13 +17,7 @@ export const getDirectorSetList = (
 ): ObjectSet<DirectorSetToken>[] => {
   const directorSetList = firstSetList.map(() => new ObjectSet<DirectorSetToken>());
 
-  for (const [index, firstSet] of firstSetList.entries()) {
-    const followSet = followSetList[index];
-
-    if (followSet === undefined) {
-      throw new Error(`rule length is ${followSetList.length}, but access index of ${index}`);
-    }
-
+  for (const [index, firstSet, followSet] of zip(firstSetList, followSetList)) {
     directorSetList[index]?.append(generateDirectorSet(firstSet, followSet));
   }
 

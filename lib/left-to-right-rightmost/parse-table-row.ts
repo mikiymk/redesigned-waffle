@@ -5,6 +5,7 @@ import { getFirstSetList } from "../token-set/first-set-list";
 import { getFollowSetList } from "../token-set/follow-set-list";
 import { ObjectSet } from "../util/object-set";
 import { primitiveToString } from "../util/primitive-to-string";
+import { zip } from "../util/zip-array";
 
 import { closure } from "./closure";
 
@@ -56,11 +57,8 @@ export class ParseTableRow {
     const firstSet = getFirstSetList(itemSetRules);
     const followSet = getFollowSetList(itemSetRules, firstSet);
     const lookahead: Record<RuleName, ObjectSet<FollowSetToken>> = {};
-    for (const [index, rule] of itemSetRules.entries()) {
-      const set = followSet[index];
-      if (set) {
-        lookahead[rule[0]] = set;
-      }
+    for (const [_, rule, set] of zip(itemSetRules, followSet)) {
+      lookahead[rule[0]] = set;
     }
 
     // 各アイテムにフォロー集合のトークンを追加する
