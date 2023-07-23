@@ -22,7 +22,7 @@ const syntax: Syntax = [
   rule("B", word("1")),
 ];
 
-test("closure test non-terminal", () => {
+test("非終端記号のクロージャ展開", () => {
   // S → • E
   const item = new LR0Item(syntax[0]!, 0, []);
 
@@ -42,7 +42,7 @@ test("closure test non-terminal", () => {
   ]);
 });
 
-test("closure test terminal", () => {
+test("終端記号のクロージャ展開", () => {
   // B → • 0
   const item = new LR0Item(syntax[4]!);
 

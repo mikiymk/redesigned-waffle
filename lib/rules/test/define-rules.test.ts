@@ -1,10 +1,60 @@
-import { expect, test } from "vitest";
+import { describe, expect, test } from "vitest";
 
-import { char, reference, rule, word } from "../define-rules";
+import { char, empty, equalsRule, reference, rule, word } from "../define-rules";
 
-test("define rules", () => {
-  const expected = ["rule name", [word("1"), char(" ", "!"), reference("expression")]];
-  const result = rule("rule name", word("1"), char(" ", "!"), reference("expression"));
+describe("ルールを作成する", () => {
+  test("トークンのあるルール", () => {
+    const expected = ["rule name", [word("1"), char(" ", "!"), reference("expression")]];
+    const result = rule("rule name", word("1"), char(" ", "!"), reference("expression"));
 
-  expect(result).toStrictEqual(expected);
+    expect(result).toStrictEqual(expected);
+  });
+
+  test("空文字トークンのみのルール", () => {
+    const expected = ["rule name", [empty]];
+    const result = rule("rule name", empty);
+
+    expect(result).toStrictEqual(expected);
+  });
+
+  test("空文字列の名前のルール", () => {
+    expect(() => rule("", word("1"), char(" ", "!"), reference("expression"))).toThrow();
+  });
+
+  test("トークンのないルール", () => {
+    expect(() => rule("rule name")).toThrow();
+  });
+
+  test("空文字トークンのあるルール", () => {
+    expect(() => rule("rule name", word("1"), empty, char(" ", "!"), reference("expression"))).toThrow();
+  });
+});
+
+describe("ルールを比較する", () => {
+  test("同じルール", () => {
+    const rule1 = rule("rule name", word("1"), char(" ", "!"), reference("expression"));
+    const rule2 = rule("rule name", word("1"), char(" ", "!"), reference("expression"));
+
+    const result = equalsRule(rule1, rule2);
+
+    expect(result).toBe(true);
+  });
+
+  test("違うルール名", () => {
+    const rule1 = rule("rule name", word("1"), char(" ", "!"), reference("expression"));
+    const rule2 = rule("different name", word("1"), char(" ", "!"), reference("expression"));
+
+    const result = equalsRule(rule1, rule2);
+
+    expect(result).toBe(false);
+  });
+
+  test("違うトークン", () => {
+    const rule1 = rule("rule name", word("1"), char(" ", "!"), reference("expression"));
+    const rule2 = rule("rule name", word("2"), char(" ", "!"), reference("expression"));
+
+    const result = equalsRule(rule1, rule2);
+
+    expect(result).toBe(false);
+  });
 });
