@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import { EOF, ParseReader } from "@/lib/core/reader";
+import { CharReader } from "@/lib/reader/char-reader";
+import { EOF } from "@/lib/reader/peekable-iterator";
 
 import { CharToken } from "../char-token";
 import { WordToken } from "../word-token";
@@ -23,7 +24,7 @@ describe("#read", () => {
   const token = new WordToken("word");
 
   test("同じ文字列", () => {
-    const pr = new ParseReader("word");
+    const pr = new CharReader("word");
 
     const result = token.read(pr);
 
@@ -31,7 +32,7 @@ describe("#read", () => {
   });
 
   test("違う文字列", () => {
-    const pr = new ParseReader("toast");
+    const pr = new CharReader("toast");
 
     const result = token.read(pr);
 
@@ -39,7 +40,7 @@ describe("#read", () => {
   });
 
   test("追加の文字", () => {
-    const pr = new ParseReader("wordy");
+    const pr = new CharReader("wordy");
 
     const result = token.read(pr);
 
@@ -47,7 +48,7 @@ describe("#read", () => {
   });
 
   test("短い文字列", () => {
-    const pr = new ParseReader("wor");
+    const pr = new CharReader("wor");
 
     const result = token.read(pr);
 

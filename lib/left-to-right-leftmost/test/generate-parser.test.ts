@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
 
+import { CharReader } from "@/lib/reader/char-reader";
 import { reference, rule, word } from "@/lib/rules/define-rules";
 
-import { ParseReader } from "../../core/reader";
 import { generateParser } from "../generate-parser";
 
 import type { Syntax } from "@/lib/rules/define-rules";
@@ -24,7 +24,7 @@ describe("parsing", () => {
   test("parse success", () => {
     const source = "(1+1)";
 
-    const result = parser(new ParseReader(source));
+    const result = parser(new CharReader(source));
 
     expect(result).toStrictEqual([
       true,
@@ -60,6 +60,6 @@ describe("parsing", () => {
   test("parse failure", () => {
     const source = "(1+)";
 
-    expect(parser(new ParseReader(source))).toStrictEqual([false, new Error('no rule "F" matches first char )')]);
+    expect(parser(new CharReader(source))).toStrictEqual([false, new Error('no rule "F" matches first char )')]);
   });
 });

@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import { EOF, ParseReader } from "@/lib/core/reader";
+import { CharReader } from "@/lib/reader/char-reader";
+import { EOF } from "@/lib/reader/peekable-iterator";
 
 import { EmptyToken } from "../empty-token";
 import { WordToken } from "../word-token";
@@ -17,7 +18,7 @@ describe("#read", () => {
   const token = new EmptyToken();
 
   test("文字列", () => {
-    const pr = new ParseReader("word");
+    const pr = new CharReader("word");
 
     const result = (token.read as TerminalToken["read"])(pr);
 

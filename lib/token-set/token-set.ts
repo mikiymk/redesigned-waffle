@@ -1,6 +1,6 @@
 import { ReferenceToken } from "../rules/reference-token";
 
-import type { EOF } from "../core/reader";
+import type { EOF } from "../reader/peekable-iterator";
 import type { Token } from "@/lib/rules/define-rules";
 
 /**

@@ -1,9 +1,8 @@
-import { EOF, peek } from "../core/reader";
+import { EOF, peek } from "../reader/peekable-iterator";
 
 import type { BaseToken, TerminalToken } from "./base-token";
 import type { ReferenceToken } from "./reference-token";
-import type { ParseReader } from "../core/reader";
-import type { Result } from "../reader/peekable-iterator";
+import type { Result, ParseReader } from "../reader/peekable-iterator";
 
 /**
  * 文字終了トークン

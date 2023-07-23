@@ -1,6 +1,6 @@
 import { eof, reference } from "@/lib/rules/define-rules";
 
-import { peek, EOF, get } from "../core/reader";
+import { EOF, get, peek } from "../reader/peekable-iterator";
 import { CharToken } from "../rules/char-token";
 import { EmptyToken } from "../rules/empty-token";
 import { EOFToken } from "../rules/eof-token";
@@ -14,8 +14,7 @@ import { primitiveToString } from "../util/primitive-to-string";
 import { getMatchRuleIndex } from "./get-match-rule";
 import { isLLSyntax } from "./is-ll-syntax";
 
-import type { ParseReader } from "../core/reader";
-import type { Result } from "../reader/peekable-iterator";
+import type { Result, ParseReader } from "../reader/peekable-iterator";
 import type { Syntax, Token } from "@/lib/rules/define-rules";
 
 type Tree = string | { index: number; children: Tree[] };

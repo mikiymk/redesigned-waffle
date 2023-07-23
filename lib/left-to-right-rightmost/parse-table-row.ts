@@ -1,4 +1,4 @@
-import { EOF } from "../core/reader";
+import { EOF } from "../reader/peekable-iterator";
 import { equalsRule } from "../rules/define-rules";
 import { ReferenceToken } from "../rules/reference-token";
 import { getFirstSetList } from "../token-set/first-set-list";

@@ -1,9 +1,9 @@
-import { peek } from "@/lib/core/reader";
+import { peek } from "../reader/peekable-iterator";
 
 import { generateParseTable } from "./transition-table";
 
+import type { ParseReader } from "../reader/peekable-iterator";
 import type { Syntax } from "../rules/define-rules";
-import type { ParseReader } from "@/lib/core/reader";
 
 /**
  * 構文ルールリストからLL(1)パーサーを作成します。
