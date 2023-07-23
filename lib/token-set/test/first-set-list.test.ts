@@ -1,258 +1,155 @@
-import { describe, expect, test } from "vitest";
+import { expect, test } from "vitest";
 
 import { char, empty, reference, rule, word } from "@/lib/rules/define-rules";
 
 import { getFirstSetList } from "../first-set-list";
 import { TokenSet } from "../token-set";
 
-describe("get first-set from syntax", () => {
+test("終端記号", () => {
   const syntax = [
-    rule("start", reference("rule1")),
+    // start
+    rule("S", reference("E")),
 
-    rule("rule1", reference("basic token")),
-    rule("rule1", reference("reference token")),
-    rule("rule1", reference("reference token and after")),
-    rule("rule1", reference("left recursion")),
-    rule("rule1", reference("right recursion")),
-    rule("rule1", reference("indirect left recursion 1")),
-    rule("rule1", reference("indirect right recursion 1")),
-
-    rule("basic token", word("word")),
-    rule("basic token", char("A", "Z")),
-    rule("basic token", empty),
-
-    rule("reference token", reference("basic token")),
-
-    rule("reference token and after", reference("basic token"), word("after defined")),
-
-    rule("left recursion", reference("left recursion"), word("follow lr")),
-    rule("left recursion", word("word lr")),
-
-    rule("right recursion", word("lead rr"), reference("right recursion")),
-    rule("right recursion", word("word rr")),
-
-    rule("indirect left recursion 1", reference("indirect left recursion 2"), word("follow in-lr 1")),
-
-    rule("indirect left recursion 2", reference("indirect left recursion 1"), word("follow in-lr 2")),
-    rule("indirect left recursion 2", word("word in-lr")),
-
-    rule("indirect right recursion 1", word("lead in-rr 1"), reference("indirect right recursion 2")),
-
-    rule("indirect right recursion 2", word("lead in-rr 2"), reference("indirect right recursion 1")),
-    rule("indirect right recursion 2", word("word in-rr")),
+    // terminal
+    rule("E", word("word")),
+    rule("E", char("a", "z")),
+    rule("E", empty),
   ];
 
-  test("defined rules", () => {
-    const result = getFirstSetList(syntax);
-    const expected = [
-      new TokenSet([
-        word("word"),
-        char("A", "Z"),
-        empty,
-        word("after defined"),
-        word("word lr"),
-        word("lead rr"),
-        word("word rr"),
-        word("lead in-rr 1"),
-        word("word in-lr"),
-      ]),
+  const result = getFirstSetList(syntax);
 
-      new TokenSet([word("word"), char("A", "Z"), empty]),
-      new TokenSet([word("word"), char("A", "Z"), empty]),
-      new TokenSet([word("word"), char("A", "Z"), word("after defined")]),
-      new TokenSet([word("word lr")]),
-      new TokenSet([word("lead rr"), word("word rr")]),
-      new TokenSet([word("word in-lr")]),
-      new TokenSet([word("lead in-rr 1")]),
+  expect(result).toHaveLength(4);
 
-      // basic token
-      new TokenSet([word("word")]),
-      new TokenSet([char("A", "Z")]),
-      new TokenSet([empty]),
+  expect(result[0]).toStrictEqual(new TokenSet([word("word"), char("a", "z"), empty]));
+  expect(result[1]).toStrictEqual(new TokenSet([word("word")]));
+  expect(result[2]).toStrictEqual(new TokenSet([char("a", "z")]));
+  expect(result[3]).toStrictEqual(new TokenSet([empty]));
+});
 
-      // reference token
-      new TokenSet([word("word"), char("A", "Z"), empty]),
+test("非終端記号", () => {
+  const syntax = [
+    // start
+    rule("S", reference("E")),
 
-      // reference token and after
-      new TokenSet([word("word"), char("A", "Z"), word("after defined")]),
+    // reference
+    rule("E", reference("B")),
 
-      // left recursion
-      new TokenSet([word("word lr")]),
-      new TokenSet([word("word lr")]),
+    // terminal
+    rule("B", word("word")),
+    rule("B", char("a", "z")),
+    rule("B", empty),
+  ];
 
-      // right recursion
-      new TokenSet([word("lead rr")]),
-      new TokenSet([word("word rr")]),
+  const result = getFirstSetList(syntax);
 
-      // indirect left recursion
-      new TokenSet([word("word in-lr")]),
+  expect(result).toHaveLength(5);
+  expect(result[0]).toStrictEqual(new TokenSet([word("word"), char("a", "z"), empty]));
+  expect(result[1]).toStrictEqual(new TokenSet([word("word"), char("a", "z"), empty]));
+  expect(result[2]).toStrictEqual(new TokenSet([word("word")]));
+  expect(result[3]).toStrictEqual(new TokenSet([char("a", "z")]));
+  expect(result[4]).toStrictEqual(new TokenSet([empty]));
+});
 
-      new TokenSet([word("word in-lr")]),
-      new TokenSet([word("word in-lr")]),
+test("空文字になる可能性がある非終端記号", () => {
+  const syntax = [
+    // start
+    rule("S", reference("E")),
 
-      // indirect right recursion
-      new TokenSet([word("lead in-rr 1")]),
+    // reference
+    rule("E", reference("B"), word("after defined")),
 
-      new TokenSet([word("lead in-rr 2")]),
-      new TokenSet([word("word in-rr")]),
-    ];
+    // terminal
+    rule("B", word("word")),
+    rule("B", char("a", "z")),
+    rule("B", empty),
+  ];
 
-    expect(result).toStrictEqual(expected);
-  });
+  const result = getFirstSetList(syntax);
 
-  test("basic token", () => {
-    const syntax = [
-      rule("start", reference("basic token")),
+  expect(result).toHaveLength(5);
+  expect(result[0]).toStrictEqual(new TokenSet([word("word"), char("a", "z"), word("after defined")]));
+  expect(result[1]).toStrictEqual(new TokenSet([word("word"), char("a", "z"), word("after defined")]));
+  expect(result[2]).toStrictEqual(new TokenSet([word("word")]));
+  expect(result[3]).toStrictEqual(new TokenSet([char("a", "z")]));
+  expect(result[4]).toStrictEqual(new TokenSet([empty]));
+});
 
-      rule("basic token", word("word")),
-      rule("basic token", char("A", "Z")),
-      rule("basic token", empty),
-    ];
+test("左再帰", () => {
+  const syntax = [
+    // start
+    rule("S", reference("E")),
 
-    const result = getFirstSetList(syntax);
-    const expected = [
-      new TokenSet([word("word"), char("A", "Z"), empty]),
+    // recursion
+    rule("E", reference("E"), word("follow lr")),
+    rule("E", word("word lr")),
+  ];
 
-      new TokenSet([word("word")]),
-      new TokenSet([char("A", "Z")]),
-      new TokenSet([empty]),
-    ];
+  const result = getFirstSetList(syntax);
 
-    expect(result).toStrictEqual(expected);
-  });
+  expect(result).toHaveLength(3);
+  expect(result[0]).toStrictEqual(new TokenSet([word("word lr")]));
+  expect(result[1]).toStrictEqual(new TokenSet([word("word lr")]));
+  expect(result[2]).toStrictEqual(new TokenSet([word("word lr")]));
+});
 
-  test("reference token", () => {
-    const syntax = [
-      rule("start", reference("reference token")),
+test("右再帰", () => {
+  const syntax = [
+    // start
+    rule("S", reference("E")),
 
-      rule("reference token", reference("basic token")),
+    // recursion
+    rule("E", word("lead rr"), reference("E")),
+    rule("E", word("word rr")),
+  ];
 
-      rule("basic token", word("word")),
-      rule("basic token", char("A", "Z")),
-      rule("basic token", empty),
-    ];
+  const result = getFirstSetList(syntax);
 
-    const result = getFirstSetList(syntax);
-    const expected = [
-      new TokenSet([word("word"), char("A", "Z"), empty]),
+  expect(result).toHaveLength(3);
+  expect(result[0]).toStrictEqual(new TokenSet([word("lead rr"), word("word rr")]));
+  expect(result[1]).toStrictEqual(new TokenSet([word("lead rr")]));
+  expect(result[2]).toStrictEqual(new TokenSet([word("word rr")]));
+});
 
-      new TokenSet([word("word"), char("A", "Z"), empty]),
+test("間接の左再帰", () => {
+  const syntax = [
+    // start
+    rule("S", reference("A")),
 
-      new TokenSet([word("word")]),
-      new TokenSet([char("A", "Z")]),
-      new TokenSet([empty]),
-    ];
+    // recursion 1
+    rule("A", reference("B"), word("follow in-lr 1")),
 
-    expect(result).toStrictEqual(expected);
-  });
+    // recursion 2
+    rule("B", reference("A"), word("follow in-lr 2")),
+    rule("B", word("word in-lr")),
+  ];
 
-  test("reference token and after", () => {
-    const syntax = [
-      rule("start", reference("reference token and after")),
+  const result = getFirstSetList(syntax);
 
-      rule("reference token and after", reference("basic token"), word("after defined")),
+  expect(result).toHaveLength(4);
+  expect(result[0]).toStrictEqual(new TokenSet([word("word in-lr")]));
+  expect(result[1]).toStrictEqual(new TokenSet([word("word in-lr")]));
+  expect(result[2]).toStrictEqual(new TokenSet([word("word in-lr")]));
+  expect(result[3]).toStrictEqual(new TokenSet([word("word in-lr")]));
+});
 
-      rule("basic token", word("word")),
-      rule("basic token", char("A", "Z")),
-      rule("basic token", empty),
-    ];
+test("間接の右再帰", () => {
+  const syntax = [
+    // start
+    rule("S", reference("A")),
 
-    const result = getFirstSetList(syntax);
-    const expected = [
-      new TokenSet([word("word"), char("A", "Z"), word("after defined")]),
+    // recursion 1
+    rule("A", word("lead in-rr 1"), reference("B")),
 
-      new TokenSet([word("word"), char("A", "Z"), word("after defined")]),
+    // recursion 2
+    rule("B", word("lead in-rr 2"), reference("B")),
+    rule("B", word("word in-rr")),
+  ];
 
-      new TokenSet([word("word")]),
-      new TokenSet([char("A", "Z")]),
-      new TokenSet([empty]),
-    ];
+  const result = getFirstSetList(syntax);
 
-    expect(result).toStrictEqual(expected);
-  });
-
-  test("left recursion", () => {
-    const syntax = [
-      rule("start", reference("left recursion")),
-
-      rule("left recursion", reference("left recursion"), word("follow lr")),
-      rule("left recursion", word("word lr")),
-    ];
-
-    const result = getFirstSetList(syntax);
-    const expected = [
-      new TokenSet([word("word lr")]),
-      new TokenSet([word("word lr")]),
-      new TokenSet([word("word lr")]),
-    ];
-
-    expect(result).toStrictEqual(expected);
-  });
-
-  test("right recursion", () => {
-    const syntax = [
-      rule("start", reference("right recursion")),
-
-      rule("right recursion", word("lead rr"), reference("right recursion")),
-      rule("right recursion", word("word rr")),
-    ];
-
-    const result = getFirstSetList(syntax);
-    const expected = [
-      new TokenSet([word("lead rr"), word("word rr")]),
-
-      new TokenSet([word("lead rr")]),
-      new TokenSet([word("word rr")]),
-    ];
-
-    expect(result).toStrictEqual(expected);
-  });
-
-  test("indirect left recursion", () => {
-    const syntax = [
-      rule("start", reference("indirect left recursion 1")),
-
-      rule("indirect left recursion 1", reference("indirect left recursion 2"), word("follow in-lr 1")),
-
-      rule("indirect left recursion 2", reference("indirect left recursion 1"), word("follow in-lr 2")),
-      rule("indirect left recursion 2", word("word in-lr")),
-    ];
-
-    const result = getFirstSetList(syntax);
-    const expected = [
-      new TokenSet([word("word in-lr")]),
-
-      // indirect left recursion
-      new TokenSet([word("word in-lr")]),
-
-      new TokenSet([word("word in-lr")]),
-      new TokenSet([word("word in-lr")]),
-    ];
-
-    expect(result).toStrictEqual(expected);
-  });
-
-  test("indirect right recursion", () => {
-    const syntax = [
-      rule("start", reference("indirect right recursion 1")),
-
-      rule("indirect right recursion 1", word("lead in-rr 1"), reference("indirect right recursion 2")),
-
-      rule("indirect right recursion 2", word("lead in-rr 2"), reference("indirect right recursion 1")),
-      rule("indirect right recursion 2", word("word in-rr")),
-    ];
-
-    const result = getFirstSetList(syntax);
-    const expected = [
-      new TokenSet([word("lead in-rr 1")]),
-
-      // indirect right recursion
-      new TokenSet([word("lead in-rr 1")]),
-
-      new TokenSet([word("lead in-rr 2")]),
-      new TokenSet([word("word in-rr")]),
-    ];
-
-    expect(result).toStrictEqual(expected);
-  });
+  expect(result).toHaveLength(4);
+  expect(result[0]).toStrictEqual(new TokenSet([word("lead in-rr 1")]));
+  expect(result[1]).toStrictEqual(new TokenSet([word("lead in-rr 1")]));
+  expect(result[2]).toStrictEqual(new TokenSet([word("lead in-rr 2")]));
+  expect(result[3]).toStrictEqual(new TokenSet([word("word in-rr")]));
 });
