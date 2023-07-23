@@ -2,8 +2,8 @@ import { expect, test } from "vitest";
 
 import { reference, rule, word } from "@/lib/rules/define-rules";
 
-import { closure } from "./closure";
-import { LR0Item } from "./lr0-item";
+import { closure } from "../closure";
+import { LR0Item } from "../lr0-item";
 
 import type { Syntax } from "@/lib/rules/define-rules";
 
@@ -22,7 +22,7 @@ const syntax: Syntax = [
   rule("B", word("1")),
 ];
 
-test("closure test non-terminal", () => {
+test("非終端記号のクロージャ展開", () => {
   // S → • E
   const item = new LR0Item(syntax[0]!, 0, []);
 
@@ -42,7 +42,7 @@ test("closure test non-terminal", () => {
   ]);
 });
 
-test("closure test terminal", () => {
+test("終端記号のクロージャ展開", () => {
   // B → • 0
   const item = new LR0Item(syntax[4]!);
 

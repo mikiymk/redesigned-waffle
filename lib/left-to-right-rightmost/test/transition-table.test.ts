@@ -2,9 +2,9 @@ import { expect, test } from "vitest";
 
 import { eof, reference, rule, word } from "@/lib/rules/define-rules";
 
-import { LR0Item } from "./lr0-item";
-import { LR0ItemSet } from "./lr0-item-set";
-import { generateParseTable } from "./transition-table";
+import { LR0Item } from "../lr0-item";
+import { LR0ItemSet } from "../lr0-item-set";
+import { generateParseTable } from "../transition-table";
 
 import type { Syntax } from "@/lib/rules/define-rules";
 

@@ -2,4 +2,5 @@ node_modules/
 dist/
 types/
 pages/
+coverage/
 .eslintcache

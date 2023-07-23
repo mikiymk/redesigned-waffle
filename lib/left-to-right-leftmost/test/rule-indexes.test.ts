@@ -2,7 +2,7 @@ import { expect, test } from "vitest";
 
 import { char, reference, rule, word } from "@/lib/rules/define-rules";
 
-import { getRuleIndexes } from "./rule-indexes";
+import { getRuleIndexes } from "../rule-indexes";
 
 const syntax = [
   rule("rule1", word("rule"), word("defined")),

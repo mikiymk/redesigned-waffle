@@ -30,6 +30,10 @@ export class CharToken implements BaseToken, TerminalToken {
       throw new Error(`"${min}" and "${max}" needs length at 1.`);
     }
 
+    if (minCode > maxCode) {
+      throw new Error(`needs "${min}" less than "${max}".`);
+    }
+
     this.min = minCode;
     this.max = maxCode;
   }
@@ -85,7 +89,9 @@ export class CharToken implements BaseToken, TerminalToken {
    * @returns 文字列
    */
   toString(): string {
-    return `char(${this.min}..${this.max})`;
+    return `char(${String.fromCodePoint(this.min)}[0x${("000" + this.min.toString(16)).slice(
+      -4,
+    )}]..${String.fromCodePoint(this.max)}[0x${("000" + this.max.toString(16)).slice(-4)}])`;
   }
 
   /**

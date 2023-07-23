@@ -18,8 +18,8 @@ export class EmptyToken implements BaseToken, TerminalToken {
    * 与えられた文字がこのトークンの最初の文字として有効か判定します。
    * @returns 文字がマッチするか
    */
-  matchFirstChar(): false {
-    return false;
+  matchFirstChar(): boolean {
+    return true;
   }
 
   /**
