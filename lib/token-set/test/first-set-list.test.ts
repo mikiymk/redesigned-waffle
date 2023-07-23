@@ -141,7 +141,7 @@ test("間接の右再帰", () => {
     rule("A", word("lead in-rr 1"), reference("B")),
 
     // recursion 2
-    rule("B", word("lead in-rr 2"), reference("B")),
+    rule("B", word("lead in-rr 2"), reference("A")),
     rule("B", word("word in-rr")),
   ];
 
