@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { differenceSet, intersectionSet, unionSet } from "./set-functions";
+import { differenceSet, intersectionSet, unionSet } from "../set-functions";
 
 const set1 = new Map([
   ["a", "a"],

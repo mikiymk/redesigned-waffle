@@ -2,8 +2,8 @@ import { describe, expect, test } from "vitest";
 
 import { char, empty, reference, rule, word } from "@/lib/rules/define-rules";
 
-import { getFirstSetList } from "./first-set-list";
-import { TokenSet } from "./token-set";
+import { getFirstSetList } from "../first-set-list";
+import { TokenSet } from "../token-set";
 
 describe("get first-set from syntax", () => {
   const syntax = [

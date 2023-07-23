@@ -2,8 +2,8 @@ import { expect, test } from "vitest";
 
 import { rule, word } from "@/lib/rules/define-rules";
 
-import { LR0Item } from "./lr0-item";
-import { LR0ItemSet } from "./lr0-item-set";
+import { LR0Item } from "../lr0-item";
+import { LR0ItemSet } from "../lr0-item-set";
 
 test("construct item set", () => {
   const tokenSet = new LR0ItemSet([]);

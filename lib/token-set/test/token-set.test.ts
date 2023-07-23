@@ -2,7 +2,7 @@ import { expect, test } from "vitest";
 
 import { char, word } from "@/lib/rules/define-rules";
 
-import { TokenSet } from "./token-set";
+import { TokenSet } from "../token-set";
 
 import type { Token } from "@/lib/rules/define-rules";
 

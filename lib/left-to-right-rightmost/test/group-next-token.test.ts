@@ -2,10 +2,10 @@ import { expect, test } from "vitest";
 
 import { reference, rule, word } from "@/lib/rules/define-rules";
 
-import { closure } from "./closure";
-import { groupByNextToken } from "./group-next-token";
-import { LR0Item } from "./lr0-item";
-import { LR0ItemSet } from "./lr0-item-set";
+import { closure } from "../closure";
+import { groupByNextToken } from "../group-next-token";
+import { LR0Item } from "../lr0-item";
+import { LR0ItemSet } from "../lr0-item-set";
 
 import type { Syntax } from "@/lib/rules/define-rules";
 

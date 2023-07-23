@@ -2,13 +2,12 @@ import { expect, test } from "vitest";
 
 import { reference, rule, word } from "@/lib/rules/define-rules";
 
-import { getDirectorSetList } from "../token-set/director-set-list";
-import { getFirstSetList } from "../token-set/first-set-list";
-import { getFollowSetList } from "../token-set/follow-set-list";
+import { getDirectorSetList } from "../../token-set/director-set-list";
+import { getFirstSetList } from "../../token-set/first-set-list";
+import { getFollowSetList } from "../../token-set/follow-set-list";
+import { getMatchRuleIndex } from "../get-match-rule";
 
-import { getMatchRuleIndex } from "./get-match-rule";
-
-import type { Result } from "../util/parser";
+import type { Result } from "../../util/parser";
 
 const syntax = [
   rule("start", reference("S")),

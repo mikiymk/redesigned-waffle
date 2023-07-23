@@ -2,9 +2,8 @@ import { describe, expect, test } from "vitest";
 
 import { reference, rule, word } from "@/lib/rules/define-rules";
 
-import { ParseReader } from "../core/reader";
-
-import { generateParser } from "./generate-parser";
+import { ParseReader } from "../../core/reader";
+import { generateParser } from "../generate-parser";
 
 import type { Syntax } from "@/lib/rules/define-rules";
 

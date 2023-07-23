@@ -2,8 +2,8 @@ import { expect, test } from "vitest";
 
 import { reference, rule, word } from "@/lib/rules/define-rules";
 
-import { closure } from "./closure";
-import { LR0Item } from "./lr0-item";
+import { closure } from "../closure";
+import { LR0Item } from "../lr0-item";
 
 import type { Syntax } from "@/lib/rules/define-rules";
 
