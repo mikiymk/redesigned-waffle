@@ -2,7 +2,7 @@ import { firstChars } from "./is-disjoint";
 import { getRuleIndexes } from "./rule-indexes";
 
 import type { Result } from "../reader/peekable-iterator";
-import type { TokenSet } from "../token-set/token-set";
+import type { ObjectSet } from "../util/object-set";
 import type { DirectorSetToken, RuleName, Syntax } from "@/lib/rules/define-rules";
 
 /**
@@ -15,7 +15,7 @@ import type { DirectorSetToken, RuleName, Syntax } from "@/lib/rules/define-rule
  */
 export const getMatchRuleIndex = (
   syntax: Syntax,
-  directorSetList: TokenSet<DirectorSetToken>[],
+  directorSetList: ObjectSet<DirectorSetToken>[],
   ruleName: RuleName,
   peekedCode: number,
 ): Result<number> => {

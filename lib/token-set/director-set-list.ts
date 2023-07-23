@@ -1,6 +1,6 @@
 import { empty } from "@/lib/rules/define-rules";
 
-import { TokenSet } from "./token-set";
+import { ObjectSet } from "../util/object-set";
 
 import type { DirectorSetToken, FirstSetToken, FollowSetToken } from "@/lib/rules/define-rules";
 
@@ -11,10 +11,10 @@ import type { DirectorSetToken, FirstSetToken, FollowSetToken } from "@/lib/rule
  * @returns ディレクター集合リスト
  */
 export const getDirectorSetList = (
-  firstSetList: TokenSet<FirstSetToken>[],
-  followSetList: TokenSet<FollowSetToken>[],
-): TokenSet<DirectorSetToken>[] => {
-  const directorSetList = firstSetList.map(() => new TokenSet<DirectorSetToken>());
+  firstSetList: ObjectSet<FirstSetToken>[],
+  followSetList: ObjectSet<FollowSetToken>[],
+): ObjectSet<DirectorSetToken>[] => {
+  const directorSetList = firstSetList.map(() => new ObjectSet<DirectorSetToken>());
 
   for (const [index, firstSet] of firstSetList.entries()) {
     const followSet = followSetList[index];
@@ -36,8 +36,10 @@ export const getDirectorSetList = (
  * @returns ディレクター集合
  */
 const generateDirectorSet = (
-  firstSet: TokenSet<FirstSetToken>,
-  followSet: TokenSet<FollowSetToken>,
-): TokenSet<DirectorSetToken> => {
-  return firstSet.has(empty) ? firstSet.difference([empty]).union(followSet) : (firstSet as TokenSet<DirectorSetToken>);
+  firstSet: ObjectSet<FirstSetToken>,
+  followSet: ObjectSet<FollowSetToken>,
+): ObjectSet<DirectorSetToken> => {
+  return firstSet.has(empty)
+    ? firstSet.difference(new ObjectSet([empty])).union(followSet)
+    : (firstSet as ObjectSet<DirectorSetToken>);
 };

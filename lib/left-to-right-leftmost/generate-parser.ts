@@ -41,15 +41,15 @@ export const generateParser = (syntax: Syntax) => {
   }
   console.log("first set:");
   for (const set of firstSetList) {
-    console.log(" ", set.asString());
+    console.log(" ", set.toKeyString());
   }
   console.log("follow set:");
   for (const set of followSetList) {
-    console.log(" ", set.asString());
+    console.log(" ", set.toKeyString());
   }
   console.log("director set:");
   for (const set of directorSetList) {
-    console.log(" ", set.asString());
+    console.log(" ", set.toKeyString());
   }
   console.log();
 

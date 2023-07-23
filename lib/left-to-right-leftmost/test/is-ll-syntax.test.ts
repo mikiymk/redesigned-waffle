@@ -40,8 +40,5 @@ test("invalid ll", () => {
 
   const result = isLLSyntax(syntax, directorSetList);
 
-  expect(result).toStrictEqual([
-    false,
-    new Error('left TokenSet [w "word"] and right TokenSet [w "wish"] is not disjoint'),
-  ]);
+  expect(result).toStrictEqual([false, new Error('left [w "word"] and right [w "wish"] is not disjoint')]);
 });

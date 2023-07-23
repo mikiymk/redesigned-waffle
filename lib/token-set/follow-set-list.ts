@@ -1,9 +1,9 @@
 import { eof, empty } from "@/lib/rules/define-rules";
 
 import { getRuleIndexes } from "../left-to-right-leftmost/rule-indexes";
+import { ObjectSet } from "../util/object-set";
 
 import { getFirstSet } from "./first-set-list";
-import { TokenSet } from "./token-set";
 
 import type { FirstSetToken, FollowSetToken, Syntax } from "@/lib/rules/define-rules";
 
@@ -15,10 +15,10 @@ import type { FirstSetToken, FollowSetToken, Syntax } from "@/lib/rules/define-r
  */
 export const getFollowSetList = (
   syntax: Syntax,
-  firstSetList: TokenSet<FirstSetToken>[],
-): TokenSet<FollowSetToken>[] => {
+  firstSetList: ObjectSet<FirstSetToken>[],
+): ObjectSet<FollowSetToken>[] => {
   // ルールリストと同じ長さで文字集合リストを作る
-  const followSetList = syntax.map(() => new TokenSet<FollowSetToken>());
+  const followSetList = syntax.map(() => new ObjectSet<FollowSetToken>());
 
   followSetList[0]?.add(eof);
 
@@ -49,8 +49,8 @@ export const getFollowSetList = (
  */
 const generateFollowSet = (
   syntax: Syntax,
-  followSetList: TokenSet<FollowSetToken>[],
-  firstSetList: TokenSet<FirstSetToken>[],
+  followSetList: ObjectSet<FollowSetToken>[],
+  firstSetList: ObjectSet<FirstSetToken>[],
   index: number,
 ): boolean => {
   const rule = syntax[index];
@@ -83,7 +83,7 @@ const generateFollowSet = (
           const length = referenceFollowSet.size;
 
           // 空を除いた集合を追加する
-          referenceFollowSet.append(followFirstSet.difference(new TokenSet([empty])));
+          referenceFollowSet.append(followFirstSet.difference(new ObjectSet([empty])));
 
           // 空が含まれるなら、このルールのフォロー集合を追加する
           if (followFirstSet.has(empty)) {

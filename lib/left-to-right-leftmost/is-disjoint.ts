@@ -1,7 +1,7 @@
 import { CharToken } from "../rules/char-token";
 import { WordToken } from "../rules/word-token";
 
-import type { TokenSet } from "../token-set/token-set";
+import type { ObjectSet } from "../util/object-set";
 import type { DirectorSetToken } from "@/lib/rules/define-rules";
 
 /**
@@ -10,7 +10,7 @@ import type { DirectorSetToken } from "@/lib/rules/define-rules";
  * @param right B
  * @returns 互いに素なら `true`
  */
-export const isDisjoint = (left: TokenSet<DirectorSetToken>, right: TokenSet<DirectorSetToken>): boolean => {
+export const isDisjoint = (left: ObjectSet<DirectorSetToken>, right: ObjectSet<DirectorSetToken>): boolean => {
   const leftFirstChars = firstChars(left);
   const rightFirstChars = firstChars(right);
 
@@ -37,7 +37,7 @@ export const isDisjoint = (left: TokenSet<DirectorSetToken>, right: TokenSet<Dir
  * @param tokens トークン集合
  * @returns それぞれのトークンの１文字目の範囲
  */
-export const firstChars = (tokens: TokenSet<DirectorSetToken>): [number, number][] => {
+export const firstChars = (tokens: ObjectSet<DirectorSetToken>): [number, number][] => {
   const firstChars: [number, number][] = [];
 
   for (const token of tokens) {

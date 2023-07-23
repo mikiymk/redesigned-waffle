@@ -18,7 +18,7 @@ import type {
   Syntax,
   TermToken,
 } from "../rules/define-rules";
-import type { TokenSet } from "../token-set/token-set";
+import type { ObjectSet } from "../util/object-set";
 
 type MatchResult = ["reduce", number] | ["shift", number, TermToken] | ["accept"] | ["error"];
 
@@ -33,7 +33,7 @@ export class ParseTableRow {
   readonly #syntax;
 
   #collected = false;
-  #reduce: [TokenSet<DirectorSetToken>, number][] = [];
+  #reduce: [ObjectSet<DirectorSetToken>, number][] = [];
   #accept = false;
   #shift: [TermToken, number][] = [];
   #goto: [NonTermToken, number][] = [];
@@ -56,7 +56,7 @@ export class ParseTableRow {
     const itemSetRules = [...this.kernels, ...this.additions].map((item) => item.rule);
     const firstSet = getFirstSetList(itemSetRules);
     const followSet = getFollowSetList(itemSetRules, firstSet);
-    const lookahead: Record<RuleName, TokenSet<FollowSetToken>> = {};
+    const lookahead: Record<RuleName, ObjectSet<FollowSetToken>> = {};
     for (const [index, rule] of itemSetRules.entries()) {
       const set = followSet[index];
       if (set) {
@@ -129,8 +129,10 @@ export class ParseTableRow {
 
     // reduceを調べる
     for (const [set, number] of this.#reduce) {
-      if (set.matchFirstChar(char)) {
-        return ["reduce", number];
+      for (const token of set) {
+        if (token.matchFirstChar(char)) {
+          return ["reduce", number];
+        }
       }
     }
 
@@ -195,7 +197,7 @@ export class ParseTableRow {
     if (this.#reduce.length > 0) {
       console.log("  reduce:");
       for (const [token, number] of this.#reduce) {
-        console.log("   ", token.asString(), "→", number);
+        console.log("   ", token.toKeyString(), "→", number);
       }
     }
     if (this.#accept) {

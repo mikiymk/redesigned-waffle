@@ -136,4 +136,12 @@ export class ObjectSet<T extends ToKey> {
 
     return true;
   }
+
+  /**
+   * 文字列表現を作ります
+   * @returns 文字列
+   */
+  toKeyString(): string {
+    return [...this.map.keys()].join(" ");
+  }
 }

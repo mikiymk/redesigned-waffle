@@ -3,7 +3,7 @@ import { getRuleIndexes } from "./rule-indexes";
 import { getRuleNames } from "./rule-names";
 
 import type { Result } from "../reader/peekable-iterator";
-import type { TokenSet } from "../token-set/token-set";
+import type { ObjectSet } from "../util/object-set";
 import type { DirectorSetToken, Syntax } from "@/lib/rules/define-rules";
 
 /**
@@ -12,7 +12,7 @@ import type { DirectorSetToken, Syntax } from "@/lib/rules/define-rules";
  * @param directorSetList ディレクター集合リスト
  * @returns 結果オブジェクト
  */
-export const isLLSyntax = (syntax: Syntax, directorSetList: TokenSet<DirectorSetToken>[]): Result<undefined> => {
+export const isLLSyntax = (syntax: Syntax, directorSetList: ObjectSet<DirectorSetToken>[]): Result<undefined> => {
   for (const name of getRuleNames(syntax)) {
     for (const left of getRuleIndexes(syntax, name)) {
       for (const right of getRuleIndexes(syntax, name)) {
@@ -26,7 +26,10 @@ export const isLLSyntax = (syntax: Syntax, directorSetList: TokenSet<DirectorSet
         }
 
         if (!isDisjoint(leftRule, rightRule)) {
-          return [false, new Error(`left ${leftRule.asString()} and right ${rightRule.asString()} is not disjoint`)];
+          return [
+            false,
+            new Error(`left [${leftRule.toKeyString()}] and right [${rightRule.toKeyString()}] is not disjoint`),
+          ];
         }
       }
     }

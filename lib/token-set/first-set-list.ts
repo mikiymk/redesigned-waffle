@@ -5,8 +5,7 @@ import { CharToken } from "../rules/char-token";
 import { EmptyToken } from "../rules/empty-token";
 import { ReferenceToken } from "../rules/reference-token";
 import { WordToken } from "../rules/word-token";
-
-import { TokenSet } from "./token-set";
+import { ObjectSet } from "../util/object-set";
 
 import type { FirstSetToken, Syntax, SyntaxToken } from "@/lib/rules/define-rules";
 
@@ -15,9 +14,9 @@ import type { FirstSetToken, Syntax, SyntaxToken } from "@/lib/rules/define-rule
  * @param syntax 構文ルールリスト
  * @returns 最初の文字の集合リスト
  */
-export const getFirstSetList = (syntax: Syntax): TokenSet<FirstSetToken>[] => {
+export const getFirstSetList = (syntax: Syntax): ObjectSet<FirstSetToken>[] => {
   // ルールリストと同じ長さで文字集合リストを作る
-  const firstSet = syntax.map(() => new TokenSet<FirstSetToken>());
+  const firstSet = syntax.map(() => new ObjectSet<FirstSetToken>());
 
   for (;;) {
     let updated = false;
@@ -50,9 +49,9 @@ export const getFirstSetList = (syntax: Syntax): TokenSet<FirstSetToken>[] => {
  */
 const generateFirstSet = (
   syntax: Syntax,
-  firstSetList: TokenSet<FirstSetToken>[],
+  firstSetList: ObjectSet<FirstSetToken>[],
   index: number,
-): TokenSet<FirstSetToken> => {
+): ObjectSet<FirstSetToken> => {
   const rule = syntax[index];
   const firstSet = firstSetList[index];
 
@@ -76,10 +75,10 @@ const generateFirstSet = (
  */
 export const getFirstSet = (
   syntax: Syntax,
-  firstSetList: TokenSet<FirstSetToken>[],
+  firstSetList: ObjectSet<FirstSetToken>[],
   tokens: SyntaxToken[],
-): TokenSet<FirstSetToken> => {
-  const set = new TokenSet<FirstSetToken>();
+): ObjectSet<FirstSetToken> => {
+  const set = new ObjectSet<FirstSetToken>();
   // ルールから最初のトークンを取り出す
   for (const [index, token] of tokens.entries()) {
     if (token instanceof WordToken || token instanceof CharToken) {
@@ -118,5 +117,5 @@ export const getFirstSet = (
   }
 
   // トークン列が空なら、空を返す
-  return new TokenSet([empty]);
+  return new ObjectSet([empty]);
 };

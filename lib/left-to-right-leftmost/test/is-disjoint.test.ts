@@ -1,14 +1,14 @@
 import { expect, test } from "vitest";
 
 import { char, word } from "@/lib/rules/define-rules";
+import { ObjectSet } from "@/lib/util/object-set";
 
-import { TokenSet } from "../../token-set/token-set";
 import { isDisjoint } from "../is-disjoint";
 
 test("disjoint word", () => {
-  const tokenSet1 = new TokenSet([word("word")]);
+  const tokenSet1 = new ObjectSet([word("word")]);
 
-  const tokenSet2 = new TokenSet([word("world")]);
+  const tokenSet2 = new ObjectSet([word("world")]);
 
   const result = isDisjoint(tokenSet1, tokenSet2);
 
@@ -16,9 +16,9 @@ test("disjoint word", () => {
 });
 
 test("not disjoint word", () => {
-  const tokenSet1 = new TokenSet([word("word")]);
+  const tokenSet1 = new ObjectSet([word("word")]);
 
-  const tokenSet2 = new TokenSet([word("code")]);
+  const tokenSet2 = new ObjectSet([word("code")]);
 
   const result = isDisjoint(tokenSet1, tokenSet2);
 
@@ -26,9 +26,9 @@ test("not disjoint word", () => {
 });
 
 test("disjoint left char range", () => {
-  const tokenSet1 = new TokenSet([char("a", "z")]);
+  const tokenSet1 = new ObjectSet([char("a", "z")]);
 
-  const tokenSet2 = new TokenSet([word("code")]);
+  const tokenSet2 = new ObjectSet([word("code")]);
 
   const result = isDisjoint(tokenSet1, tokenSet2);
 
@@ -36,9 +36,9 @@ test("disjoint left char range", () => {
 });
 
 test("not disjoint left char range", () => {
-  const tokenSet1 = new TokenSet([char("a", "z")]);
+  const tokenSet1 = new ObjectSet([char("a", "z")]);
 
-  const tokenSet2 = new TokenSet([word("Code")]);
+  const tokenSet2 = new ObjectSet([word("Code")]);
 
   const result = isDisjoint(tokenSet1, tokenSet2);
 
@@ -46,9 +46,9 @@ test("not disjoint left char range", () => {
 });
 
 test("disjoint right char range", () => {
-  const tokenSet1 = new TokenSet([word("word")]);
+  const tokenSet1 = new ObjectSet([word("word")]);
 
-  const tokenSet2 = new TokenSet([char("a", "z")]);
+  const tokenSet2 = new ObjectSet([char("a", "z")]);
 
   const result = isDisjoint(tokenSet1, tokenSet2);
 
@@ -56,9 +56,9 @@ test("disjoint right char range", () => {
 });
 
 test("not disjoint right char range", () => {
-  const tokenSet1 = new TokenSet([word("Word")]);
+  const tokenSet1 = new ObjectSet([word("Word")]);
 
-  const tokenSet2 = new TokenSet([char("a", "z")]);
+  const tokenSet2 = new ObjectSet([char("a", "z")]);
 
   const result = isDisjoint(tokenSet1, tokenSet2);
 
@@ -66,9 +66,9 @@ test("not disjoint right char range", () => {
 });
 
 test("disjoint two char range", () => {
-  const tokenSet1 = new TokenSet([char("a", "c")]);
+  const tokenSet1 = new ObjectSet([char("a", "c")]);
 
-  const tokenSet2 = new TokenSet([char("c", "e")]);
+  const tokenSet2 = new ObjectSet([char("c", "e")]);
 
   const result = isDisjoint(tokenSet1, tokenSet2);
 
@@ -76,9 +76,9 @@ test("disjoint two char range", () => {
 });
 
 test("not disjoint two char range", () => {
-  const tokenSet1 = new TokenSet([char("a", "c")]);
+  const tokenSet1 = new ObjectSet([char("a", "c")]);
 
-  const tokenSet2 = new TokenSet([char("d", "f")]);
+  const tokenSet2 = new ObjectSet([char("d", "f")]);
 
   const result = isDisjoint(tokenSet1, tokenSet2);
 

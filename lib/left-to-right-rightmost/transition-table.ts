@@ -32,15 +32,15 @@ export const generateParseTable = (syntax: Syntax) => {
   console.log("# parse table");
   console.log("first set:");
   for (const set of firstSet) {
-    console.log(" ", set.asString());
+    console.log(" ", set.toKeyString());
   }
   console.log("follow set:");
   for (const set of followSet) {
-    console.log(" ", set.asString());
+    console.log(" ", set.toKeyString());
   }
   console.log("lookahead set:");
   for (const set of lookaheadSet) {
-    console.log(" ", set.asString());
+    console.log(" ", set.toKeyString());
   }
   console.log();
 

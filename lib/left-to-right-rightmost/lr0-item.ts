@@ -1,5 +1,5 @@
 import { EmptyToken } from "../rules/empty-token";
-import { TokenSet } from "../token-set/token-set";
+import { ObjectSet } from "../util/object-set";
 import { primitiveToString } from "../util/primitive-to-string";
 
 import type { FollowSetToken, LR0ItemToken, Rule, SyntaxToken } from "@/lib/rules/define-rules";
@@ -19,7 +19,7 @@ const isNotEmptyToken = (token: SyntaxToken): token is Exclude<SyntaxToken, Empt
 export class LR0Item {
   readonly rule;
   readonly position;
-  readonly lookahead: TokenSet<FollowSetToken>;
+  readonly lookahead: ObjectSet<FollowSetToken>;
 
   /**
    * 構文ルールから先頭にドットトークンを追加したLR(0)アイテムを作る
@@ -35,7 +35,7 @@ export class LR0Item {
   constructor(rule: Rule, position: number = 0, lookahead: Iterable<FollowSetToken> = []) {
     this.rule = rule;
     this.position = position;
-    this.lookahead = new TokenSet(lookahead);
+    this.lookahead = new ObjectSet(lookahead);
   }
 
   /**
