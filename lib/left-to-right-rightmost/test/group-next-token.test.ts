@@ -1,11 +1,11 @@
 import { expect, test } from "vitest";
 
 import { reference, rule, word } from "@/lib/rules/define-rules";
+import { ObjectSet } from "@/lib/util/object-set";
 
 import { closure } from "../closure";
 import { groupByNextToken } from "../group-next-token";
 import { LR0Item } from "../lr0-item";
-import { LR0ItemSet } from "../lr0-item-set";
 
 import type { Syntax } from "@/lib/rules/define-rules";
 
@@ -32,14 +32,14 @@ test("closure test non-terminal", () => {
   expect(result).toStrictEqual([
     [
       reference("E"),
-      new LR0ItemSet([
+      new ObjectSet<LR0Item>([
         new LR0Item(rule("S", reference("E"))),
         new LR0Item(rule("E", reference("E"), word("*"), reference("B"))),
         new LR0Item(rule("E", reference("E"), word("+"), reference("B"))),
       ]),
     ],
-    [reference("B"), new LR0ItemSet([new LR0Item(rule("E", reference("B")))])],
-    [word("0"), new LR0ItemSet([new LR0Item(rule("B", word("0")))])],
-    [word("1"), new LR0ItemSet([new LR0Item(rule("B", word("1")))])],
+    [reference("B"), new ObjectSet<LR0Item>([new LR0Item(rule("E", reference("B")))])],
+    [word("0"), new ObjectSet<LR0Item>([new LR0Item(rule("B", word("0")))])],
+    [word("1"), new ObjectSet<LR0Item>([new LR0Item(rule("B", word("1")))])],
   ]);
 });

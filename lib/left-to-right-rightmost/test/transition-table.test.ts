@@ -1,9 +1,9 @@
 import { expect, test } from "vitest";
 
 import { eof, reference, rule, word } from "@/lib/rules/define-rules";
+import { ObjectSet } from "@/lib/util/object-set";
 
 import { LR0Item } from "../lr0-item";
-import { LR0ItemSet } from "../lr0-item-set";
 import { generateParseTable } from "../transition-table";
 
 import type { Syntax } from "@/lib/rules/define-rules";
@@ -47,8 +47,8 @@ test("generate parser", () => {
   // + B → • 1
 
   expect(result[0]).toEqual({
-    kernels: new LR0ItemSet([new LR0Item(rule("S", reference("E")), 0, [eof])]),
-    additions: new LR0ItemSet([
+    kernels: new ObjectSet<LR0Item>([new LR0Item(rule("S", reference("E")), 0, [eof])]),
+    additions: new ObjectSet<LR0Item>([
       new LR0Item(rule("E", reference("E"), word("*"), reference("B")), 0, [eof, word("*"), word("+")]),
       new LR0Item(rule("E", reference("E"), word("+"), reference("B")), 0, [eof, word("*"), word("+")]),
       new LR0Item(rule("E", reference("B")), 0, [eof, word("*"), word("+")]),
@@ -66,16 +66,16 @@ test("generate parser", () => {
   // item set 1
   // B → 0 •
   expect(result).toContainEqual({
-    kernels: new LR0ItemSet([new LR0Item(rule("B", word("0")), 1)]),
-    additions: new LR0ItemSet(),
+    kernels: new ObjectSet<LR0Item>([new LR0Item(rule("B", word("0")), 1)]),
+    additions: new ObjectSet<LR0Item>(),
     gotoMap: [],
   });
 
   // item set 2
   // B → 1 •
   expect(result).toContainEqual({
-    kernels: new LR0ItemSet([new LR0Item(rule("B", word("1")), 1)]),
-    additions: new LR0ItemSet(),
+    kernels: new ObjectSet<LR0Item>([new LR0Item(rule("B", word("1")), 1)]),
+    additions: new ObjectSet<LR0Item>(),
     gotoMap: [],
   });
 
@@ -84,12 +84,12 @@ test("generate parser", () => {
   // E → E • * B
   // E → E • + B
   expect(result).toContainEqual({
-    kernels: new LR0ItemSet([
+    kernels: new ObjectSet<LR0Item>([
       new LR0Item(rule("S", reference("E")), 1),
       new LR0Item(rule("E", reference("E"), word("*"), reference("B")), 1),
       new LR0Item(rule("E", reference("E"), word("+"), reference("B")), 1),
     ]),
-    additions: new LR0ItemSet(),
+    additions: new ObjectSet<LR0Item>(),
     gotoMap: [
       [word("*"), 5],
       [word("+"), 6],
@@ -99,8 +99,8 @@ test("generate parser", () => {
   // item set 4
   // E → B •
   expect(result).toContainEqual({
-    kernels: new LR0ItemSet([new LR0Item(rule("E", reference("B")), 1)]),
-    additions: new LR0ItemSet(),
+    kernels: new ObjectSet<LR0Item>([new LR0Item(rule("E", reference("B")), 1)]),
+    additions: new ObjectSet<LR0Item>(),
     gotoMap: [],
   });
 
@@ -109,8 +109,8 @@ test("generate parser", () => {
   // + B → • 0
   // + B → • 1
   expect(result).toContainEqual({
-    kernels: new LR0ItemSet([new LR0Item(rule("E", reference("E"), word("*"), reference("B")), 2)]),
-    additions: new LR0ItemSet([new LR0Item(rule("B", word("0")), 0), new LR0Item(rule("B", word("1")), 0)]),
+    kernels: new ObjectSet<LR0Item>([new LR0Item(rule("E", reference("E"), word("*"), reference("B")), 2)]),
+    additions: new ObjectSet<LR0Item>([new LR0Item(rule("B", word("0")), 0), new LR0Item(rule("B", word("1")), 0)]),
     gotoMap: [
       [reference("B"), 7],
       [word("0"), 3],
@@ -123,8 +123,8 @@ test("generate parser", () => {
   // + B → • 0
   // + B → • 1
   expect(result).toContainEqual({
-    kernels: new LR0ItemSet([new LR0Item(rule("E", reference("E"), word("+"), reference("B")), 2)]),
-    additions: new LR0ItemSet([new LR0Item(rule("B", word("0")), 0), new LR0Item(rule("B", word("1")), 0)]),
+    kernels: new ObjectSet<LR0Item>([new LR0Item(rule("E", reference("E"), word("+"), reference("B")), 2)]),
+    additions: new ObjectSet<LR0Item>([new LR0Item(rule("B", word("0")), 0), new LR0Item(rule("B", word("1")), 0)]),
     gotoMap: [
       [reference("B"), 8],
       [word("0"), 3],
@@ -135,16 +135,16 @@ test("generate parser", () => {
   // item set 7
   // E → E * B •
   expect(result).toContainEqual({
-    kernels: new LR0ItemSet([new LR0Item(rule("E", reference("E"), word("*"), reference("B")), 3)]),
-    additions: new LR0ItemSet(),
+    kernels: new ObjectSet<LR0Item>([new LR0Item(rule("E", reference("E"), word("*"), reference("B")), 3)]),
+    additions: new ObjectSet<LR0Item>(),
     gotoMap: [],
   });
 
   // item set 8
   // E → E + B •
   expect(result).toContainEqual({
-    kernels: new LR0ItemSet([new LR0Item(rule("E", reference("E"), word("+"), reference("B")), 3)]),
-    additions: new LR0ItemSet(),
+    kernels: new ObjectSet<LR0Item>([new LR0Item(rule("E", reference("E"), word("+"), reference("B")), 3)]),
+    additions: new ObjectSet<LR0Item>(),
     gotoMap: [],
   });
 });

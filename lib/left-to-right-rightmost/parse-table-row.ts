@@ -3,10 +3,10 @@ import { equalsRule } from "../rules/define-rules";
 import { ReferenceToken } from "../rules/reference-token";
 import { getFirstSetList } from "../token-set/first-set-list";
 import { getFollowSetList } from "../token-set/follow-set-list";
+import { ObjectSet } from "../util/object-set";
 import { primitiveToString } from "../util/primitive-to-string";
 
 import { closure } from "./closure";
-import { LR0ItemSet } from "./lr0-item-set";
 
 import type { LR0Item } from "./lr0-item";
 import type {
@@ -18,7 +18,6 @@ import type {
   Syntax,
   TermToken,
 } from "../rules/define-rules";
-import type { ObjectSet } from "../util/object-set";
 
 type MatchResult = ["reduce", number] | ["shift", number, TermToken] | ["accept"] | ["error"];
 
@@ -26,8 +25,8 @@ type MatchResult = ["reduce", number] | ["shift", number, TermToken] | ["accept"
  *
  */
 export class ParseTableRow {
-  readonly kernels: LR0ItemSet;
-  readonly additions: LR0ItemSet;
+  readonly kernels: ObjectSet<LR0Item>;
+  readonly additions: ObjectSet<LR0Item>;
   readonly gotoMap: [LR0ItemToken, number][] = [];
 
   readonly #syntax;
@@ -44,8 +43,8 @@ export class ParseTableRow {
    * @param items LR(0)アイテムリスト
    */
   constructor(syntax: Syntax, items: Iterable<LR0Item>) {
-    this.kernels = new LR0ItemSet(items);
-    this.additions = new LR0ItemSet();
+    this.kernels = new ObjectSet<LR0Item>(items);
+    this.additions = new ObjectSet<LR0Item>();
     this.#syntax = syntax;
 
     for (const item of this.kernels) {

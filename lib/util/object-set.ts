@@ -1,4 +1,4 @@
-export type ToKey = {
+type ToKey = {
   toKeyString(): string | number | symbol;
 };
 
@@ -126,11 +126,13 @@ export class ObjectSet<T extends ToKey> {
    * @returns 集合の内容が同じなら`true`
    */
   equals(other: ObjectSet<T>): boolean {
-    if (other.size === this.size) {
-      for (const item of this) {
-        if (!other.has(item)) {
-          return false;
-        }
+    if (other.size !== this.size) {
+      return false;
+    }
+
+    for (const item of this) {
+      if (!other.has(item)) {
+        return false;
       }
     }
 

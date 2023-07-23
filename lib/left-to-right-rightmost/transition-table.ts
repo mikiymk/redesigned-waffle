@@ -3,10 +3,10 @@ import { eof } from "@/lib/rules/define-rules";
 import { getDirectorSetList } from "../token-set/director-set-list";
 import { getFirstSetList } from "../token-set/first-set-list";
 import { getFollowSetList } from "../token-set/follow-set-list";
+import { ObjectSet } from "../util/object-set";
 
 import { groupByNextToken } from "./group-next-token";
 import { LR0Item } from "./lr0-item";
-import { LR0ItemSet } from "./lr0-item-set";
 import { nextItemSet } from "./next-item";
 import { ParseTableRow } from "./parse-table-row";
 
@@ -52,7 +52,7 @@ export const generateParseTable = (syntax: Syntax) => {
     const { kernels, additions, gotoMap } = row;
 
     // アイテム集合をグループ分けする
-    const groups = groupByNextToken(new LR0ItemSet([...kernels, ...additions]));
+    const groups = groupByNextToken(new ObjectSet<LR0Item>([...kernels, ...additions]));
 
     // 各グループについて
     outer: for (const [token, itemSet] of groups) {
