@@ -15,7 +15,7 @@ import { getMatchRuleIndex } from "./get-match-rule";
 import { isLLSyntax } from "./is-ll-syntax";
 
 import type { ParseReader } from "../core/reader";
-import type { Result } from "../util/parser";
+import type { Result } from "../reader/peekable-iterator";
 import type { Syntax, Token } from "@/lib/rules/define-rules";
 
 type Tree = string | { index: number; children: Tree[] };

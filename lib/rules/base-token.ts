@@ -1,5 +1,5 @@
 import type { EOF, ParseReader } from "../core/reader";
-import type { Result } from "../util/parser";
+import type { Result } from "../reader/peekable-iterator";
 
 export type BaseToken = {
   /**

@@ -1,6 +1,6 @@
 import type { BaseToken, TerminalToken } from "./base-token";
 import type { ReferenceToken } from "./reference-token";
-import type { Result } from "../util/parser";
+import type { Result } from "../reader/peekable-iterator";
 
 /**
  * 空文字トークン

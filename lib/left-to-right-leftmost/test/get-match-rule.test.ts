@@ -7,7 +7,7 @@ import { getFirstSetList } from "../../token-set/first-set-list";
 import { getFollowSetList } from "../../token-set/follow-set-list";
 import { getMatchRuleIndex } from "../get-match-rule";
 
-import type { Result } from "../../util/parser";
+import type { Result } from "../../reader/peekable-iterator";
 
 const syntax = [
   rule("start", reference("S")),
