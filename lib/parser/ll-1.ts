@@ -46,11 +46,6 @@ export class LLParser {
       // スタックのトップ
       const token = stack.pop();
 
-      console.log("stack:   ", stack);
-      console.log("output:  ", output);
-      console.log("token:   ", token);
-      console.log();
-
       if (token === undefined) {
         return [false, new Error("invalid sequence")];
       } else if (token instanceof EOFToken) {

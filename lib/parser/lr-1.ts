@@ -26,17 +26,57 @@ export class LRParser {
    * @returns 構文木オブジェクト
    */
   parse(pr: ParseReader): Result<Tree> {
-    const output: (number | string)[] = [];
+    // 規則適用列から構文木に変換する
+    const tree: Tree[] = [];
+    const it = this.parseIterator(pr);
+    let iteratorResult: IteratorResult<string | number, Result<string>>;
+    while (!(iteratorResult = it.next()).done) {
+      const { value: index } = iteratorResult;
+
+      if (typeof index === "number") {
+        const tokens = this.grammar[index]?.[1];
+
+        if (tokens) {
+          tree.push({
+            index,
+            children: tree.splice(-tokens.length, tokens.length),
+          });
+        }
+      } else {
+        tree.push(index);
+      }
+    }
+
+    if (!iteratorResult.value[0]) {
+      return [false, iteratorResult.value[1]];
+    }
+
+    const tokens = this.grammar[0]?.[1];
+    if (tokens && tokens.length === tree.length) {
+      return [
+        true,
+        {
+          index: 0,
+          children: tree,
+        },
+      ];
+    }
+
+    return [false, new Error("cannot construct syntax tree")];
+  }
+
+  /**
+   * パース結果のトークンとルール番号のイテレータ
+   * @param pr リーダー
+   * @yields トークンとルール番号
+   * @returns 結果
+   */
+  *parseIterator(pr: ParseReader): Generator<string | number, Result<string>> {
     const stack = [0];
 
-    parse_loop: for (;;) {
+    for (;;) {
       const state = stack.at(-1) ?? 0;
       const [action, parameter, token] = this.table[state]?.getMatch(pr) ?? ["error"];
-
-      console.log("stack:   ", stack);
-      console.log("action:  ", action, parameter);
-      console.log("output:  ", output);
-      console.log();
 
       switch (action) {
         case "shift": {
@@ -45,13 +85,13 @@ export class LRParser {
             return [false, word];
           }
 
-          output.push(word);
+          yield word;
           stack.push(parameter);
           break;
         }
 
         case "reduce": {
-          output.push(parameter);
+          yield parameter;
           const rule = this.grammar[parameter];
           if (rule === undefined) {
             return [false, new Error("error")];
@@ -77,7 +117,7 @@ export class LRParser {
         }
 
         case "accept": {
-          break parse_loop;
+          return [true, "accept"];
         }
 
         default: {
@@ -85,32 +125,5 @@ export class LRParser {
         }
       }
     }
-
-    console.log("parse end");
-
-    // 規則適用列から構文木に変換する
-    const tree: Tree[] = [];
-
-    for (const index of [...output, 0]) {
-      if (typeof index === "number") {
-        const tokens = this.grammar[index]?.[1];
-
-        if (tokens) {
-          tree.push({
-            index,
-            children: tree.splice(-tokens.length, tokens.length),
-          });
-        }
-      } else {
-        tree.push(index);
-      }
-    }
-
-    const result = tree[0];
-    if (result) {
-      return [true, result];
-    }
-
-    return [false, new Error("cannot construct syntax tree")];
   }
 }
