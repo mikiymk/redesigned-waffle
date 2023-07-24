@@ -23,7 +23,7 @@ describe("parsing", () => {
     const parser = generateParser(syntax);
     const source = "(1+1)";
 
-    const result = parser(new CharReader(source));
+    const result = parser.parse(new CharReader(source));
 
     expect(result).toStrictEqual([
       true,
@@ -60,7 +60,7 @@ describe("parsing", () => {
     const parser = generateParser(syntax);
     const source = "(1+)";
 
-    expect(parser(new CharReader(source))).toStrictEqual([false, new Error("nomatch input")]);
+    expect(parser.parse(new CharReader(source))).toStrictEqual([false, new Error("nomatch input")]);
   });
 });
 
@@ -82,7 +82,7 @@ describe("parsing 2", () => {
     const parser = generateParser(syntax);
     const source = "1+1";
 
-    const result = parser(new CharReader(source));
+    const result = parser.parse(new CharReader(source));
 
     expect(result).toStrictEqual([
       true,
@@ -117,7 +117,7 @@ describe("parsing 2", () => {
     const parser = generateParser(syntax);
     const source = "1+2";
 
-    expect(parser(new CharReader(source))).toStrictEqual([false, new Error("nomatch input")]);
+    expect(parser.parse(new CharReader(source))).toStrictEqual([false, new Error("nomatch input")]);
   });
 });
 
@@ -132,7 +132,7 @@ describe("parsing 3", () => {
     const parser = generateParser(syntax);
     const source = "111";
 
-    const result = parser(new CharReader(source));
+    const result = parser.parse(new CharReader(source));
 
     expect(result).toStrictEqual([
       true,
@@ -164,7 +164,7 @@ describe("parsing 3", () => {
     const parser = generateParser(syntax);
     const source = "112";
 
-    expect(parser(new CharReader(source))).toStrictEqual([false, new Error("nomatch input")]);
+    expect(parser.parse(new CharReader(source))).toStrictEqual([false, new Error("nomatch input")]);
   });
 });
 
@@ -185,7 +185,7 @@ describe("parsing 4", () => {
     const parser = generateParser(syntax);
     const source = "12";
 
-    const result = parser(new CharReader(source));
+    const result = parser.parse(new CharReader(source));
 
     expect(result).toStrictEqual([
       true,
@@ -211,6 +211,6 @@ describe("parsing 4", () => {
     const parser = generateParser(syntax);
     const source = "10";
 
-    expect(parser(new CharReader(source))).toStrictEqual([false, new Error("nomatch input")]);
+    expect(parser.parse(new CharReader(source))).toStrictEqual([false, new Error("nomatch input")]);
   });
 });
