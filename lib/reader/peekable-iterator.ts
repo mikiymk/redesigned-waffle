@@ -5,7 +5,7 @@ export type Result<T, E extends Error = Error> = Success<T> | Failure<E>;
 export const EOF = Symbol("EOF");
 export type EOF = typeof EOF;
 
-type ParseToken = { type: string; value: string };
+export type ParseToken = { type: string; value: string };
 export type ParseReader = Iterator<ParseToken, EOF> & {
   peek(...nextArguments: [] | [undefined]): IteratorResult<ParseToken, EOF>;
 };
@@ -15,9 +15,8 @@ export type ParseReader = Iterator<ParseToken, EOF> & {
  * @param pr パーサー読み込みオブジェクト
  * @returns 読み込んだ１文字。読み込みが終わりの場合、EOF
  */
-export const get = (pr: ParseReader): string | EOF => {
-  const value = pr.next().value;
-  return value === EOF ? EOF : value.value;
+export const get = (pr: ParseReader): ParseToken | EOF => {
+  return pr.next().value;
 };
 
 /**
@@ -25,7 +24,6 @@ export const get = (pr: ParseReader): string | EOF => {
  * @param pr パーサー読み込みオブジェクト
  * @returns 読み込んだ１文字。読み込みが終わりの場合、EOF
  */
-export const peek = (pr: ParseReader): string | EOF => {
-  const value = pr.peek().value;
-  return value === EOF ? EOF : value.value;
+export const peek = (pr: ParseReader): ParseToken | EOF => {
+  return pr.peek().value;
 };

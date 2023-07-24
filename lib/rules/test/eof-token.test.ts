@@ -38,7 +38,7 @@ describe("#matchFirstChar", () => {
   const token = new EOFToken();
 
   test("文字", () => {
-    const result = token.matchFirstChar("w");
+    const result = token.matchFirstChar({ type: "word", value: "word" });
 
     expect(result).toBe(false);
   });

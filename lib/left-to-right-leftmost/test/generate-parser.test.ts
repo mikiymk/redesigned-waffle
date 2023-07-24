@@ -10,8 +10,8 @@ import type { Syntax } from "@/lib/rules/define-rules";
 const syntax: Syntax = [
   rule("start", reference("S")),
   rule("S", reference("F")),
-  rule("S", word("word", "("), reference("S"), word("word", "+"), reference("F"), word("word", ")")),
-  rule("F", word("word", "1")),
+  rule("S", word("char", "("), reference("S"), word("char", "+"), reference("F"), word("char", ")")),
+  rule("F", word("char", "1")),
 ];
 
 test("generating parser", () => {
@@ -62,6 +62,6 @@ describe("parsing", () => {
 
     const result = parser.parse(new CharReader(source));
 
-    expect(result).toStrictEqual([false, new Error('no rule "F" matches first char )')]);
+    expect(result).toStrictEqual([false, new Error('no rule "F" matches char:)')]);
   });
 });

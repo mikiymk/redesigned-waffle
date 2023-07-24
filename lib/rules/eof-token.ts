@@ -2,7 +2,7 @@ import { EOF, peek } from "../reader/peekable-iterator";
 
 import type { BaseToken, TerminalToken } from "./base-token";
 import type { ReferenceToken } from "./reference-token";
-import type { Result, ParseReader } from "../reader/peekable-iterator";
+import type { Result, ParseReader, ParseToken } from "../reader/peekable-iterator";
 
 /**
  * 文字終了トークン
@@ -26,7 +26,7 @@ export class EOFToken implements BaseToken, TerminalToken {
    * @param char 文字
    * @returns 文字がマッチするか
    */
-  matchFirstChar(char: string | EOF): boolean {
+  matchFirstChar(char: ParseToken | EOF): boolean {
     return char === EOF;
   }
 

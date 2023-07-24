@@ -1,5 +1,5 @@
 import { getMatchRuleIndex } from "../left-to-right-leftmost/get-match-rule";
-import { peek, EOF, get } from "../reader/peekable-iterator";
+import { peek, EOF } from "../reader/peekable-iterator";
 import { eof, reference } from "../rules/define-rules";
 import { EmptyToken } from "../rules/empty-token";
 import { EOFToken } from "../rules/eof-token";
@@ -56,9 +56,6 @@ export class LLParser {
       console.log("peeked:  ", peeked);
       console.log();
 
-      // 文字コードに変換
-      const peekedCode = peeked === EOF ? Number.NaN : peeked.codePointAt(0) ?? Number.NaN;
-
       if (token === undefined) {
         return [false, new Error("invalid sequence")];
       } else if (token instanceof EOFToken) {
@@ -70,9 +67,11 @@ export class LLParser {
         return [false, new Error("leftover string")];
       } else if (token instanceof ReferenceToken) {
         // 非終端記号の場合
-        const [ok, ruleIndex] = getMatchRuleIndex(this.grammar, this.directorSetList, token.name, peekedCode);
+        const [ok, ruleIndex] = getMatchRuleIndex(this.grammar, this.directorSetList, token.name, peeked);
         if (!ok) {
-          return [false, new Error(`no rule ${primitiveToString(token.name)} matches first char ${peeked.toString()}`)];
+          return peeked === EOF
+            ? [false, new Error(`no rule ${primitiveToString(token.name)} matches EOF`)]
+            : [false, new Error(`no rule ${primitiveToString(token.name)} matches ${peeked.type}:${peeked.value}`)];
         }
 
         // 破壊的メソッドの影響を与えないために新しい配列を作る
@@ -86,25 +85,13 @@ export class LLParser {
         output.push(ruleIndex);
       } else if (token instanceof WordToken) {
         // 文字列の場合
-
-        const { word } = token;
-        let nextChar = peeked;
-
-        // 文字列の各文字をループ
-        for (const char of word) {
-          if (nextChar === char) {
-            get(pr);
-          } else if (nextChar === EOF) {
-            return [false, new Error("expect " + word + " but reaches end")];
-          } else {
-            return [false, new Error("expect " + word + " but found " + nextChar)];
-          }
-
-          nextChar = peek(pr);
+        const [ok, result] = token.read(pr);
+        if (ok) {
+          // 成功したら出力
+          output.push(result);
+        } else {
+          return [false, result];
         }
-
-        // 成功したら出力
-        output.push(word);
       } else if (token instanceof EmptyToken) {
         continue;
       }

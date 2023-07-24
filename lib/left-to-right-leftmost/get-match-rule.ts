@@ -1,7 +1,6 @@
-import { firstChars } from "./is-disjoint";
 import { getRuleIndexes } from "./rule-indexes";
 
-import type { Result } from "../reader/peekable-iterator";
+import type { EOF, ParseToken, Result } from "../reader/peekable-iterator";
 import type { ObjectSet } from "../util/object-set";
 import type { DirectorSetToken, RuleName, Syntax } from "@/lib/rules/define-rules";
 
@@ -10,14 +9,14 @@ import type { DirectorSetToken, RuleName, Syntax } from "@/lib/rules/define-rule
  * @param syntax 構文リスト
  * @param directorSetList ディレクター集合リスト
  * @param ruleName ルール名
- * @param peekedCode 次の入力
+ * @param peeked 次の入力
  * @returns マッチするルールがあれば、その数字
  */
 export const getMatchRuleIndex = (
   syntax: Syntax,
   directorSetList: ObjectSet<DirectorSetToken>[],
   ruleName: RuleName,
-  peekedCode: number,
+  peeked: ParseToken | EOF,
 ): Result<number> => {
   // 各ルールについてループする
   for (const ruleIndex of getRuleIndexes(syntax, ruleName)) {
@@ -28,9 +27,9 @@ export const getMatchRuleIndex = (
     }
 
     // ルールの文字範囲をループ
-    for (const [min, max] of firstChars(tokens)) {
+    for (const token of tokens) {
       // 先読みした入力が範囲に入っている場合
-      if (min <= peekedCode && peekedCode <= max) {
+      if (token.matchFirstChar(peeked)) {
         return [true, ruleIndex];
       }
     }

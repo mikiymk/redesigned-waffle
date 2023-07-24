@@ -10,6 +10,7 @@ import { zip } from "../util/zip-array";
 import { closure } from "./closure";
 
 import type { LR0Item } from "./lr0-item";
+import type { ParseToken } from "../reader/peekable-iterator";
 import type {
   DirectorSetToken,
   FollowSetToken,
@@ -111,7 +112,7 @@ export class ParseTableRow {
    * @param char 次の文字
    * @returns アクション
    */
-  getMatch(char: string | EOF): MatchResult {
+  getMatch(char: ParseToken | EOF): MatchResult {
     if (!this.#collected) {
       throw new Error("not collected");
     }

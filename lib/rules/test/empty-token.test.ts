@@ -30,7 +30,7 @@ describe("#matchFirstChar", () => {
   const token = new EmptyToken();
 
   test("文字", () => {
-    const result = (token.matchFirstChar as TerminalToken["matchFirstChar"])("w");
+    const result = (token.matchFirstChar as TerminalToken["matchFirstChar"])({ type: "word", value: "word" });
 
     expect(result).toBe(true);
   });
