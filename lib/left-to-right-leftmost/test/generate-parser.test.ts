@@ -24,7 +24,7 @@ describe("parsing", () => {
   test("parse success", () => {
     const source = "(1+1)";
 
-    const result = parser(new CharReader(source));
+    const result = parser.parse(new CharReader(source));
 
     expect(result).toStrictEqual([
       true,
@@ -60,6 +60,8 @@ describe("parsing", () => {
   test("parse failure", () => {
     const source = "(1+)";
 
-    expect(parser(new CharReader(source))).toStrictEqual([false, new Error('no rule "F" matches first char )')]);
+    const result = parser.parse(new CharReader(source));
+
+    expect(result).toStrictEqual([false, new Error('no rule "F" matches first char )')]);
   });
 });
