@@ -14,21 +14,26 @@ import type { DirectorSetToken, Syntax, Token } from "../rules/define-rules";
 import type { ObjectSet } from "../util/object-set";
 
 /**
- *
+ * LLパーサー
  */
 export class LLParser {
-  syntax: Syntax;
+  grammar: Syntax;
   directorSetList: ObjectSet<DirectorSetToken>[];
 
-  constructor(syntax: Syntax, directorSetList: ObjectSet<DirectorSetToken>[]) {
-    this.syntax = syntax;
+  /**
+   * LRパーサーを作成する
+   * @param grammar 文法
+   * @param directorSetList 構文解析表
+   */
+  constructor(grammar: Syntax, directorSetList: ObjectSet<DirectorSetToken>[]) {
+    this.grammar = grammar;
     this.directorSetList = directorSetList;
   }
 
   /**
-   *
-   * @param pr
-   * @returns
+   * 文字列を読み込んで構文木を作成する
+   * @param pr 読み込みオブジェクト
+   * @returns 構文木オブジェクト
    */
   parse(pr: ParseReader): Result<Tree> {
     // パーサー
@@ -66,13 +71,13 @@ export class LLParser {
         return [false, new Error("leftover string")];
       } else if (token instanceof ReferenceToken) {
         // 非終端記号の場合
-        const [ok, ruleIndex] = getMatchRuleIndex(this.syntax, this.directorSetList, token.name, peekedCode);
+        const [ok, ruleIndex] = getMatchRuleIndex(this.grammar, this.directorSetList, token.name, peekedCode);
         if (!ok) {
           return [false, new Error(`no rule ${primitiveToString(token.name)} matches first char ${peeked.toString()}`)];
         }
 
         // 破壊的メソッドの影響を与えないために新しい配列を作る
-        const tokens = [...(this.syntax[ruleIndex]?.[1] ?? [])];
+        const tokens = [...(this.grammar[ruleIndex]?.[1] ?? [])];
 
         // 構文スタックに逆順で追加する
         for (const token of tokens.reverse()) {
@@ -122,7 +127,7 @@ export class LLParser {
     const tree: Tree[] = [];
     for (const ident of output.reverse()) {
       if (typeof ident === "number") {
-        const tokens = this.syntax[ident]?.[1];
+        const tokens = this.grammar[ident]?.[1];
 
         if (tokens) {
           tree.push({

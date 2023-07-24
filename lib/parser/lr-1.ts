@@ -6,25 +6,26 @@ import type { ParseReader, Result } from "../reader/peekable-iterator";
 import type { Syntax } from "../rules/define-rules";
 
 /**
- *
+ * LRパーサー
  */
 export class LRParser {
-  syntax: Syntax;
+  grammar: Syntax;
   table: ParseTableRow[];
 
   /**
-   *
-   * @param table
+   * LRパーサーを作成する
+   * @param grammar 文法
+   * @param table 構文解析表
    */
-  constructor(syntax: Syntax, table: ParseTableRow[]) {
-    this.syntax = syntax;
+  constructor(grammar: Syntax, table: ParseTableRow[]) {
+    this.grammar = grammar;
     this.table = table;
   }
 
   /**
-   *
-   * @param pr
-   * @returns
+   * 文字列を読み込んで構文木を作成する
+   * @param pr 読み込みオブジェクト
+   * @returns 構文木オブジェクト
    */
   parse(pr: ParseReader): Result<Tree> {
     const output: (number | string)[] = [];
@@ -56,7 +57,7 @@ export class LRParser {
 
         case "reduce": {
           output.push(parameter);
-          const rule = this.syntax[parameter];
+          const rule = this.grammar[parameter];
           if (rule === undefined) {
             return [false, new Error("error")];
           }
@@ -97,7 +98,7 @@ export class LRParser {
 
     for (const index of [...output, 0]) {
       if (typeof index === "number") {
-        const tokens = this.syntax[index]?.[1];
+        const tokens = this.grammar[index]?.[1];
 
         if (tokens) {
           tree.push({
