@@ -10,8 +10,8 @@ import type { Syntax } from "@/lib/rules/define-rules";
 const syntax: Syntax = [
   rule("start", reference("S")),
   rule("S", reference("F")),
-  rule("S", word("("), reference("S"), word("+"), reference("F"), word(")")),
-  rule("F", word("1")),
+  rule("S", word("word", "("), reference("S"), word("word", "+"), reference("F"), word("word", ")")),
+  rule("F", word("word", "1")),
 ];
 
 test("generating parser", () => {

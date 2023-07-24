@@ -8,20 +8,24 @@ import { WordToken } from "../word-token";
 
 describe("#constructor", () => {
   test("成功", () => {
-    expect(() => new WordToken("word")).not.toThrow();
+    expect(() => new WordToken("word", "word")).not.toThrow();
   });
 
   test("空文字列", () => {
-    expect(() => new WordToken("")).toThrow();
+    expect(() => new WordToken("word", "")).toThrow();
+  });
+
+  test("タイプが空文字列", () => {
+    expect(() => new WordToken("", "word")).toThrow();
   });
 
   test("制御文字が含まれる文字列", () => {
-    expect(() => new WordToken("\0")).not.toThrow();
+    expect(() => new WordToken("word", "\0")).not.toThrow();
   });
 });
 
 describe("#read", () => {
-  const token = new WordToken("word");
+  const token = new WordToken("word", "word");
 
   test("同じ文字列", () => {
     const pr = new CharReader("word");
@@ -57,7 +61,7 @@ describe("#read", () => {
 });
 
 describe("#matchFirstChar", () => {
-  const token = new WordToken("word");
+  const token = new WordToken("word", "word");
 
   test("先頭の文字", () => {
     const result = token.matchFirstChar("w");
@@ -79,7 +83,7 @@ describe("#matchFirstChar", () => {
 });
 
 test("#isNonTerminal", () => {
-  const token = new WordToken("word");
+  const token = new WordToken("word", "word");
 
   const result = token.isNonTerminal();
 
@@ -87,25 +91,25 @@ test("#isNonTerminal", () => {
 });
 
 test("#toKeyString", () => {
-  const token = new WordToken("word");
+  const token = new WordToken("word", "word");
 
   const result = token.toKeyString();
 
-  expect(result).toBe('w "word"');
+  expect(result).toBe('w "word" "word"');
 });
 
 test("#toString", () => {
-  const token = new WordToken("word");
+  const token = new WordToken("word", "word");
 
   const result = token.toString();
 
-  expect(result).toBe("word(word)");
+  expect(result).toBe("word(word:word)");
 });
 
 describe("#equal", () => {
   test("同じクラスで同じ文字列", () => {
-    const token1 = new WordToken("word");
-    const token2 = new WordToken("word");
+    const token1 = new WordToken("word", "word");
+    const token2 = new WordToken("word", "word");
 
     const result = token1.equals(token2);
 
@@ -113,8 +117,17 @@ describe("#equal", () => {
   });
 
   test("同じクラスで違う文字列", () => {
-    const token1 = new WordToken("word");
-    const token2 = new WordToken("toast");
+    const token1 = new WordToken("word", "word");
+    const token2 = new WordToken("word", "toast");
+
+    const result = token1.equals(token2);
+
+    expect(result).toBe(false);
+  });
+
+  test("同じクラスで違うタイプ", () => {
+    const token1 = new WordToken("word", "word");
+    const token2 = new WordToken("toast", "word");
 
     const result = token1.equals(token2);
 
@@ -122,7 +135,7 @@ describe("#equal", () => {
   });
 
   test("違うクラス", () => {
-    const token1 = new WordToken("word");
+    const token1 = new WordToken("word", "word");
     const token2 = new ReferenceToken("word");
 
     const result = token1.equals(token2);

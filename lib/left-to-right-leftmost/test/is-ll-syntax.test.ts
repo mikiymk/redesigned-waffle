@@ -12,8 +12,8 @@ test("valid ll", () => {
     rule("start", reference("S")),
 
     // one starts with "w" and the other with "c"
-    rule("S", word("word")),
-    rule("S", word("code")),
+    rule("S", word("word", "word")),
+    rule("S", word("word", "code")),
   ];
 
   const firstSetList = getFirstSetList(syntax);
@@ -30,8 +30,8 @@ test("invalid ll", () => {
     rule("start", reference("S")),
 
     // both start with "w"
-    rule("S", word("word")),
-    rule("S", word("wish")),
+    rule("S", word("word", "word")),
+    rule("S", word("word", "wish")),
   ];
 
   const firstSetList = getFirstSetList(syntax);
@@ -40,5 +40,8 @@ test("invalid ll", () => {
 
   const result = isLLSyntax(syntax, directorSetList);
 
-  expect(result).toStrictEqual([false, new Error('left [w "word"] and right [w "wish"] is not disjoint')]);
+  expect(result).toStrictEqual([
+    false,
+    new Error('left [w "word" "word"] and right [w "word" "wish"] is not disjoint'),
+  ]);
 });

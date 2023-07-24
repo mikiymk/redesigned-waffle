@@ -52,11 +52,12 @@ export const rule = (name: string, ...tokens: SyntaxToken[]): Rule => {
 
 /**
  * 特定のキーワードのトークンを作る
+ * @param type キーワードタイプ
  * @param word キーワード
  * @returns ルール用トークン
  */
-export const word = (word: string): WordToken => {
-  return new WordToken(word);
+export const word = (type: string, word: string): WordToken => {
+  return new WordToken(type, word);
 };
 
 /**

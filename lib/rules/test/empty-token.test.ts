@@ -78,7 +78,7 @@ describe("#equal", () => {
 
   test("違うクラス", () => {
     const token1 = new EmptyToken();
-    const token2 = new WordToken("word");
+    const token2 = new WordToken("word", "word");
 
     const result = token1.equals(token2);
 

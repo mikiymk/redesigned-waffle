@@ -11,8 +11,8 @@ describe("parsing", () => {
   const syntax: Syntax = [
     rule("start", reference("S")),
     rule("S", reference("F")),
-    rule("S", word("("), reference("S"), word("+"), reference("F"), word(")")),
-    rule("F", word("1")),
+    rule("S", word("word", "("), reference("S"), word("word", "+"), reference("F"), word("word", ")")),
+    rule("F", word("word", "1")),
   ];
 
   test("generating parser", () => {
@@ -67,11 +67,11 @@ describe("parsing", () => {
 describe("parsing 2", () => {
   const syntax: Syntax = [
     rule("S", reference("E")),
-    rule("E", reference("E"), word("*"), reference("B")),
-    rule("E", reference("E"), word("+"), reference("B")),
+    rule("E", reference("E"), word("word", "*"), reference("B")),
+    rule("E", reference("E"), word("word", "+"), reference("B")),
     rule("E", reference("B")),
-    rule("B", word("0")),
-    rule("B", word("1")),
+    rule("B", word("word", "0")),
+    rule("B", word("word", "1")),
   ];
 
   test("generating parser", () => {
@@ -122,7 +122,11 @@ describe("parsing 2", () => {
 });
 
 describe("parsing 3", () => {
-  const syntax: Syntax = [rule("S", reference("E")), rule("E", word("1"), reference("E")), rule("E", word("1"))];
+  const syntax: Syntax = [
+    rule("S", reference("E")),
+    rule("E", word("word", "1"), reference("E")),
+    rule("E", word("word", "1")),
+  ];
 
   test("generating parser", () => {
     expect(() => generateParser(syntax)).not.toThrow();
@@ -171,10 +175,10 @@ describe("parsing 3", () => {
 describe("parsing 4", () => {
   const syntax: Syntax = [
     rule("S", reference("E")),
-    rule("E", reference("A"), word("1")),
-    rule("E", reference("B"), word("2")),
-    rule("A", word("1")),
-    rule("B", word("1")),
+    rule("E", reference("A"), word("word", "1")),
+    rule("E", reference("B"), word("word", "2")),
+    rule("A", word("word", "1")),
+    rule("B", word("word", "1")),
   ];
 
   test("generating parser", () => {

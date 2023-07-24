@@ -13,9 +13,9 @@ const syntax = [
   rule("start", reference("S")),
 
   // one starts with "w" and the other with "c"
-  rule("S", word("word")),
-  rule("S", word("code")),
-  rule("S", word("ambitious")),
+  rule("S", word("word", "word")),
+  rule("S", word("word", "code")),
+  rule("S", word("word", "ambitious")),
 ];
 
 const firstSetList = getFirstSetList(syntax);

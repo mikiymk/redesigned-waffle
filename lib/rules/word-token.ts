@@ -1,4 +1,5 @@
 import { EOF, get, peek } from "../reader/peekable-iterator";
+import { primitiveToString } from "../util/primitive-to-string";
 
 import type { BaseToken, TerminalToken } from "./base-token";
 import type { ReferenceToken } from "./reference-token";
@@ -9,17 +10,20 @@ import type { ParseReader, Result } from "../reader/peekable-iterator";
  * キーワードや演算子など
  */
 export class WordToken implements BaseToken, TerminalToken {
+  readonly type;
   readonly word;
 
   /**
    * ワードトークンを作る
+   * @param type ワードタイプ
    * @param word ワード
    */
-  constructor(word: string) {
-    if (word.length === 0) {
+  constructor(type: string, word: string) {
+    if (type.length === 0 || word.length === 0) {
       throw new Error("word must 1 or more characters");
     }
 
+    this.type = type;
     this.word = word;
   }
 
@@ -62,7 +66,7 @@ export class WordToken implements BaseToken, TerminalToken {
    * @returns 文字列
    */
   toKeyString(): string {
-    return `w "${this.word.replaceAll('"', '\\"').replaceAll("\\", "\\\\")}"`;
+    return `w ${primitiveToString(this.type)} ${primitiveToString(this.word)}`;
   }
 
   /**
@@ -70,7 +74,7 @@ export class WordToken implements BaseToken, TerminalToken {
    * @returns 文字列
    */
   toString(): string {
-    return `word(${this.word})`;
+    return `word(${this.type}:${this.word})`;
   }
 
   /**
@@ -79,7 +83,7 @@ export class WordToken implements BaseToken, TerminalToken {
    * @returns 等しいなら`true`
    */
   equals(other: BaseToken): boolean {
-    return other instanceof WordToken && other.word === this.word;
+    return other instanceof WordToken && other.type === this.type && other.word === this.word;
   }
 
   /**

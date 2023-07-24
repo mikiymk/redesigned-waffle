@@ -17,11 +17,11 @@ import type { Syntax } from "@/lib/rules/define-rules";
 // (5) B → 1
 const syntax: Syntax = [
   rule("S", reference("E")),
-  rule("E", reference("E"), word("*"), reference("B")),
-  rule("E", reference("E"), word("+"), reference("B")),
+  rule("E", reference("E"), word("word", "*"), reference("B")),
+  rule("E", reference("E"), word("word", "+"), reference("B")),
   rule("E", reference("B")),
-  rule("B", word("0")),
-  rule("B", word("1")),
+  rule("B", word("word", "0")),
+  rule("B", word("word", "1")),
 ];
 
 test("closure test non-terminal", () => {
@@ -34,12 +34,12 @@ test("closure test non-terminal", () => {
       reference("E"),
       new ObjectSet<LR0Item>([
         new LR0Item(rule("S", reference("E"))),
-        new LR0Item(rule("E", reference("E"), word("*"), reference("B"))),
-        new LR0Item(rule("E", reference("E"), word("+"), reference("B"))),
+        new LR0Item(rule("E", reference("E"), word("word", "*"), reference("B"))),
+        new LR0Item(rule("E", reference("E"), word("word", "+"), reference("B"))),
       ]),
     ],
     [reference("B"), new ObjectSet<LR0Item>([new LR0Item(rule("E", reference("B")))])],
-    [word("0"), new ObjectSet<LR0Item>([new LR0Item(rule("B", word("0")))])],
-    [word("1"), new ObjectSet<LR0Item>([new LR0Item(rule("B", word("1")))])],
+    [word("word", "0"), new ObjectSet<LR0Item>([new LR0Item(rule("B", word("word", "0")))])],
+    [word("word", "1"), new ObjectSet<LR0Item>([new LR0Item(rule("B", word("word", "1")))])],
   ]);
 });
