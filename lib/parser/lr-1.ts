@@ -1,5 +1,3 @@
-import { peek } from "../reader/peekable-iterator";
-
 import type { Tree } from "./tree";
 import type { ParseTableRow } from "../left-to-right-rightmost/parse-table-row";
 import type { ParseReader, Result } from "../reader/peekable-iterator";
@@ -32,13 +30,10 @@ export class LRParser {
     const stack = [0];
 
     parse_loop: for (;;) {
-      const nextChar = peek(pr);
-
       const state = stack.at(-1) ?? 0;
-      const [action, parameter, token] = this.table[state]?.getMatch(nextChar) ?? ["error"];
+      const [action, parameter, token] = this.table[state]?.getMatch(pr) ?? ["error"];
 
       console.log("stack:   ", stack);
-      console.log("peek:    ", nextChar);
       console.log("action:  ", action, parameter);
       console.log("output:  ", output);
       console.log();

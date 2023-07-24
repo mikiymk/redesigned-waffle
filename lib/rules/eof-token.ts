@@ -2,7 +2,7 @@ import { EOF, peek } from "../reader/peekable-iterator";
 
 import type { BaseToken, TerminalToken } from "./base-token";
 import type { ReferenceToken } from "./reference-token";
-import type { Result, ParseReader, ParseToken } from "../reader/peekable-iterator";
+import type { Result, ParseReader } from "../reader/peekable-iterator";
 
 /**
  * 文字終了トークン
@@ -14,7 +14,7 @@ export class EOFToken implements BaseToken, TerminalToken {
    * @returns 読み込んだ文字列
    */
   read(pr: ParseReader): Result<string> {
-    const char = peek(pr);
+    const char = peek(pr, "eof");
     if (char === EOF) {
       return [true, ""];
     }
@@ -22,12 +22,12 @@ export class EOFToken implements BaseToken, TerminalToken {
   }
 
   /**
-   * 与えられた文字がこのトークンの最初の文字として有効か判定します。
-   * @param char 文字
-   * @returns 文字がマッチするか
+   * 次のトークンがこのトークンにマッチするか判定します。
+   * @param pr リーダー
+   * @returns マッチするか
    */
-  matchFirstChar(char: ParseToken | EOF): boolean {
-    return char === EOF;
+  matchFirstChar(pr: ParseReader): boolean {
+    return peek(pr, "eof") === EOF;
   }
 
   /**

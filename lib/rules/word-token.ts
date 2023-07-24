@@ -3,7 +3,7 @@ import { primitiveToString } from "../util/primitive-to-string";
 
 import type { BaseToken, TerminalToken } from "./base-token";
 import type { ReferenceToken } from "./reference-token";
-import type { ParseReader, ParseToken, Result } from "../reader/peekable-iterator";
+import type { ParseReader, Result } from "../reader/peekable-iterator";
 
 /**
  * 文字列トークン
@@ -33,12 +33,12 @@ export class WordToken implements BaseToken, TerminalToken {
    * @returns 読み込んだ文字列
    */
   read(pr: ParseReader): Result<string> {
-    const peeked = peek(pr);
+    const peeked = peek(pr, this.type);
 
     if (peeked === EOF) {
       return [false, new Error("reach to end")];
     } else if (peeked.type === this.type && peeked.value === this.word) {
-      get(pr);
+      get(pr, this.type);
       return [true, peeked.value];
     } else {
       return [false, new Error("not word")];
@@ -46,11 +46,12 @@ export class WordToken implements BaseToken, TerminalToken {
   }
 
   /**
-   * 与えられた文字がこのトークンの最初の文字として有効か判定します。
-   * @param token 文字
-   * @returns 文字がマッチするか
+   * 次のトークンがこのトークンにマッチするか判定します。
+   * @param pr リーダー
+   * @returns マッチするか
    */
-  matchFirstChar(token: ParseToken | EOF): boolean {
+  matchFirstChar(pr: ParseReader): boolean {
+    const token = peek(pr, this.type);
     return token !== EOF && token.type === this.type && token.value === this.word;
   }
 

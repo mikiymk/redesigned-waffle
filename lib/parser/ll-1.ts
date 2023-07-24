@@ -1,11 +1,9 @@
 import { getMatchRuleIndex } from "../left-to-right-leftmost/get-match-rule";
-import { peek, EOF } from "../reader/peekable-iterator";
 import { eof, reference } from "../rules/define-rules";
 import { EmptyToken } from "../rules/empty-token";
 import { EOFToken } from "../rules/eof-token";
 import { ReferenceToken } from "../rules/reference-token";
 import { WordToken } from "../rules/word-token";
-import { primitiveToString } from "../util/primitive-to-string";
 
 import type { Tree } from "./tree";
 import type { ParseReader, Result } from "../reader/peekable-iterator";
@@ -47,31 +45,26 @@ export class LLParser {
     for (;;) {
       // スタックのトップ
       const token = stack.pop();
-      // 次の入力
-      const peeked = peek(pr);
 
       console.log("stack:   ", stack);
       console.log("output:  ", output);
       console.log("token:   ", token);
-      console.log("peeked:  ", peeked);
       console.log();
 
       if (token === undefined) {
         return [false, new Error("invalid sequence")];
       } else if (token instanceof EOFToken) {
         // EOFなら読み込みを終了する
-        if (peeked === EOF) {
+        if (token.matchFirstChar(pr)) {
           break;
         }
 
         return [false, new Error("leftover string")];
       } else if (token instanceof ReferenceToken) {
         // 非終端記号の場合
-        const [ok, ruleIndex] = getMatchRuleIndex(this.grammar, this.directorSetList, token.name, peeked);
+        const [ok, ruleIndex] = getMatchRuleIndex(this.grammar, this.directorSetList, token.name, pr);
         if (!ok) {
-          return peeked === EOF
-            ? [false, new Error(`no rule ${primitiveToString(token.name)} matches EOF`)]
-            : [false, new Error(`no rule ${primitiveToString(token.name)} matches ${peeked.type}:${peeked.value}`)];
+          return [false, ruleIndex];
         }
 
         // 破壊的メソッドの影響を与えないために新しい配列を作る

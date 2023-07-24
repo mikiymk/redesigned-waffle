@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import { CharReader } from "@/lib/reader/char-reader";
-import { EOF } from "@/lib/reader/peekable-iterator";
+import { WordReader } from "@/lib/reader/word-reader";
 
 import { EmptyToken } from "../empty-token";
 import { WordToken } from "../word-token";
@@ -30,13 +30,15 @@ describe("#matchFirstChar", () => {
   const token = new EmptyToken();
 
   test("文字", () => {
-    const result = (token.matchFirstChar as TerminalToken["matchFirstChar"])({ type: "word", value: "word" });
+    const pr = new WordReader(" word ");
+    const result = (token.matchFirstChar as TerminalToken["matchFirstChar"])(pr);
 
     expect(result).toBe(true);
   });
 
   test("文字列の終端", () => {
-    const result = (token.matchFirstChar as TerminalToken["matchFirstChar"])(EOF);
+    const pr = new WordReader(" ");
+    const result = (token.matchFirstChar as TerminalToken["matchFirstChar"])(pr);
 
     expect(result).toBe(true);
   });

@@ -62,6 +62,6 @@ describe("parsing", () => {
 
     const result = parser.parse(new CharReader(source));
 
-    expect(result).toStrictEqual([false, new Error('no rule "F" matches char:)')]);
+    expect(result).toStrictEqual([false, new Error('no rule "F" matches')]);
   });
 });

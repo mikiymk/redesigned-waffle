@@ -1,6 +1,5 @@
 import { describe, expect, test } from "vitest";
 
-import { EOF } from "@/lib/reader/peekable-iterator";
 import { WordReader } from "@/lib/reader/word-reader";
 
 import { ReferenceToken } from "../reference-token";
@@ -64,19 +63,22 @@ describe("#matchFirstChar", () => {
   const token = new WordToken("word", "word");
 
   test("先頭の文字", () => {
-    const result = token.matchFirstChar({ type: "word", value: "word" });
+    const pr = new WordReader(" word ");
+    const result = token.matchFirstChar(pr);
 
     expect(result).toBe(true);
   });
 
   test("違う文字", () => {
-    const result = token.matchFirstChar({ type: "word", value: "group" });
+    const pr = new WordReader(" group ");
+    const result = token.matchFirstChar(pr);
 
     expect(result).toBe(false);
   });
 
   test("文字列の終端", () => {
-    const result = token.matchFirstChar(EOF);
+    const pr = new WordReader(" ");
+    const result = token.matchFirstChar(pr);
 
     expect(result).toBe(false);
   });

@@ -1,4 +1,4 @@
-import { EOF } from "../reader/peekable-iterator";
+import { EOF, peek } from "../reader/peekable-iterator";
 import { equalsRule } from "../rules/define-rules";
 import { ReferenceToken } from "../rules/reference-token";
 import { getFirstSetList } from "../token-set/first-set-list";
@@ -10,7 +10,7 @@ import { zip } from "../util/zip-array";
 import { closure } from "./closure";
 
 import type { LR0Item } from "./lr0-item";
-import type { ParseToken } from "../reader/peekable-iterator";
+import type { ParseReader } from "../reader/peekable-iterator";
 import type {
   DirectorSetToken,
   FollowSetToken,
@@ -109,22 +109,22 @@ export class ParseTableRow {
 
   /**
    * 次の文字を読み込んでアクションを返します
-   * @param char 次の文字
+   * @param pr 次の文字
    * @returns アクション
    */
-  getMatch(char: ParseToken | EOF): MatchResult {
+  getMatch(pr: ParseReader): MatchResult {
     if (!this.#collected) {
       throw new Error("not collected");
     }
 
-    if (this.#accept && char === EOF) {
+    if (this.#accept && peek(pr, "eof") === EOF) {
       return ["accept"];
     }
 
     // reduceを調べる
     for (const [set, number] of this.#reduce) {
       for (const token of set) {
-        if (token.matchFirstChar(char)) {
+        if (token.matchFirstChar(pr)) {
           return ["reduce", number];
         }
       }
@@ -132,7 +132,7 @@ export class ParseTableRow {
 
     // shiftを調べる
     for (const [token, number] of this.#shift) {
-      if (token.matchFirstChar(char)) {
+      if (token.matchFirstChar(pr)) {
         return ["shift", number, token];
       }
     }
