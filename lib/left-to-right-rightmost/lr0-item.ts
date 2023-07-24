@@ -32,7 +32,7 @@ export class LR0Item {
    * @param position ドットの位置
    * @param lookahead 先読み集合
    */
-  constructor(rule: Rule, position: number = 0, lookahead: Iterable<FollowSetToken> = []) {
+  constructor(rule: Rule, position = 0, lookahead: Iterable<FollowSetToken> = []) {
     this.rule = rule;
     this.position = position;
     this.lookahead = new ObjectSet(lookahead);

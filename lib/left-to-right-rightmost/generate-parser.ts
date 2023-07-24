@@ -14,7 +14,7 @@ export const generateParser = (syntax: Syntax) => {
 
   for (const [index, row] of table.entries()) {
     console.log("rule", index);
-    console.log(row.printDebugInfo());
+    row.printDebugInfo();
   }
 
   return new LRParser(syntax, table);

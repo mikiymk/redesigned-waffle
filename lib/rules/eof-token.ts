@@ -67,7 +67,7 @@ export class EOFToken implements BaseToken, TerminalToken {
    * デバッグ用に出力をします。
    * @param indent インデント数
    */
-  debugPrint(indent: number = 0): void {
+  debugPrint(indent = 0): void {
     const indentSpaces = " ".repeat(indent);
     console.log(indentSpaces, this.toString());
   }

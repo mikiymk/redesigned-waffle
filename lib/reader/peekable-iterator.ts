@@ -6,7 +6,7 @@ export const EOF = Symbol("EOF");
 export type EOF = typeof EOF;
 
 type ParseToken = { type: string; value: string };
-export type ParseReader = Iterator<ParseToken, EOF, undefined> & {
+export type ParseReader = Iterator<ParseToken, EOF> & {
   peek(...nextArguments: [] | [undefined]): IteratorResult<ParseToken, EOF>;
 };
 

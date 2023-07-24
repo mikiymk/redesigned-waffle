@@ -89,11 +89,7 @@ export class ParseTableRow {
           this.#accept = true;
         } else {
           // その他のルールではreduce
-          const resolver = item.lookahead;
-          if (resolver === undefined) {
-            throw new Error("not match resolver set and syntax");
-          }
-          this.#reduce.push([resolver, ruleNumber]);
+          this.#reduce.push([item.lookahead, ruleNumber]);
         }
       }
     }
