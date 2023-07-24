@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { char, empty, reference, rule, word } from "@/lib/rules/define-rules";
+import { empty, reference, rule, word } from "@/lib/rules/define-rules";
 import { ObjectSet } from "@/lib/util/object-set";
 
 import { getFirstSetList } from "../first-set-list";
@@ -12,18 +12,16 @@ test("終端記号", () => {
 
     // terminal
     rule("E", word("word")),
-    rule("E", char("a", "z")),
     rule("E", empty),
   ];
 
   const result = getFirstSetList(syntax);
 
-  expect(result).toHaveLength(4);
+  expect(result).toHaveLength(3);
 
-  expect(result[0]).toStrictEqual(new ObjectSet([word("word"), char("a", "z"), empty]));
+  expect(result[0]).toStrictEqual(new ObjectSet([word("word"), empty]));
   expect(result[1]).toStrictEqual(new ObjectSet([word("word")]));
-  expect(result[2]).toStrictEqual(new ObjectSet([char("a", "z")]));
-  expect(result[3]).toStrictEqual(new ObjectSet([empty]));
+  expect(result[2]).toStrictEqual(new ObjectSet([empty]));
 });
 
 test("非終端記号", () => {
@@ -36,18 +34,16 @@ test("非終端記号", () => {
 
     // terminal
     rule("B", word("word")),
-    rule("B", char("a", "z")),
     rule("B", empty),
   ];
 
   const result = getFirstSetList(syntax);
 
-  expect(result).toHaveLength(5);
-  expect(result[0]).toStrictEqual(new ObjectSet([word("word"), char("a", "z"), empty]));
-  expect(result[1]).toStrictEqual(new ObjectSet([word("word"), char("a", "z"), empty]));
+  expect(result).toHaveLength(4);
+  expect(result[0]).toStrictEqual(new ObjectSet([word("word"), empty]));
+  expect(result[1]).toStrictEqual(new ObjectSet([word("word"), empty]));
   expect(result[2]).toStrictEqual(new ObjectSet([word("word")]));
-  expect(result[3]).toStrictEqual(new ObjectSet([char("a", "z")]));
-  expect(result[4]).toStrictEqual(new ObjectSet([empty]));
+  expect(result[3]).toStrictEqual(new ObjectSet([empty]));
 });
 
 test("空文字になる可能性がある非終端記号", () => {
@@ -60,18 +56,16 @@ test("空文字になる可能性がある非終端記号", () => {
 
     // terminal
     rule("B", word("word")),
-    rule("B", char("a", "z")),
     rule("B", empty),
   ];
 
   const result = getFirstSetList(syntax);
 
-  expect(result).toHaveLength(5);
-  expect(result[0]).toStrictEqual(new ObjectSet([word("word"), char("a", "z"), word("after defined")]));
-  expect(result[1]).toStrictEqual(new ObjectSet([word("word"), char("a", "z"), word("after defined")]));
+  expect(result).toHaveLength(4);
+  expect(result[0]).toStrictEqual(new ObjectSet([word("word"), word("after defined")]));
+  expect(result[1]).toStrictEqual(new ObjectSet([word("word"), word("after defined")]));
   expect(result[2]).toStrictEqual(new ObjectSet([word("word")]));
-  expect(result[3]).toStrictEqual(new ObjectSet([char("a", "z")]));
-  expect(result[4]).toStrictEqual(new ObjectSet([empty]));
+  expect(result[3]).toStrictEqual(new ObjectSet([empty]));
 });
 
 test("左再帰", () => {

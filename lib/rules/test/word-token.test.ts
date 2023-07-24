@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import { CharReader } from "@/lib/reader/char-reader";
 import { EOF } from "@/lib/reader/peekable-iterator";
 
-import { CharToken } from "../char-token";
+import { ReferenceToken } from "../reference-token";
 import { WordToken } from "../word-token";
 
 describe("#constructor", () => {
@@ -123,7 +123,7 @@ describe("#equal", () => {
 
   test("違うクラス", () => {
     const token1 = new WordToken("word");
-    const token2 = new CharToken("a", "z");
+    const token2 = new ReferenceToken("word");
 
     const result = token1.equals(token2);
 

@@ -2,7 +2,6 @@
  * @file
  */
 
-import { CharToken } from "./char-token";
 import { EmptyToken } from "./empty-token";
 import { EOFToken } from "./eof-token";
 import { ReferenceToken } from "./reference-token";
@@ -19,15 +18,15 @@ export type Syntax = Rule[];
 export type RuleName = string | symbol;
 export type Rule = [string | symbol, SyntaxToken[]];
 
-export type SyntaxToken = WordToken | CharToken | ReferenceToken | EmptyToken;
-export type FirstSetToken = WordToken | CharToken | EmptyToken;
-export type FollowSetToken = WordToken | CharToken | EOFToken;
-export type DirectorSetToken = WordToken | CharToken | EOFToken;
-export type LR0ItemToken = WordToken | CharToken | ReferenceToken;
-export type TermToken = WordToken | CharToken;
+export type SyntaxToken = WordToken | ReferenceToken | EmptyToken;
+export type FirstSetToken = WordToken | EmptyToken;
+export type FollowSetToken = WordToken | EOFToken;
+export type DirectorSetToken = WordToken | EOFToken;
+export type LR0ItemToken = WordToken | ReferenceToken;
+export type TermToken = WordToken;
 export type NonTermToken = ReferenceToken;
 
-export type Token = WordToken | CharToken | ReferenceToken | EmptyToken | EOFToken;
+export type Token = WordToken | ReferenceToken | EmptyToken | EOFToken;
 
 /**
  * 構文用のルールを作る
@@ -58,23 +57,6 @@ export const rule = (name: string, ...tokens: SyntaxToken[]): Rule => {
  */
 export const word = (word: string): WordToken => {
   return new WordToken(word);
-};
-
-type StringLength<T extends string, L extends unknown[] = []> = T extends ""
-  ? L["length"]
-  : T extends `${infer F}${infer R}`
-  ? StringLength<R, [F, ...L]>
-  : never;
-type StringChar<T extends string> = StringLength<T> extends 1 ? T : never;
-
-/**
- * 特定のUnicodeコードポイント範囲にある文字のトークンを作る
- * @param min その数を含む最小コードポイント
- * @param max その数を含む最大コードポイント
- * @returns ルール用トークン
- */
-export const char = <T extends string, U extends string>(min: StringChar<T>, max: StringChar<U>): CharToken => {
-  return new CharToken(min, max);
 };
 
 /**

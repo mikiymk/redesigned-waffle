@@ -1,7 +1,6 @@
 import { empty } from "@/lib/rules/define-rules";
 
 import { getRuleIndexes } from "../left-to-right-leftmost/rule-indexes";
-import { CharToken } from "../rules/char-token";
 import { EmptyToken } from "../rules/empty-token";
 import { ReferenceToken } from "../rules/reference-token";
 import { WordToken } from "../rules/word-token";
@@ -81,7 +80,7 @@ export const getFirstSet = (
   const set = new ObjectSet<FirstSetToken>();
   // ルールから最初のトークンを取り出す
   for (const [index, token] of tokens.entries()) {
-    if (token instanceof WordToken || token instanceof CharToken) {
+    if (token instanceof WordToken) {
       // もし、文字なら、それを文字集合に追加する
       set.add(token);
       return set;

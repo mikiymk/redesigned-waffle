@@ -1,6 +1,5 @@
 import { getMatchRuleIndex } from "../left-to-right-leftmost/get-match-rule";
 import { peek, EOF, get } from "../reader/peekable-iterator";
-import { CharToken } from "../rules/char-token";
 import { eof, reference } from "../rules/define-rules";
 import { EmptyToken } from "../rules/empty-token";
 import { EOFToken } from "../rules/eof-token";
@@ -106,18 +105,6 @@ export class LLParser {
 
         // 成功したら出力
         output.push(word);
-      } else if (token instanceof CharToken) {
-        // 文字
-
-        const { min, max } = token;
-
-        if (peeked !== EOF && min <= peekedCode && peekedCode <= max) {
-          output.push(peeked);
-        } else if (peeked === EOF) {
-          return [false, new Error(`expect char ${min}..${max}but reaches end`)];
-        } else {
-          return [false, new Error(`expect char ${min}..${max}but found ${peeked}`)];
-        }
       } else if (token instanceof EmptyToken) {
         continue;
       }

@@ -1,11 +1,11 @@
 import { describe, expect, test } from "vitest";
 
-import { char, empty, equalsRule, reference, rule, word } from "../define-rules";
+import { empty, equalsRule, reference, rule, word } from "../define-rules";
 
 describe("ルールを作成する", () => {
   test("トークンのあるルール", () => {
-    const expected = ["rule name", [word("1"), char(" ", "!"), reference("expression")]];
-    const result = rule("rule name", word("1"), char(" ", "!"), reference("expression"));
+    const expected = ["rule name", [word("1"), reference("expression")]];
+    const result = rule("rule name", word("1"), reference("expression"));
 
     expect(result).toStrictEqual(expected);
   });
@@ -18,7 +18,7 @@ describe("ルールを作成する", () => {
   });
 
   test("空文字列の名前のルール", () => {
-    expect(() => rule("", word("1"), char(" ", "!"), reference("expression"))).toThrow();
+    expect(() => rule("", word("1"), reference("expression"))).toThrow();
   });
 
   test("トークンのないルール", () => {
@@ -26,14 +26,14 @@ describe("ルールを作成する", () => {
   });
 
   test("空文字トークンのあるルール", () => {
-    expect(() => rule("rule name", word("1"), empty, char(" ", "!"), reference("expression"))).toThrow();
+    expect(() => rule("rule name", word("1"), empty, reference("expression"))).toThrow();
   });
 });
 
 describe("ルールを比較する", () => {
   test("同じルール", () => {
-    const rule1 = rule("rule name", word("1"), char(" ", "!"), reference("expression"));
-    const rule2 = rule("rule name", word("1"), char(" ", "!"), reference("expression"));
+    const rule1 = rule("rule name", word("1"), reference("expression"));
+    const rule2 = rule("rule name", word("1"), reference("expression"));
 
     const result = equalsRule(rule1, rule2);
 
@@ -41,8 +41,8 @@ describe("ルールを比較する", () => {
   });
 
   test("違うルール名", () => {
-    const rule1 = rule("rule name", word("1"), char(" ", "!"), reference("expression"));
-    const rule2 = rule("different name", word("1"), char(" ", "!"), reference("expression"));
+    const rule1 = rule("rule name", word("1"), reference("expression"));
+    const rule2 = rule("different name", word("1"), reference("expression"));
 
     const result = equalsRule(rule1, rule2);
 
@@ -50,8 +50,8 @@ describe("ルールを比較する", () => {
   });
 
   test("違うトークン", () => {
-    const rule1 = rule("rule name", word("1"), char(" ", "!"), reference("expression"));
-    const rule2 = rule("rule name", word("2"), char(" ", "!"), reference("expression"));
+    const rule1 = rule("rule name", word("1"), reference("expression"));
+    const rule2 = rule("rule name", word("2"), reference("expression"));
 
     const result = equalsRule(rule1, rule2);
 

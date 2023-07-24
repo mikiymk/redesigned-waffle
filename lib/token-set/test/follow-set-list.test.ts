@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { char, eof, empty, reference, rule, word } from "@/lib/rules/define-rules";
+import { eof, empty, reference, rule, word } from "@/lib/rules/define-rules";
 import { ObjectSet } from "@/lib/util/object-set";
 
 import { getFirstSetList } from "../first-set-list";
@@ -16,19 +16,17 @@ test("１つの記号", () => {
 
     // terminal
     rule("B", word("word")),
-    rule("B", char("a", "z")),
     rule("B", empty),
   ];
 
   const firstSet = getFirstSetList(syntax);
   const result = getFollowSetList(syntax, firstSet);
 
-  expect(result).toHaveLength(5);
+  expect(result).toHaveLength(4);
   expect(result[0]).toStrictEqual(new ObjectSet([eof]));
   expect(result[1]).toStrictEqual(new ObjectSet([eof]));
   expect(result[2]).toStrictEqual(new ObjectSet([eof]));
   expect(result[3]).toStrictEqual(new ObjectSet([eof]));
-  expect(result[4]).toStrictEqual(new ObjectSet([eof]));
 });
 
 test("非終端記号の後に終端記号", () => {

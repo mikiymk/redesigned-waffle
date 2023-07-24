@@ -1,4 +1,3 @@
-import { CharToken } from "../rules/char-token";
 import { WordToken } from "../rules/word-token";
 
 import type { ObjectSet } from "../util/object-set";
@@ -45,8 +44,6 @@ export const firstChars = (tokens: ObjectSet<DirectorSetToken>): [number, number
       // eslint-disable-next-line unicorn/prefer-code-point
       const char = token.word.charCodeAt(0);
       firstChars.push([char, char]);
-    } else if (token instanceof CharToken) {
-      firstChars.push([token.min, token.max]);
     }
   }
 

@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { char, eof, empty, reference, rule, word } from "@/lib/rules/define-rules";
+import { eof, empty, reference, rule, word } from "@/lib/rules/define-rules";
 import { ObjectSet } from "@/lib/util/object-set";
 
 import { getDirectorSetList } from "../director-set-list";
@@ -17,7 +17,6 @@ test("１つの記号", () => {
 
     // terminal
     rule("B", word("word")),
-    rule("B", char("a", "z")),
     rule("B", empty),
   ];
 
@@ -25,12 +24,11 @@ test("１つの記号", () => {
   const followSet = getFollowSetList(syntax, firstSet);
   const result = getDirectorSetList(firstSet, followSet);
 
-  expect(result).toHaveLength(5);
-  expect(result[0]).toStrictEqual(new ObjectSet([word("word"), char("a", "z"), eof]));
-  expect(result[1]).toStrictEqual(new ObjectSet([word("word"), char("a", "z"), eof]));
+  expect(result).toHaveLength(4);
+  expect(result[0]).toStrictEqual(new ObjectSet([word("word"), eof]));
+  expect(result[1]).toStrictEqual(new ObjectSet([word("word"), eof]));
   expect(result[2]).toStrictEqual(new ObjectSet([word("word")]));
-  expect(result[3]).toStrictEqual(new ObjectSet([char("a", "z")]));
-  expect(result[4]).toStrictEqual(new ObjectSet([eof]));
+  expect(result[3]).toStrictEqual(new ObjectSet([eof]));
 });
 
 test("非終端記号の後に終端記号", () => {
