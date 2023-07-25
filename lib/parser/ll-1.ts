@@ -13,8 +13,8 @@ import type { ObjectSet } from "../util/object-set";
 /**
  * LLパーサー
  */
-export class LLParser {
-  grammar: Syntax;
+export class LLParser<T> {
+  grammar: Syntax<T>;
   directorSetList: ObjectSet<DirectorSetToken>[];
 
   /**
@@ -22,7 +22,7 @@ export class LLParser {
    * @param grammar 文法
    * @param directorSetList 構文解析表
    */
-  constructor(grammar: Syntax, directorSetList: ObjectSet<DirectorSetToken>[]) {
+  constructor(grammar: Syntax<T>, directorSetList: ObjectSet<DirectorSetToken>[]) {
     this.grammar = grammar;
     this.directorSetList = directorSetList;
   }
@@ -32,7 +32,7 @@ export class LLParser {
    * @param pr 読み込みオブジェクト
    * @returns 構文木オブジェクト
    */
-  parse(pr: ParseReader): Result<Tree> {
+  parse(pr: ParseReader): Result<Tree<T>> {
     // パーサー
 
     // 構文スタック
@@ -63,7 +63,7 @@ export class LLParser {
         }
 
         // 破壊的メソッドの影響を与えないために新しい配列を作る
-        const tokens = [...(this.grammar[ruleIndex]?.[1] ?? [])];
+        const tokens = [...(this.grammar[ruleIndex]?.tokens ?? [])];
 
         // 構文スタックに逆順で追加する
         for (const token of tokens.reverse()) {
@@ -86,15 +86,19 @@ export class LLParser {
     }
 
     // アウトプット列から構文木を作る
-    const tree: Tree[] = [];
+    const tree: Tree<T>[] = [];
     for (const ident of output.reverse()) {
       if (typeof ident === "number") {
-        const tokens = this.grammar[ident]?.[1];
+        const rule = this.grammar[ident];
 
-        if (tokens) {
+        if (rule) {
+          const { tokens } = rule;
+
+          const children = tree.splice(-tokens.length, tokens.length).reverse();
           tree.push({
             index: ident,
-            children: tree.splice(-tokens.length, tokens.length).reverse(),
+            children,
+            processed: rule.process(children),
           });
         }
       } else {

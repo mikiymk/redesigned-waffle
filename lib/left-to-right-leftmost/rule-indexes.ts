@@ -6,11 +6,11 @@ import type { RuleName, Syntax } from "@/lib/rules/define-rules";
  * @param ruleName ルール名
  * @returns ルール名を持つルールの添字
  */
-export const getRuleIndexesFromName = (syntax: Syntax, ruleName: RuleName): number[] => {
+export const getRuleIndexesFromName = <T>(syntax: Syntax<T>, ruleName: RuleName): number[] => {
   const indexes = [];
 
-  for (const [index, element] of syntax.entries()) {
-    if (element[0] === ruleName) {
+  for (const [index, rule] of syntax.entries()) {
+    if (rule.name === ruleName) {
       indexes.push(index);
     }
   }

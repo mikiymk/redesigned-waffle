@@ -13,7 +13,7 @@ import type { Syntax } from "@/lib/rules/define-rules";
 // (3) E → B
 // (4) B → 0
 // (5) B → 1
-const syntax: Syntax = [
+const syntax: Syntax<undefined> = [
   rule("S", [reference("E")]),
   rule("E", [reference("E"), word("word", "*"), reference("B")]),
   rule("E", [reference("E"), word("word", "+"), reference("B")]),
@@ -24,7 +24,7 @@ const syntax: Syntax = [
 
 test("非終端記号のクロージャ展開", () => {
   // S → • E
-  const item = new LR0Item(syntax[0]!, 0, []);
+  const item = new LR0Item<undefined>(syntax[0]!, 0, []);
 
   const result = closure(syntax, item);
 
@@ -44,7 +44,7 @@ test("非終端記号のクロージャ展開", () => {
 
 test("終端記号のクロージャ展開", () => {
   // B → • 0
-  const item = new LR0Item(syntax[4]!);
+  const item = new LR0Item<undefined>(syntax[4]!);
 
   const result = closure(syntax, item);
 

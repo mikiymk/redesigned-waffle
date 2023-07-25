@@ -8,8 +8,8 @@ import type { LR0ItemToken, RuleName } from "@/lib/rules/define-rules";
  * @param items アイテムのリスト
  * @returns グループ分けされたアイテム集合のリスト
  */
-export const groupByNextToken = (items: Iterable<LR0Item>): [LR0ItemToken, ObjectSet<LR0Item>][] => {
-  const record: Record<RuleName, [LR0ItemToken, ObjectSet<LR0Item>]> = {};
+export const groupByNextToken = <T>(items: Iterable<LR0Item<T>>): [LR0ItemToken, ObjectSet<LR0Item<T>>][] => {
+  const record: Record<RuleName, [LR0ItemToken, ObjectSet<LR0Item<T>>]> = {};
 
   for (const item of items) {
     const token = item.nextToken();
@@ -20,7 +20,7 @@ export const groupByNextToken = (items: Iterable<LR0Item>): [LR0ItemToken, Objec
       continue;
     }
 
-    const set = record[token.toKeyString()]?.[1] ?? new ObjectSet<LR0Item>();
+    const set = record[token.toKeyString()]?.[1] ?? new ObjectSet<LR0Item<T>>();
     set.add(item);
     record[token.toKeyString()] = [token, set];
   }

@@ -6,16 +6,16 @@ import type { Syntax } from "../rules/define-rules";
 /**
  * LRパーサー
  */
-export class LRParser {
-  grammar: Syntax;
-  table: ParseTableRow[];
+export class LRParser<T> {
+  grammar: Syntax<T>;
+  table: ParseTableRow<T>[];
 
   /**
    * LRパーサーを作成する
    * @param grammar 文法
    * @param table 構文解析表
    */
-  constructor(grammar: Syntax, table: ParseTableRow[]) {
+  constructor(grammar: Syntax<T>, table: ParseTableRow<T>[]) {
     this.grammar = grammar;
     this.table = table;
   }
@@ -25,21 +25,24 @@ export class LRParser {
    * @param pr 読み込みオブジェクト
    * @returns 構文木オブジェクト
    */
-  parse(pr: ParseReader): Result<Tree> {
+  parse(pr: ParseReader): Result<Tree<T>> {
     // 規則適用列から構文木に変換する
-    const tree: Tree[] = [];
+    const tree: Tree<T>[] = [];
     const it = this.parseIterator(pr);
     let iteratorResult: IteratorResult<string | number, Result<string>>;
     while (!(iteratorResult = it.next()).done) {
       const { value: index } = iteratorResult;
 
       if (typeof index === "number") {
-        const tokens = this.grammar[index]?.[1];
+        const rule = this.grammar[index];
 
-        if (tokens) {
+        if (rule) {
+          const tokens = rule.tokens;
+          const children = tree.splice(-tokens.length, tokens.length);
           tree.push({
             index,
-            children: tree.splice(-tokens.length, tokens.length),
+            children: children,
+            processed: rule.process(children),
           });
         }
       } else {
@@ -51,15 +54,20 @@ export class LRParser {
       return [false, iteratorResult.value[1]];
     }
 
-    const tokens = this.grammar[0]?.[1];
-    if (tokens && tokens.length === tree.length) {
-      return [
-        true,
-        {
-          index: 0,
-          children: tree,
-        },
-      ];
+    const rule = this.grammar[0];
+    if (rule) {
+      const { tokens } = rule;
+
+      if (tokens.length === tree.length) {
+        return [
+          true,
+          {
+            index: 0,
+            children: tree,
+            processed: rule.process(tree),
+          },
+        ];
+      }
     }
 
     return [false, new Error("cannot construct syntax tree")];
@@ -97,7 +105,7 @@ export class LRParser {
             return [false, new Error("error")];
           }
 
-          const [name, tokens] = rule;
+          const { name, tokens } = rule;
           for (const _ of tokens) {
             stack.pop();
           }

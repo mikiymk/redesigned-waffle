@@ -25,6 +25,11 @@ export class TokenReaderGen {
     });
   }
 
+  /**
+   * 文字列からリーダーを作成します。
+   * @param source ソース文字列
+   * @returns 新しいリーダー
+   */
   reader(source: string): TokenReader {
     return new TokenReader(source, this.rules);
   }

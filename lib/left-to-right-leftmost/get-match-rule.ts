@@ -14,8 +14,8 @@ import type { DirectorSetToken, RuleName, Syntax } from "@/lib/rules/define-rule
  * @param pr 次の入力
  * @returns マッチするルールがあれば、その数字
  */
-export const getMatchRuleIndex = (
-  syntax: Syntax,
+export const getMatchRuleIndex = <T>(
+  syntax: Syntax<T>,
   directorSetList: ObjectSet<DirectorSetToken>[],
   ruleName: RuleName,
   pr: ParseReader,

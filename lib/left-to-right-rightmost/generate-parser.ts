@@ -9,7 +9,7 @@ import type { Syntax } from "../rules/define-rules";
  * @param syntax 構文ルールリスト
  * @returns パーサー
  */
-export const generateParser = (syntax: Syntax) => {
+export const generateParser = <T>(syntax: Syntax<T>) => {
   const table = generateParseTable(syntax);
 
   for (const [index, row] of table.entries()) {

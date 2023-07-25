@@ -12,7 +12,7 @@ import type { Syntax } from "@/lib/rules/define-rules";
  * @param syntax 構文ルールリスト
  * @returns パーサー
  */
-export const generateParser = (syntax: Syntax): LLParser => {
+export const generateParser = <T>(syntax: Syntax<T>): LLParser<T> => {
   const firstSetList = getFirstSetList(syntax);
   const followSetList = getFollowSetList(syntax, firstSetList);
   const directorSetList = getDirectorSetList(firstSetList, followSetList);
@@ -24,7 +24,7 @@ export const generateParser = (syntax: Syntax): LLParser => {
 
   console.log("# generate parser");
   console.log("syntax:");
-  for (const [name, tokens] of syntax) {
+  for (const { name, tokens } of syntax) {
     console.log(" ", name, ...tokens.map((token) => token.toString()));
   }
   console.log("first set:");

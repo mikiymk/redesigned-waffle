@@ -13,8 +13,8 @@ import type { FirstSetToken, FollowSetToken, Syntax } from "@/lib/rules/define-r
  * @param firstSetList 最初の文字集合リスト
  * @returns 続く文字の文字の集合リスト
  */
-export const getFollowSetList = (
-  syntax: Syntax,
+export const getFollowSetList = <T>(
+  syntax: Syntax<T>,
   firstSetList: ObjectSet<FirstSetToken>[],
 ): ObjectSet<FollowSetToken>[] => {
   // ルールリストと同じ長さで文字集合リストを作る
@@ -47,8 +47,8 @@ export const getFollowSetList = (
  * @param index 作るルールのインデックス
  * @returns 集合に変化があったかどうか
  */
-const generateFollowSet = (
-  syntax: Syntax,
+const generateFollowSet = <T>(
+  syntax: Syntax<T>,
   followSetList: ObjectSet<FollowSetToken>[],
   firstSetList: ObjectSet<FirstSetToken>[],
   index: number,
@@ -61,7 +61,7 @@ const generateFollowSet = (
   }
 
   let updated = false;
-  const tokens = rule[1];
+  const tokens = rule.tokens;
 
   //   Aj → wAiw' という形式の規則がある場合、
 

@@ -13,7 +13,7 @@ import type { FirstSetToken, Syntax, SyntaxToken } from "@/lib/rules/define-rule
  * @param syntax 構文ルールリスト
  * @returns 最初の文字の集合リスト
  */
-export const getFirstSetList = (syntax: Syntax): ObjectSet<FirstSetToken>[] => {
+export const getFirstSetList = <T>(syntax: Syntax<T>): ObjectSet<FirstSetToken>[] => {
   // ルールリストと同じ長さで文字集合リストを作る
   const firstSet = syntax.map(() => new ObjectSet<FirstSetToken>());
 
@@ -46,8 +46,8 @@ export const getFirstSetList = (syntax: Syntax): ObjectSet<FirstSetToken>[] => {
  * @param index 作るルールのインデックス
  * @returns 作った最初の文字集合
  */
-const generateFirstSet = (
-  syntax: Syntax,
+const generateFirstSet = <T>(
+  syntax: Syntax<T>,
   firstSetList: ObjectSet<FirstSetToken>[],
   index: number,
 ): ObjectSet<FirstSetToken> => {
@@ -58,7 +58,7 @@ const generateFirstSet = (
     throw new Error(`rule length is ${syntax.length}, but access index of ${index}`);
   }
 
-  const tokens = rule[1];
+  const tokens = rule.tokens;
 
   firstSet.append(getFirstSet(syntax, firstSetList, tokens));
 
@@ -72,8 +72,8 @@ const generateFirstSet = (
  * @param tokens 作るルールのトークン列
  * @returns 作った最初の文字集合
  */
-export const getFirstSet = (
-  syntax: Syntax,
+export const getFirstSet = <T>(
+  syntax: Syntax<T>,
   firstSetList: ObjectSet<FirstSetToken>[],
   tokens: SyntaxToken[],
 ): ObjectSet<FirstSetToken> => {

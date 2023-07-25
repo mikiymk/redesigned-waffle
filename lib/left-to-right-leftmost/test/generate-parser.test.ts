@@ -7,7 +7,7 @@ import { generateParser } from "../generate-parser";
 
 import type { Syntax } from "@/lib/rules/define-rules";
 
-const syntax: Syntax = [
+const syntax: Syntax<undefined> = [
   rule("start", [reference("S")]),
   rule("S", [reference("F")]),
   rule("S", [word("char", "("), reference("S"), word("char", "+"), reference("F"), word("char", ")")]),
@@ -41,18 +41,23 @@ describe("parsing", () => {
                   {
                     index: 3,
                     children: ["1"],
+                    processed: undefined,
                   },
                 ],
+                processed: undefined,
               },
               "+",
               {
                 index: 3,
                 children: ["1"],
+                processed: undefined,
               },
               ")",
             ],
+            processed: undefined,
           },
         ],
+        processed: undefined,
       },
     ]);
   });

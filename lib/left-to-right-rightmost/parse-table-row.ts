@@ -26,9 +26,9 @@ type MatchResult = ["reduce", number] | ["shift", number, TermToken] | ["accept"
 /**
  *
  */
-export class ParseTableRow {
-  readonly kernels: ObjectSet<LR0Item>;
-  readonly additions: ObjectSet<LR0Item>;
+export class ParseTableRow<T> {
+  readonly kernels: ObjectSet<LR0Item<T>>;
+  readonly additions: ObjectSet<LR0Item<T>>;
   readonly gotoMap: [LR0ItemToken, number][] = [];
 
   readonly #syntax;
@@ -44,9 +44,9 @@ export class ParseTableRow {
    * @param syntax 構文ルールリスト
    * @param items LR(0)アイテムリスト
    */
-  constructor(syntax: Syntax, items: Iterable<LR0Item>) {
-    this.kernels = new ObjectSet<LR0Item>(items);
-    this.additions = new ObjectSet<LR0Item>();
+  constructor(syntax: Syntax<T>, items: Iterable<LR0Item<T>>) {
+    this.kernels = new ObjectSet<LR0Item<T>>(items);
+    this.additions = new ObjectSet<LR0Item<T>>();
     this.#syntax = syntax;
 
     for (const item of this.kernels) {
@@ -59,12 +59,12 @@ export class ParseTableRow {
     const followSet = getFollowSetList(itemSetRules, firstSet);
     const lookahead: Record<RuleName, ObjectSet<FollowSetToken>> = {};
     for (const [_, rule, set] of zip(itemSetRules, followSet)) {
-      lookahead[rule[0]] = set;
+      lookahead[rule.name] = set;
     }
 
     // 各アイテムにフォロー集合のトークンを追加する
     for (const item of [...this.kernels, ...this.additions]) {
-      const set = lookahead[item.rule[0]];
+      const set = lookahead[item.rule.name];
       if (set) item.lookahead.append(set);
     }
   }

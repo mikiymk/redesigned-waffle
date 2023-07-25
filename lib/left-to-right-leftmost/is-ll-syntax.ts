@@ -12,7 +12,10 @@ import type { DirectorSetToken, Syntax } from "@/lib/rules/define-rules";
  * @param directorSetList ディレクター集合リスト
  * @returns 結果オブジェクト
  */
-export const isValidLLGrammar = (syntax: Syntax, directorSetList: ObjectSet<DirectorSetToken>[]): Result<undefined> => {
+export const isValidLLGrammar = <T>(
+  syntax: Syntax<T>,
+  directorSetList: ObjectSet<DirectorSetToken>[],
+): Result<undefined> => {
   for (const name of getRuleNames(syntax)) {
     for (const left of getRuleIndexesFromName(syntax, name)) {
       for (const right of getRuleIndexesFromName(syntax, name)) {

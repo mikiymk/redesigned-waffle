@@ -17,7 +17,7 @@ import type { Syntax } from "@/lib/rules/define-rules";
  * @param syntax 構文ルールリスト
  * @returns LR(0)状態遷移テーブル
  */
-export const generateParseTable = (syntax: Syntax) => {
+export const generateParseTable = <T>(syntax: Syntax<T>) => {
   // 最初のルール
   // S → E $ であり、Sは他のいずれのルールでも右辺に登場しません。
   const firstRule = syntax[0];
@@ -52,7 +52,7 @@ export const generateParseTable = (syntax: Syntax) => {
     const { kernels, additions, gotoMap } = row;
 
     // アイテム集合をグループ分けする
-    const groups = groupByNextToken(new ObjectSet<LR0Item>([...kernels, ...additions]));
+    const groups = groupByNextToken(new ObjectSet<LR0Item<T>>([...kernels, ...additions]));
 
     // 各グループについて
     outer: for (const [token, itemSet] of groups) {

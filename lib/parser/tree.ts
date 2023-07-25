@@ -1,1 +1,1 @@
-export type Tree = string | { index: number; children: Tree[] };
+export type Tree<T> = string | { index: number; children: Tree<T>[]; processed: T };

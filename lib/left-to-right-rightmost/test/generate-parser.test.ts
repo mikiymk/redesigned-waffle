@@ -8,7 +8,7 @@ import { generateParser } from "../generate-parser";
 import type { Syntax } from "@/lib/rules/define-rules";
 
 describe("parsing", () => {
-  const syntax: Syntax = [
+  const syntax: Syntax<undefined> = [
     rule("start", [reference("S")]),
     rule("S", [reference("F")]),
     rule("S", [word("char", "("), reference("S"), word("char", "+"), reference("F"), word("char", ")")]),
@@ -40,18 +40,23 @@ describe("parsing", () => {
                   {
                     index: 3,
                     children: ["1"],
+                    processed: undefined,
                   },
                 ],
+                processed: undefined,
               },
               "+",
               {
                 index: 3,
                 children: ["1"],
+                processed: undefined,
               },
               ")",
             ],
+            processed: undefined,
           },
         ],
+        processed: undefined,
       },
     ]);
   });
@@ -65,7 +70,7 @@ describe("parsing", () => {
 });
 
 describe("parsing 2", () => {
-  const syntax: Syntax = [
+  const syntax: Syntax<undefined> = [
     rule("S", [reference("E")]),
     rule("E", [reference("E"), word("char", "*"), reference("B")]),
     rule("E", [reference("E"), word("char", "+"), reference("B")]),
@@ -98,17 +103,22 @@ describe("parsing 2", () => {
                   {
                     index: 5,
                     children: ["1"],
+                    processed: undefined,
                   },
                 ],
+                processed: undefined,
               },
               "+",
               {
                 index: 5,
                 children: ["1"],
+                processed: undefined,
               },
             ],
+            processed: undefined,
           },
         ],
+        processed: undefined,
       },
     ]);
   });
@@ -122,7 +132,7 @@ describe("parsing 2", () => {
 });
 
 describe("parsing 3", () => {
-  const syntax: Syntax = [
+  const syntax: Syntax<undefined> = [
     rule("S", [reference("E")]),
     rule("E", [word("char", "1"), reference("E")]),
     rule("E", [word("char", "1")]),
@@ -154,12 +164,16 @@ describe("parsing 3", () => {
                   {
                     index: 2,
                     children: ["1"],
+                    processed: undefined,
                   },
                 ],
+                processed: undefined,
               },
             ],
+            processed: undefined,
           },
         ],
+        processed: undefined,
       },
     ]);
   });
@@ -173,7 +187,7 @@ describe("parsing 3", () => {
 });
 
 describe("parsing 4", () => {
-  const syntax: Syntax = [
+  const syntax: Syntax<undefined> = [
     rule("S", [reference("E")]),
     rule("E", [reference("A"), word("char", "1")]),
     rule("E", [reference("B"), word("char", "2")]),
@@ -202,11 +216,14 @@ describe("parsing 4", () => {
               {
                 index: 4,
                 children: ["1"],
+                processed: undefined,
               },
               "2",
             ],
+            processed: undefined,
           },
         ],
+        processed: undefined,
       },
     ]);
   });

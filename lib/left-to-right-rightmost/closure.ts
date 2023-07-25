@@ -11,7 +11,7 @@ import type { RuleName, Syntax } from "@/lib/rules/define-rules";
  * @param item LR(0)アイテム
  * @returns アイテム集合
  */
-export const closure = (syntax: Syntax, item: LR0Item): LR0Item[] => {
+export const closure = <T>(syntax: Syntax<T>, item: LR0Item<T>): LR0Item<T>[] => {
   // アイテムからドットの後ろのトークンを得る
   const nextToken = item.nextToken();
 
@@ -32,10 +32,14 @@ export const closure = (syntax: Syntax, item: LR0Item): LR0Item[] => {
  * @param calledRule 無限再帰を防ぐため、一度呼ばれたルール名を記録しておく
  * @returns ルールから予測される
  */
-const expansionItems = (syntax: Syntax, ruleName: RuleName, calledRule: Set<RuleName> = new Set()): LR0Item[] => {
+const expansionItems = <T>(
+  syntax: Syntax<T>,
+  ruleName: RuleName,
+  calledRule: Set<RuleName> = new Set(),
+): LR0Item<T>[] => {
   calledRule.add(ruleName);
 
-  const items: LR0Item[] = [];
+  const items: LR0Item<T>[] = [];
 
   for (const index of getRuleIndexesFromName(syntax, ruleName)) {
     // 各ルールについて実行する
@@ -47,7 +51,7 @@ const expansionItems = (syntax: Syntax, ruleName: RuleName, calledRule: Set<Rule
     items.push(new LR0Item(rule));
 
     // さらにそのルールの先頭が非終端記号だった場合、再帰的に追加する
-    const firstToken = rule[1][0];
+    const firstToken = rule.tokens[0];
     if (firstToken instanceof ReferenceToken && !calledRule.has(firstToken.name)) {
       items.push(...expansionItems(syntax, firstToken.name));
     }
