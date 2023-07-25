@@ -9,10 +9,10 @@ import type { Syntax } from "@/lib/rules/define-rules";
 
 describe("parsing", () => {
   const syntax: Syntax = [
-    rule("start", reference("S")),
-    rule("S", reference("F")),
-    rule("S", word("char", "("), reference("S"), word("char", "+"), reference("F"), word("char", ")")),
-    rule("F", word("char", "1")),
+    rule("start", [reference("S")]),
+    rule("S", [reference("F")]),
+    rule("S", [word("char", "("), reference("S"), word("char", "+"), reference("F"), word("char", ")")]),
+    rule("F", [word("char", "1")]),
   ];
 
   test("generating parser", () => {
@@ -66,12 +66,12 @@ describe("parsing", () => {
 
 describe("parsing 2", () => {
   const syntax: Syntax = [
-    rule("S", reference("E")),
-    rule("E", reference("E"), word("char", "*"), reference("B")),
-    rule("E", reference("E"), word("char", "+"), reference("B")),
-    rule("E", reference("B")),
-    rule("B", word("char", "0")),
-    rule("B", word("char", "1")),
+    rule("S", [reference("E")]),
+    rule("E", [reference("E"), word("char", "*"), reference("B")]),
+    rule("E", [reference("E"), word("char", "+"), reference("B")]),
+    rule("E", [reference("B")]),
+    rule("B", [word("char", "0")]),
+    rule("B", [word("char", "1")]),
   ];
 
   test("generating parser", () => {
@@ -123,9 +123,9 @@ describe("parsing 2", () => {
 
 describe("parsing 3", () => {
   const syntax: Syntax = [
-    rule("S", reference("E")),
-    rule("E", word("char", "1"), reference("E")),
-    rule("E", word("char", "1")),
+    rule("S", [reference("E")]),
+    rule("E", [word("char", "1"), reference("E")]),
+    rule("E", [word("char", "1")]),
   ];
 
   test("generating parser", () => {
@@ -174,11 +174,11 @@ describe("parsing 3", () => {
 
 describe("parsing 4", () => {
   const syntax: Syntax = [
-    rule("S", reference("E")),
-    rule("E", reference("A"), word("char", "1")),
-    rule("E", reference("B"), word("char", "2")),
-    rule("A", word("char", "1")),
-    rule("B", word("char", "1")),
+    rule("S", [reference("E")]),
+    rule("E", [reference("A"), word("char", "1")]),
+    rule("E", [reference("B"), word("char", "2")]),
+    rule("A", [word("char", "1")]),
+    rule("B", [word("char", "1")]),
   ];
 
   test("generating parser", () => {

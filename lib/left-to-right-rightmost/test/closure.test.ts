@@ -14,12 +14,12 @@ import type { Syntax } from "@/lib/rules/define-rules";
 // (4) B → 0
 // (5) B → 1
 const syntax: Syntax = [
-  rule("S", reference("E")),
-  rule("E", reference("E"), word("word", "*"), reference("B")),
-  rule("E", reference("E"), word("word", "+"), reference("B")),
-  rule("E", reference("B")),
-  rule("B", word("word", "0")),
-  rule("B", word("word", "1")),
+  rule("S", [reference("E")]),
+  rule("E", [reference("E"), word("word", "*"), reference("B")]),
+  rule("E", [reference("E"), word("word", "+"), reference("B")]),
+  rule("E", [reference("B")]),
+  rule("B", [word("word", "0")]),
+  rule("B", [word("word", "1")]),
 ];
 
 test("非終端記号のクロージャ展開", () => {
@@ -30,15 +30,15 @@ test("非終端記号のクロージャ展開", () => {
 
   expect(result).toStrictEqual([
     // + E → • E * B
-    new LR0Item(rule("E", reference("E"), word("word", "*"), reference("B"))),
+    new LR0Item(rule("E", [reference("E"), word("word", "*"), reference("B")])),
     // + E → • E + B
-    new LR0Item(rule("E", reference("E"), word("word", "+"), reference("B"))),
+    new LR0Item(rule("E", [reference("E"), word("word", "+"), reference("B")])),
     // + E → • B
-    new LR0Item(rule("E", reference("B"))),
+    new LR0Item(rule("E", [reference("B")])),
     // + B → • 0
-    new LR0Item(rule("B", word("word", "0"))),
+    new LR0Item(rule("B", [word("word", "0")])),
     // + B → • 1
-    new LR0Item(rule("B", word("word", "1"))),
+    new LR0Item(rule("B", [word("word", "1")])),
   ]);
 });
 

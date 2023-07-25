@@ -9,11 +9,11 @@ import { isValidLLGrammar } from "../is-ll-syntax";
 
 test("valid ll", () => {
   const syntax = [
-    rule("start", reference("S")),
+    rule("start", [reference("S")]),
 
     // one starts with "w" and the other with "c"
-    rule("S", word("word", "word")),
-    rule("S", word("word", "code")),
+    rule("S", [word("word", "word")]),
+    rule("S", [word("word", "code")]),
   ];
 
   const firstSetList = getFirstSetList(syntax);
@@ -27,11 +27,11 @@ test("valid ll", () => {
 
 test("invalid ll", () => {
   const syntax = [
-    rule("start", reference("S")),
+    rule("start", [reference("S")]),
 
     // both start with "w"
-    rule("S", word("word", "word")),
-    rule("S", word("word", "wish")),
+    rule("S", [word("word", "word")]),
+    rule("S", [word("word", "wish")]),
   ];
 
   const firstSetList = getFirstSetList(syntax);

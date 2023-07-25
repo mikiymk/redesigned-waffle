@@ -34,7 +34,7 @@ export type Token = WordToken | ReferenceToken | EmptyToken | EOFToken;
  * @param tokens ルールのトークン列
  * @returns ルールオブジェクト（タグ付きタプル）
  */
-export const rule = (name: string, ...tokens: SyntaxToken[]): Rule => {
+export const rule = (name: string, tokens: SyntaxToken[]): Rule => {
   if (name.length === 0) {
     throw new Error(`name length must 1 or greater. received: "${name}"`);
   }

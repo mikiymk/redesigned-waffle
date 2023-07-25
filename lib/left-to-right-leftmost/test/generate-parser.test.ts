@@ -8,10 +8,10 @@ import { generateParser } from "../generate-parser";
 import type { Syntax } from "@/lib/rules/define-rules";
 
 const syntax: Syntax = [
-  rule("start", reference("S")),
-  rule("S", reference("F")),
-  rule("S", word("char", "("), reference("S"), word("char", "+"), reference("F"), word("char", ")")),
-  rule("F", word("char", "1")),
+  rule("start", [reference("S")]),
+  rule("S", [reference("F")]),
+  rule("S", [word("char", "("), reference("S"), word("char", "+"), reference("F"), word("char", ")")]),
+  rule("F", [word("char", "1")]),
 ];
 
 test("generating parser", () => {

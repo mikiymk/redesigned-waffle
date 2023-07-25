@@ -12,12 +12,12 @@ import { getMatchRuleIndex } from "../get-match-rule";
 import type { ParseReader, ParseToken, Result } from "../../reader/parse-reader";
 
 const syntax = [
-  rule("start", reference("S")),
+  rule("start", [reference("S")]),
 
   // one starts with "w" and the other with "c"
-  rule("S", word("word", "word")),
-  rule("S", word("word", "code")),
-  rule("S", word("word", "ambitious")),
+  rule("S", [word("word", "word")]),
+  rule("S", [word("word", "code")]),
+  rule("S", [word("word", "ambitious")]),
 ];
 
 const firstSetList = getFirstSetList(syntax);
