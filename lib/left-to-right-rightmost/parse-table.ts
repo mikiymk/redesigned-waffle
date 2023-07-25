@@ -1,8 +1,8 @@
 import { eof } from "@/lib/rules/define-rules";
 
-import { getDirectorSetList } from "../token-set/director-set-list";
-import { getFirstSetList } from "../token-set/first-set-list";
-import { getFollowSetList } from "../token-set/follow-set-list";
+import { getDirectorSetList } from "../token-set/director-set";
+import { getFirstSetList } from "../token-set/first-set";
+import { getFollowSetList } from "../token-set/follow-set";
 import { ObjectSet } from "../util/object-set";
 
 import { groupByNextToken } from "./group-next-token";

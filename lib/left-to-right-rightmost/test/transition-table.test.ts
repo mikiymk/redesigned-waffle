@@ -4,7 +4,7 @@ import { eof, reference, rule, word } from "@/lib/rules/define-rules";
 import { ObjectSet } from "@/lib/util/object-set";
 
 import { LR0Item } from "../lr0-item";
-import { generateParseTable } from "../transition-table";
+import { generateParseTable } from "../parse-table";
 
 import type { Syntax } from "@/lib/rules/define-rules";
 

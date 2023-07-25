@@ -1,6 +1,6 @@
-import { EOF } from "./peekable-iterator";
+import { EOF } from "./parse-reader";
 
-import type { ParseReader } from "./peekable-iterator";
+import type { ParseReader } from "./parse-reader";
 
 type WordToken = { type: "word"; value: string };
 /**

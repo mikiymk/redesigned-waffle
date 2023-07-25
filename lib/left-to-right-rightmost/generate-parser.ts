@@ -1,6 +1,6 @@
 import { LRParser } from "../parser/lr-1";
 
-import { generateParseTable } from "./transition-table";
+import { generateParseTable } from "./parse-table";
 
 import type { Syntax } from "../rules/define-rules";
 

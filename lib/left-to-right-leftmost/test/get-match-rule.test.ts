@@ -3,13 +3,13 @@ import { expect, test } from "vitest";
 import { WordReader } from "@/lib/reader/word-reader";
 import { reference, rule, word } from "@/lib/rules/define-rules";
 
-import { EOF } from "../../reader/peekable-iterator";
-import { getDirectorSetList } from "../../token-set/director-set-list";
-import { getFirstSetList } from "../../token-set/first-set-list";
-import { getFollowSetList } from "../../token-set/follow-set-list";
+import { EOF } from "../../reader/parse-reader";
+import { getDirectorSetList } from "../../token-set/director-set";
+import { getFirstSetList } from "../../token-set/first-set";
+import { getFollowSetList } from "../../token-set/follow-set";
 import { getMatchRuleIndex } from "../get-match-rule";
 
-import type { ParseReader, ParseToken, Result } from "../../reader/peekable-iterator";
+import type { ParseReader, ParseToken, Result } from "../../reader/parse-reader";
 
 const syntax = [
   rule("start", reference("S")),

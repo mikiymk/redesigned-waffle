@@ -1,8 +1,8 @@
 import { isDisjoint } from "./is-disjoint";
-import { getRuleIndexes } from "./rule-indexes";
+import { getRuleIndexesFromName } from "./rule-indexes";
 import { getRuleNames } from "./rule-names";
 
-import type { Result } from "../reader/peekable-iterator";
+import type { Result } from "../reader/parse-reader";
 import type { ObjectSet } from "../util/object-set";
 import type { DirectorSetToken, Syntax } from "@/lib/rules/define-rules";
 
@@ -12,10 +12,10 @@ import type { DirectorSetToken, Syntax } from "@/lib/rules/define-rules";
  * @param directorSetList ディレクター集合リスト
  * @returns 結果オブジェクト
  */
-export const isLLSyntax = (syntax: Syntax, directorSetList: ObjectSet<DirectorSetToken>[]): Result<undefined> => {
+export const isValidLLGrammar = (syntax: Syntax, directorSetList: ObjectSet<DirectorSetToken>[]): Result<undefined> => {
   for (const name of getRuleNames(syntax)) {
-    for (const left of getRuleIndexes(syntax, name)) {
-      for (const right of getRuleIndexes(syntax, name)) {
+    for (const left of getRuleIndexesFromName(syntax, name)) {
+      for (const right of getRuleIndexesFromName(syntax, name)) {
         if (left === right) continue;
 
         const leftRule = directorSetList[left];

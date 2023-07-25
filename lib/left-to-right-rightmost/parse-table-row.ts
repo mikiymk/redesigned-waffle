@@ -1,8 +1,8 @@
-import { EOF, peek } from "../reader/peekable-iterator";
+import { EOF, peek } from "../reader/parse-reader";
 import { equalsRule } from "../rules/define-rules";
 import { ReferenceToken } from "../rules/reference-token";
-import { getFirstSetList } from "../token-set/first-set-list";
-import { getFollowSetList } from "../token-set/follow-set-list";
+import { getFirstSetList } from "../token-set/first-set";
+import { getFollowSetList } from "../token-set/follow-set";
 import { ObjectSet } from "../util/object-set";
 import { primitiveToString } from "../util/primitive-to-string";
 import { zip } from "../util/zip-array";
@@ -10,7 +10,7 @@ import { zip } from "../util/zip-array";
 import { closure } from "./closure";
 
 import type { LR0Item } from "./lr0-item";
-import type { ParseReader } from "../reader/peekable-iterator";
+import type { ParseReader } from "../reader/parse-reader";
 import type {
   DirectorSetToken,
   FollowSetToken,

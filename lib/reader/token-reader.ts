@@ -1,6 +1,6 @@
-import { EOF } from "./peekable-iterator";
+import { EOF } from "./parse-reader";
 
-import type { ParseReader, ParseToken } from "./peekable-iterator";
+import type { ParseReader, ParseToken } from "./parse-reader";
 
 /**
  *

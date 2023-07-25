@@ -1,9 +1,9 @@
 import { eof, empty } from "@/lib/rules/define-rules";
 
-import { getRuleIndexes } from "../left-to-right-leftmost/rule-indexes";
+import { getRuleIndexesFromName } from "../left-to-right-leftmost/rule-indexes";
 import { ObjectSet } from "../util/object-set";
 
-import { getFirstSet } from "./first-set-list";
+import { getFirstSet } from "./first-set";
 
 import type { FirstSetToken, FollowSetToken, Syntax } from "@/lib/rules/define-rules";
 
@@ -76,7 +76,7 @@ const generateFollowSet = (
       const followFirstSet = getFirstSet(syntax, firstSetList, follows);
 
       // その非終端記号のフォロー集合に追加する
-      for (const ruleIndex of getRuleIndexes(syntax, token.name)) {
+      for (const ruleIndex of getRuleIndexesFromName(syntax, token.name)) {
         const referenceFollowSet = followSetList[ruleIndex];
 
         if (referenceFollowSet !== undefined) {

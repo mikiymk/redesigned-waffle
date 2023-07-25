@@ -1,4 +1,4 @@
-import { getRuleIndexes } from "../left-to-right-leftmost/rule-indexes";
+import { getRuleIndexesFromName } from "../left-to-right-leftmost/rule-indexes";
 import { ReferenceToken } from "../rules/reference-token";
 
 import { LR0Item } from "./lr0-item";
@@ -19,7 +19,7 @@ export const closure = (syntax: Syntax, item: LR0Item): LR0Item[] => {
     // 次のトークンが非終端記号なら
     const ruleName = nextToken.name;
 
-    return expansion(syntax, ruleName);
+    return expansionItems(syntax, ruleName);
   }
 
   return [];
@@ -32,12 +32,12 @@ export const closure = (syntax: Syntax, item: LR0Item): LR0Item[] => {
  * @param calledRule 無限再帰を防ぐため、一度呼ばれたルール名を記録しておく
  * @returns ルールから予測される
  */
-const expansion = (syntax: Syntax, ruleName: RuleName, calledRule: Set<RuleName> = new Set()): LR0Item[] => {
+const expansionItems = (syntax: Syntax, ruleName: RuleName, calledRule: Set<RuleName> = new Set()): LR0Item[] => {
   calledRule.add(ruleName);
 
   const items: LR0Item[] = [];
 
-  for (const index of getRuleIndexes(syntax, ruleName)) {
+  for (const index of getRuleIndexesFromName(syntax, ruleName)) {
     // 各ルールについて実行する
     const rule = syntax[index];
     if (rule === undefined) {
@@ -49,7 +49,7 @@ const expansion = (syntax: Syntax, ruleName: RuleName, calledRule: Set<RuleName>
     // さらにそのルールの先頭が非終端記号だった場合、再帰的に追加する
     const firstToken = rule[1][0];
     if (firstToken instanceof ReferenceToken && !calledRule.has(firstToken.name)) {
-      items.push(...expansion(syntax, firstToken.name));
+      items.push(...expansionItems(syntax, firstToken.name));
     }
   }
 

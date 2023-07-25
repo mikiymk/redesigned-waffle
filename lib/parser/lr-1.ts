@@ -1,6 +1,6 @@
 import type { Tree } from "./tree";
 import type { ParseTableRow } from "../left-to-right-rightmost/parse-table-row";
-import type { ParseReader, Result } from "../reader/peekable-iterator";
+import type { ParseReader, Result } from "../reader/parse-reader";
 import type { Syntax } from "../rules/define-rules";
 
 /**

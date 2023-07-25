@@ -6,7 +6,7 @@ import { ReferenceToken } from "../rules/reference-token";
 import { WordToken } from "../rules/word-token";
 
 import type { Tree } from "./tree";
-import type { ParseReader, Result } from "../reader/peekable-iterator";
+import type { ParseReader, Result } from "../reader/parse-reader";
 import type { DirectorSetToken, Syntax, Token } from "../rules/define-rules";
 import type { ObjectSet } from "../util/object-set";
 

@@ -1,6 +1,6 @@
 import { empty } from "@/lib/rules/define-rules";
 
-import { getRuleIndexes } from "../left-to-right-leftmost/rule-indexes";
+import { getRuleIndexesFromName } from "../left-to-right-leftmost/rule-indexes";
 import { EmptyToken } from "../rules/empty-token";
 import { ReferenceToken } from "../rules/reference-token";
 import { WordToken } from "../rules/word-token";
@@ -96,7 +96,7 @@ export const getFirstSet = (
       }
     } else if (token instanceof ReferenceToken) {
       // もし、他のルールなら、そのルールの文字集合を文字集合に追加する
-      for (const index of getRuleIndexes(syntax, token.name)) {
+      for (const index of getRuleIndexesFromName(syntax, token.name)) {
         const referenceFirstSet = firstSetList[index];
         if (!referenceFirstSet) continue;
 

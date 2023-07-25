@@ -2,10 +2,10 @@ import { expect, test } from "vitest";
 
 import { reference, rule, word } from "@/lib/rules/define-rules";
 
-import { getDirectorSetList } from "../../token-set/director-set-list";
-import { getFirstSetList } from "../../token-set/first-set-list";
-import { getFollowSetList } from "../../token-set/follow-set-list";
-import { isLLSyntax } from "../is-ll-syntax";
+import { getDirectorSetList } from "../../token-set/director-set";
+import { getFirstSetList } from "../../token-set/first-set";
+import { getFollowSetList } from "../../token-set/follow-set";
+import { isValidLLGrammar } from "../is-ll-syntax";
 
 test("valid ll", () => {
   const syntax = [
@@ -20,7 +20,7 @@ test("valid ll", () => {
   const followSetList = getFollowSetList(syntax, firstSetList);
   const directorSetList = getDirectorSetList(firstSetList, followSetList);
 
-  const result = isLLSyntax(syntax, directorSetList);
+  const result = isValidLLGrammar(syntax, directorSetList);
 
   expect(result).toStrictEqual([true, undefined]);
 });
@@ -38,7 +38,7 @@ test("invalid ll", () => {
   const followSetList = getFollowSetList(syntax, firstSetList);
   const directorSetList = getDirectorSetList(firstSetList, followSetList);
 
-  const result = isLLSyntax(syntax, directorSetList);
+  const result = isValidLLGrammar(syntax, directorSetList);
 
   expect(result).toStrictEqual([
     false,

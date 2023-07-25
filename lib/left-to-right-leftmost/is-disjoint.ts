@@ -36,7 +36,7 @@ export const isDisjoint = (left: ObjectSet<DirectorSetToken>, right: ObjectSet<D
  * @param tokens トークン集合
  * @returns それぞれのトークンの１文字目の範囲
  */
-export const firstChars = (tokens: ObjectSet<DirectorSetToken>): [number, number][] => {
+const firstChars = (tokens: ObjectSet<DirectorSetToken>): [number, number][] => {
   const firstChars: [number, number][] = [];
 
   for (const token of tokens) {

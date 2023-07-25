@@ -1,9 +1,9 @@
 import { LLParser } from "../parser/ll-1";
-import { getDirectorSetList } from "../token-set/director-set-list";
-import { getFirstSetList } from "../token-set/first-set-list";
-import { getFollowSetList } from "../token-set/follow-set-list";
+import { getDirectorSetList } from "../token-set/director-set";
+import { getFirstSetList } from "../token-set/first-set";
+import { getFollowSetList } from "../token-set/follow-set";
 
-import { isLLSyntax } from "./is-ll-syntax";
+import { isValidLLGrammar } from "./is-ll-syntax";
 
 import type { Syntax } from "@/lib/rules/define-rules";
 
@@ -17,7 +17,7 @@ export const generateParser = (syntax: Syntax): LLParser => {
   const followSetList = getFollowSetList(syntax, firstSetList);
   const directorSetList = getDirectorSetList(firstSetList, followSetList);
 
-  const error = isLLSyntax(syntax, directorSetList);
+  const error = isValidLLGrammar(syntax, directorSetList);
   if (!error[0]) {
     throw error[1];
   }

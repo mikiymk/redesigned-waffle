@@ -1,8 +1,8 @@
 import { primitiveToString } from "../util/primitive-to-string";
 
-import { getRuleIndexes } from "./rule-indexes";
+import { getRuleIndexesFromName } from "./rule-indexes";
 
-import type { ParseReader, Result } from "../reader/peekable-iterator";
+import type { ParseReader, Result } from "../reader/parse-reader";
 import type { ObjectSet } from "../util/object-set";
 import type { DirectorSetToken, RuleName, Syntax } from "@/lib/rules/define-rules";
 
@@ -21,7 +21,7 @@ export const getMatchRuleIndex = (
   pr: ParseReader,
 ): Result<number> => {
   // 各ルールについてループする
-  for (const ruleIndex of getRuleIndexes(syntax, ruleName)) {
+  for (const ruleIndex of getRuleIndexesFromName(syntax, ruleName)) {
     const tokens = directorSetList[ruleIndex];
 
     if (tokens === undefined) {

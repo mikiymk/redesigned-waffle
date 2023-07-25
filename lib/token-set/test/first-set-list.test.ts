@@ -3,7 +3,7 @@ import { expect, test } from "vitest";
 import { empty, reference, rule, word } from "@/lib/rules/define-rules";
 import { ObjectSet } from "@/lib/util/object-set";
 
-import { getFirstSetList } from "../first-set-list";
+import { getFirstSetList } from "../first-set";
 
 test("終端記号", () => {
   const syntax = [

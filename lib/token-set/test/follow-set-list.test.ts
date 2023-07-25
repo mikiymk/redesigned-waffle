@@ -3,8 +3,8 @@ import { expect, test } from "vitest";
 import { eof, empty, reference, rule, word } from "@/lib/rules/define-rules";
 import { ObjectSet } from "@/lib/util/object-set";
 
-import { getFirstSetList } from "../first-set-list";
-import { getFollowSetList } from "../follow-set-list";
+import { getFirstSetList } from "../first-set";
+import { getFollowSetList } from "../follow-set";
 
 test("１つの記号", () => {
   const syntax = [

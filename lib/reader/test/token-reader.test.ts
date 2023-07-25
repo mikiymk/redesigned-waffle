@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { EOF } from "../peekable-iterator";
+import { EOF } from "../parse-reader";
 import { TokenReaderGen } from "../token-reader";
 
 const TokenReader = new TokenReaderGen([

@@ -1,4 +1,4 @@
-import type { ParseReader, Result } from "../reader/peekable-iterator";
+import type { ParseReader, Result } from "../reader/parse-reader";
 
 export type BaseToken = {
   /**

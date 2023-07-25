@@ -5,15 +5,6 @@ import { primitiveToString } from "../util/primitive-to-string";
 import type { FollowSetToken, LR0ItemToken, Rule, SyntaxToken } from "@/lib/rules/define-rules";
 
 /**
- * 空文字トークン以外かどうか判定します
- * @param token トークン
- * @returns トークンが空文字トークンならfalse
- */
-const isNotEmptyToken = (token: SyntaxToken): token is Exclude<SyntaxToken, EmptyToken> => {
-  return !(token instanceof EmptyToken);
-};
-
-/**
  *
  */
 export class LR0Item {
@@ -45,7 +36,7 @@ export class LR0Item {
   nextToken(): LR0ItemToken | undefined {
     return this.rule[1]
       .slice(this.position)
-      .find((token): token is Exclude<SyntaxToken, EmptyToken> => isNotEmptyToken(token));
+      .find((token): token is Exclude<SyntaxToken, EmptyToken> => !(token instanceof EmptyToken));
   }
 
   /**

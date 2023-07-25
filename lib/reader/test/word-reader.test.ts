@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { EOF } from "../peekable-iterator";
+import { EOF } from "../parse-reader";
 import { WordReader } from "../word-reader";
 
 test("スペース区切りの文字列を読み込む", () => {
