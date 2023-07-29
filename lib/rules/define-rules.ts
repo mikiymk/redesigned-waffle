@@ -2,79 +2,56 @@
  * @file
  */
 
-import { CharToken } from "./char-token";
 import { EmptyToken } from "./empty-token";
 import { EOFToken } from "./eof-token";
 import { ReferenceToken } from "./reference-token";
+import { Rule } from "./rule";
 import { WordToken } from "./word-token";
+
+import type { Tree } from "../parser/tree";
 
 /**
  * 言語の構文
  */
-export type Syntax = Rule[];
+export type Syntax<T> = Rule<T>[];
 
 /**
  * 構文の名前付きルール
  */
 export type RuleName = string | symbol;
-export type Rule = [string | symbol, SyntaxToken[]];
 
-export type SyntaxToken = WordToken | CharToken | ReferenceToken | EmptyToken;
-export type FirstSetToken = WordToken | CharToken | EmptyToken;
-export type FollowSetToken = WordToken | CharToken | EOFToken;
-export type DirectorSetToken = WordToken | CharToken | EOFToken;
-export type LR0ItemToken = WordToken | CharToken | ReferenceToken;
-export type TermToken = WordToken | CharToken;
+export type SyntaxToken = WordToken | ReferenceToken | EmptyToken;
+export type FirstSetToken = WordToken | EmptyToken;
+export type FollowSetToken = WordToken | EOFToken;
+export type DirectorSetToken = WordToken | EOFToken;
+export type LR0ItemToken = WordToken | ReferenceToken;
+export type TermToken = WordToken;
 export type NonTermToken = ReferenceToken;
 
-export type Token = WordToken | CharToken | ReferenceToken | EmptyToken | EOFToken;
+export type Token = WordToken | ReferenceToken | EmptyToken | EOFToken;
 
 /**
  * 構文用のルールを作る
  * @param name ルール名
  * @param tokens ルールのトークン列
+ * @param process 変換する関数
  * @returns ルールオブジェクト（タグ付きタプル）
  */
-export const rule = (name: string, ...tokens: SyntaxToken[]): Rule => {
-  if (name.length === 0) {
-    throw new Error(`name length must 1 or greater. received: "${name}"`);
-  }
-
-  if (tokens.length === 0) {
-    throw new Error(`rule token length must 1 or greater. received: ${tokens.length} items`);
-  }
-
-  if (tokens.includes(empty) && tokens.length !== 1) {
-    throw new Error(`rule token length, including empty tokens, must be 1. received: ${tokens.length} items`);
-  }
-
-  return [name, tokens];
+export const rule: {
+  (name: string, tokens: SyntaxToken[]): Rule<undefined>;
+  <T>(name: string, tokens: SyntaxToken[], process?: (children: Tree<T>[]) => T): Rule<T>;
+} = <T>(name: string, tokens: SyntaxToken[], process?: (children: Tree<T>[]) => T): Rule<T> => {
+  return new Rule(name, tokens, process);
 };
 
 /**
  * 特定のキーワードのトークンを作る
+ * @param type キーワードタイプ
  * @param word キーワード
  * @returns ルール用トークン
  */
-export const word = (word: string): WordToken => {
-  return new WordToken(word);
-};
-
-type StringLength<T extends string, L extends unknown[] = []> = T extends ""
-  ? L["length"]
-  : T extends `${infer F}${infer R}`
-  ? StringLength<R, [F, ...L]>
-  : never;
-type StringChar<T extends string> = StringLength<T> extends 1 ? T : never;
-
-/**
- * 特定のUnicodeコードポイント範囲にある文字のトークンを作る
- * @param min その数を含む最小コードポイント
- * @param max その数を含む最大コードポイント
- * @returns ルール用トークン
- */
-export const char = <T extends string, U extends string>(min: StringChar<T>, max: StringChar<U>): CharToken => {
-  return new CharToken(min, max);
+export const word = (type: string, word: string): WordToken => {
+  return new WordToken(type, word);
 };
 
 /**
@@ -98,10 +75,6 @@ export const eof: EOFToken = new EOFToken();
  * @param rule2 ルール
  * @returns 2つのルールが等しいなら`true`
  */
-export const equalsRule = (rule1: Rule, rule2: Rule): boolean => {
-  return (
-    rule1[0] === rule2[0] &&
-    rule1[1].length === rule2[1].length &&
-    rule1[1].every((value, index) => rule2[1][index]?.equals(value))
-  );
+export const equalsRule = <T>(rule1: Rule<T>, rule2: Rule<T>): boolean => {
+  return rule1.equals(rule2);
 };

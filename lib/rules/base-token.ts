@@ -1,4 +1,4 @@
-import type { EOF, ParseReader, Result } from "../reader/peekable-iterator";
+import type { ParseReader, Result } from "../reader/parse-reader";
 
 export type BaseToken = {
   /**
@@ -46,5 +46,5 @@ export type TerminalToken = {
    * @param char 文字
    * @returns 文字がマッチするか
    */
-  matchFirstChar(char: string | EOF): boolean;
+  matchFirstChar(token: ParseReader): boolean;
 };

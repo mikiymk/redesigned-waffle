@@ -1,7 +1,6 @@
 import { empty } from "@/lib/rules/define-rules";
 
-import { getRuleIndexes } from "../left-to-right-leftmost/rule-indexes";
-import { CharToken } from "../rules/char-token";
+import { getRuleIndexesFromName } from "../left-to-right-leftmost/rule-indexes";
 import { EmptyToken } from "../rules/empty-token";
 import { ReferenceToken } from "../rules/reference-token";
 import { WordToken } from "../rules/word-token";
@@ -14,7 +13,7 @@ import type { FirstSetToken, Syntax, SyntaxToken } from "@/lib/rules/define-rule
  * @param syntax 構文ルールリスト
  * @returns 最初の文字の集合リスト
  */
-export const getFirstSetList = (syntax: Syntax): ObjectSet<FirstSetToken>[] => {
+export const getFirstSetList = <T>(syntax: Syntax<T>): ObjectSet<FirstSetToken>[] => {
   // ルールリストと同じ長さで文字集合リストを作る
   const firstSet = syntax.map(() => new ObjectSet<FirstSetToken>());
 
@@ -47,8 +46,8 @@ export const getFirstSetList = (syntax: Syntax): ObjectSet<FirstSetToken>[] => {
  * @param index 作るルールのインデックス
  * @returns 作った最初の文字集合
  */
-const generateFirstSet = (
-  syntax: Syntax,
+const generateFirstSet = <T>(
+  syntax: Syntax<T>,
   firstSetList: ObjectSet<FirstSetToken>[],
   index: number,
 ): ObjectSet<FirstSetToken> => {
@@ -59,7 +58,7 @@ const generateFirstSet = (
     throw new Error(`rule length is ${syntax.length}, but access index of ${index}`);
   }
 
-  const tokens = rule[1];
+  const tokens = rule.tokens;
 
   firstSet.append(getFirstSet(syntax, firstSetList, tokens));
 
@@ -73,15 +72,15 @@ const generateFirstSet = (
  * @param tokens 作るルールのトークン列
  * @returns 作った最初の文字集合
  */
-export const getFirstSet = (
-  syntax: Syntax,
+export const getFirstSet = <T>(
+  syntax: Syntax<T>,
   firstSetList: ObjectSet<FirstSetToken>[],
   tokens: SyntaxToken[],
 ): ObjectSet<FirstSetToken> => {
   const set = new ObjectSet<FirstSetToken>();
   // ルールから最初のトークンを取り出す
   for (const [index, token] of tokens.entries()) {
-    if (token instanceof WordToken || token instanceof CharToken) {
+    if (token instanceof WordToken) {
       // もし、文字なら、それを文字集合に追加する
       set.add(token);
       return set;
@@ -97,7 +96,7 @@ export const getFirstSet = (
       }
     } else if (token instanceof ReferenceToken) {
       // もし、他のルールなら、そのルールの文字集合を文字集合に追加する
-      for (const index of getRuleIndexes(syntax, token.name)) {
+      for (const index of getRuleIndexesFromName(syntax, token.name)) {
         const referenceFirstSet = firstSetList[index];
         if (!referenceFirstSet) continue;
 

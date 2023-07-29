@@ -5,11 +5,11 @@ import type { RuleName, Syntax } from "@/lib/rules/define-rules";
  * @param syntax 構文りすと
  * @returns ルールの名前の配列
  */
-export const getRuleNames = (syntax: Syntax): RuleName[] => {
+export const getRuleNames = <T>(syntax: Syntax<T>): RuleName[] => {
   const names = new Set<RuleName>();
 
-  for (const [ruleName] of syntax) {
-    names.add(ruleName);
+  for (const { name } of syntax) {
+    names.add(name);
   }
 
   return [...names];

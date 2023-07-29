@@ -1,18 +1,18 @@
 import { expect, test } from "vitest";
 
-import { char, reference, rule, word } from "@/lib/rules/define-rules";
+import { reference, rule, word } from "@/lib/rules/define-rules";
 
-import { getRuleIndexes } from "../rule-indexes";
+import { getRuleIndexesFromName } from "../rule-indexes";
 
 const syntax = [
-  rule("rule1", word("rule"), word("defined")),
-  rule("rule1", char("A", "Z"), reference("rule2")),
-  rule("rule2", word("rule2"), word("defined")),
-  rule("rule2", word("hello"), word("world")),
+  rule("rule1", [word("word", "rule"), word("word", "defined")]),
+  rule("rule1", [reference("rule2")]),
+  rule("rule2", [word("word", "rule2"), word("word", "defined")]),
+  rule("rule2", [word("word", "hello"), word("word", "world")]),
 ];
 
 test("get rule indexes from rule name", () => {
-  const result = getRuleIndexes(syntax, "rule1");
+  const result = getRuleIndexesFromName(syntax, "rule1");
 
   expect(result).toStrictEqual([0, 1]);
 });

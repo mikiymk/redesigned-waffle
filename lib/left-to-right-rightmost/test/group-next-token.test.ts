@@ -15,31 +15,31 @@ import type { Syntax } from "@/lib/rules/define-rules";
 // (3) E → B
 // (4) B → 0
 // (5) B → 1
-const syntax: Syntax = [
-  rule("S", reference("E")),
-  rule("E", reference("E"), word("*"), reference("B")),
-  rule("E", reference("E"), word("+"), reference("B")),
-  rule("E", reference("B")),
-  rule("B", word("0")),
-  rule("B", word("1")),
+const syntax: Syntax<undefined> = [
+  rule("S", [reference("E")]),
+  rule("E", [reference("E"), word("word", "*"), reference("B")]),
+  rule("E", [reference("E"), word("word", "+"), reference("B")]),
+  rule("E", [reference("B")]),
+  rule("B", [word("word", "0")]),
+  rule("B", [word("word", "1")]),
 ];
 
 test("closure test non-terminal", () => {
-  const item = new LR0Item(syntax[0]!);
+  const item = new LR0Item<undefined>(syntax[0]!);
 
   const result = groupByNextToken([item, ...closure(syntax, item)]);
 
-  expect(result).toStrictEqual([
+  expect(result).toEqual([
     [
       reference("E"),
-      new ObjectSet<LR0Item>([
-        new LR0Item(rule("S", reference("E"))),
-        new LR0Item(rule("E", reference("E"), word("*"), reference("B"))),
-        new LR0Item(rule("E", reference("E"), word("+"), reference("B"))),
+      new ObjectSet<LR0Item<undefined>>([
+        new LR0Item(rule("S", [reference("E")])),
+        new LR0Item(rule("E", [reference("E"), word("word", "*"), reference("B")])),
+        new LR0Item(rule("E", [reference("E"), word("word", "+"), reference("B")])),
       ]),
     ],
-    [reference("B"), new ObjectSet<LR0Item>([new LR0Item(rule("E", reference("B")))])],
-    [word("0"), new ObjectSet<LR0Item>([new LR0Item(rule("B", word("0")))])],
-    [word("1"), new ObjectSet<LR0Item>([new LR0Item(rule("B", word("1")))])],
+    [reference("B"), new ObjectSet<LR0Item<undefined>>([new LR0Item(rule("E", [reference("B")]))])],
+    [word("word", "0"), new ObjectSet<LR0Item<undefined>>([new LR0Item(rule("B", [word("word", "0")]))])],
+    [word("word", "1"), new ObjectSet<LR0Item<undefined>>([new LR0Item(rule("B", [word("word", "1")]))])],
   ]);
 });

@@ -1,6 +1,6 @@
 import type { BaseToken, TerminalToken } from "./base-token";
 import type { ReferenceToken } from "./reference-token";
-import type { Result } from "../reader/peekable-iterator";
+import type { Result } from "../reader/parse-reader";
 
 /**
  * 空文字トークン
@@ -59,7 +59,7 @@ export class EmptyToken implements BaseToken, TerminalToken {
    * デバッグ用に出力をします。
    * @param indent インデント数
    */
-  debugPrint(indent: number = 0): void {
+  debugPrint(indent = 0): void {
     const indentSpaces = " ".repeat(indent);
     console.log(indentSpaces, this.toString());
   }

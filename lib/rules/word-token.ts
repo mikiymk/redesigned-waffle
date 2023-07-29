@@ -1,25 +1,29 @@
-import { EOF, get, peek } from "../reader/peekable-iterator";
+import { EOF, get, peek } from "../reader/parse-reader";
+import { primitiveToString } from "../util/primitive-to-string";
 
 import type { BaseToken, TerminalToken } from "./base-token";
 import type { ReferenceToken } from "./reference-token";
-import type { ParseReader, Result } from "../reader/peekable-iterator";
+import type { ParseReader, Result } from "../reader/parse-reader";
 
 /**
  * 文字列トークン
  * キーワードや演算子など
  */
 export class WordToken implements BaseToken, TerminalToken {
+  readonly type;
   readonly word;
 
   /**
    * ワードトークンを作る
+   * @param type ワードタイプ
    * @param word ワード
    */
-  constructor(word: string) {
-    if (word.length === 0) {
+  constructor(type: string, word: string) {
+    if (type.length === 0 || word.length === 0) {
       throw new Error("word must 1 or more characters");
     }
 
+    this.type = type;
     this.word = word;
   }
 
@@ -29,24 +33,26 @@ export class WordToken implements BaseToken, TerminalToken {
    * @returns 読み込んだ文字列
    */
   read(pr: ParseReader): Result<string> {
-    for (const c of this.word) {
-      if (peek(pr) === c) {
-        get(pr);
-      } else {
-        return [false, new Error("not word")];
-      }
-    }
+    const peeked = peek(pr, this.type);
 
-    return [true, this.word];
+    if (peeked === EOF) {
+      return [false, new Error("reach to end")];
+    } else if (peeked.type === this.type && peeked.value === this.word) {
+      get(pr, this.type);
+      return [true, peeked.value];
+    } else {
+      return [false, new Error("not word")];
+    }
   }
 
   /**
-   * 与えられた文字がこのトークンの最初の文字として有効か判定します。
-   * @param char 文字
-   * @returns 文字がマッチするか
+   * 次のトークンがこのトークンにマッチするか判定します。
+   * @param pr リーダー
+   * @returns マッチするか
    */
-  matchFirstChar(char: string | EOF): boolean {
-    return char !== EOF && this.word.startsWith(char);
+  matchFirstChar(pr: ParseReader): boolean {
+    const token = peek(pr, this.type);
+    return token !== EOF && token.type === this.type && token.value === this.word;
   }
 
   /**
@@ -62,7 +68,7 @@ export class WordToken implements BaseToken, TerminalToken {
    * @returns 文字列
    */
   toKeyString(): string {
-    return `w "${this.word.replaceAll('"', '\\"').replaceAll("\\", "\\\\")}"`;
+    return `w ${primitiveToString(this.type)} ${primitiveToString(this.word)}`;
   }
 
   /**
@@ -70,7 +76,7 @@ export class WordToken implements BaseToken, TerminalToken {
    * @returns 文字列
    */
   toString(): string {
-    return `word(${this.word})`;
+    return `word(${this.type}:${this.word})`;
   }
 
   /**
@@ -79,14 +85,14 @@ export class WordToken implements BaseToken, TerminalToken {
    * @returns 等しいなら`true`
    */
   equals(other: BaseToken): boolean {
-    return other instanceof WordToken && other.word === this.word;
+    return other instanceof WordToken && other.type === this.type && other.word === this.word;
   }
 
   /**
    * デバッグ用に出力をします。
    * @param indent インデント数
    */
-  debugPrint(indent: number = 0): void {
+  debugPrint(indent = 0): void {
     const indentSpaces = " ".repeat(indent);
     console.log(indentSpaces, this.toString());
   }

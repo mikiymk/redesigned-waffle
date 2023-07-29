@@ -1,8 +1,7 @@
-import { peek } from "../reader/peekable-iterator";
+import { LRParser } from "../parser/lr-1";
 
-import { generateParseTable } from "./transition-table";
+import { generateParseTable } from "./parse-table";
 
-import type { ParseReader } from "../reader/peekable-iterator";
 import type { Syntax } from "../rules/define-rules";
 
 /**
@@ -10,103 +9,10 @@ import type { Syntax } from "../rules/define-rules";
  * @param syntax 構文ルールリスト
  * @returns パーサー
  */
-export const generateParser = (syntax: Syntax) => {
+export const generateParser = <T>(syntax: Syntax<T>) => {
   const table = generateParseTable(syntax);
 
-  for (const [index, row] of table.entries()) {
-    console.log("rule", index);
-    console.log(row.printDebugInfo());
-  }
+  table.printDebug();
 
-  return (pr: ParseReader) => {
-    const output: (number | string)[] = [];
-    const stack = [0];
-
-    parse_loop: for (;;) {
-      const nextChar = peek(pr);
-
-      const state = stack.at(-1) ?? 0;
-      const [action, parameter, token] = table[state]?.getMatch(nextChar) ?? ["error"];
-
-      console.log("stack:   ", stack);
-      console.log("peek:    ", nextChar);
-      console.log("action:  ", action, parameter);
-      console.log("output:  ", output);
-      console.log();
-
-      switch (action) {
-        case "shift": {
-          const [ok, word] = token.read(pr);
-          if (!ok) {
-            return [false, word];
-          }
-
-          output.push(word);
-          stack.push(parameter);
-          break;
-        }
-
-        case "reduce": {
-          output.push(parameter);
-          const rule = syntax[parameter];
-          if (rule === undefined) {
-            return [];
-          }
-
-          const [name, tokens] = rule;
-          for (const _ of tokens) {
-            stack.pop();
-          }
-
-          const reduceState = stack.at(-1);
-          if (reduceState === undefined) {
-            return [];
-          }
-
-          const newState = table[reduceState]?.getGoto(name);
-          if (newState === undefined) {
-            return [];
-          }
-
-          stack.push(newState);
-          break;
-        }
-
-        case "accept": {
-          break parse_loop;
-        }
-
-        default: {
-          return [false, new Error("nomatch input")];
-        }
-      }
-    }
-
-    console.log("parse end");
-
-    // 規則適用列から構文木に変換する
-    type Tree = string | { index: number; children: Tree[] };
-    const tree: Tree[] = [];
-
-    for (const index of [...output, 0]) {
-      if (typeof index === "number") {
-        const tokens = syntax[index]?.[1];
-
-        if (tokens) {
-          tree.push({
-            index,
-            children: tree.splice(-tokens.length, tokens.length),
-          });
-        }
-      } else {
-        tree.push(index);
-      }
-    }
-
-    if (tree.length === 1) {
-      return [true, tree[0]];
-    }
-
-    return [false, new Error("cannot construct syntax tree")];
-  };
+  return new LRParser(syntax, table);
 };

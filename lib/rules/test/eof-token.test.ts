@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import { CharReader } from "@/lib/reader/char-reader";
-import { EOF } from "@/lib/reader/peekable-iterator";
+import { WordReader } from "@/lib/reader/word-reader";
 
 import { EOFToken } from "../eof-token";
 import { WordToken } from "../word-token";
@@ -38,13 +38,15 @@ describe("#matchFirstChar", () => {
   const token = new EOFToken();
 
   test("文字", () => {
-    const result = token.matchFirstChar("w");
+    const pr = new WordReader(" word ");
+    const result = token.matchFirstChar(pr);
 
     expect(result).toBe(false);
   });
 
   test("文字列の終端", () => {
-    const result = token.matchFirstChar(EOF);
+    const pr = new WordReader(" ");
+    const result = token.matchFirstChar(pr);
 
     expect(result).toBe(true);
   });
@@ -86,7 +88,7 @@ describe("#equal", () => {
 
   test("違うクラス", () => {
     const token1 = new EOFToken();
-    const token2 = new WordToken("word");
+    const token2 = new WordToken("word", "word");
 
     const result = token1.equals(token2);
 
