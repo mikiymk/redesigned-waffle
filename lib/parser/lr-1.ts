@@ -1,5 +1,5 @@
 import type { Tree } from "./tree";
-import type { ParseTableRow } from "../left-to-right-rightmost/parse-table-row";
+import type { ParseTable } from "../left-to-right-rightmost/parse-table";
 import type { ParseReader, Result } from "../reader/parse-reader";
 import type { Syntax } from "../rules/define-rules";
 
@@ -8,14 +8,14 @@ import type { Syntax } from "../rules/define-rules";
  */
 export class LRParser<T> {
   grammar: Syntax<T>;
-  table: ParseTableRow<T>[];
+  table: ParseTable<T>;
 
   /**
    * LRパーサーを作成する
    * @param grammar 文法
    * @param table 構文解析表
    */
-  constructor(grammar: Syntax<T>, table: ParseTableRow<T>[]) {
+  constructor(grammar: Syntax<T>, table: ParseTable<T>) {
     this.grammar = grammar;
     this.table = table;
   }
@@ -84,7 +84,7 @@ export class LRParser<T> {
 
     for (;;) {
       const state = stack.at(-1) ?? 0;
-      const [action, parameter, token] = this.table[state]?.getMatch(pr) ?? ["error"];
+      const [action, parameter, token] = this.table.match(state, pr);
 
       switch (action) {
         case "shift": {
@@ -115,9 +115,9 @@ export class LRParser<T> {
             return [false, new Error("error")];
           }
 
-          const newState = this.table[reduceState]?.getGoto(name);
-          if (newState === undefined) {
-            return [false, new Error("error")];
+          const [ok, newState] = this.table.gotoState(reduceState, name);
+          if (!ok) {
+            return [false, newState];
           }
 
           stack.push(newState);

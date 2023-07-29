@@ -21,7 +21,7 @@ import type {
   TermToken,
 } from "../rules/define-rules";
 
-type MatchResult = ["reduce", number] | ["shift", number, TermToken] | ["accept"] | ["error"];
+export type MatchResult = ["reduce", number] | ["shift", number, TermToken] | ["accept"] | ["error"];
 
 /**
  *
@@ -105,6 +105,38 @@ export class ParseTableRow<T> {
     }
 
     this.#collected = true;
+  }
+
+  /**
+   *
+   * @returns Reduceリスト
+   */
+  reduce(): [ObjectSet<DirectorSetToken>, number][] {
+    return this.#reduce;
+  }
+
+  /**
+   *
+   * @returns Acceptリスト
+   */
+  accept(): boolean {
+    return this.#accept;
+  }
+
+  /**
+   *
+   * @returns Shiftリスト
+   */
+  shift(): [TermToken, number][] {
+    return this.#shift;
+  }
+
+  /**
+   *
+   * @returns Gotoリスト
+   */
+  goto(): [NonTermToken, number][] {
+    return this.#goto;
   }
 
   /**

@@ -12,10 +12,7 @@ import type { Syntax } from "../rules/define-rules";
 export const generateParser = <T>(syntax: Syntax<T>) => {
   const table = generateParseTable(syntax);
 
-  for (const [index, row] of table.entries()) {
-    console.log("rule", index);
-    row.printDebugInfo();
-  }
+  table.printDebug();
 
   return new LRParser(syntax, table);
 };
