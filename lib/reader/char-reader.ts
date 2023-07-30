@@ -22,9 +22,9 @@ export class CharReader implements ParseReader {
    * 次の文字を読み、進める
    * @returns 文字列の終わりになったらEOFシンボル
    */
-  next(): IteratorResult<CharToken, EOF> {
+  read(): CharToken | EOF {
     const next = this.peek();
-    if (!next.done) this.position++;
+    if (next !== EOF) this.position++;
     return next;
   }
 
@@ -32,19 +32,13 @@ export class CharReader implements ParseReader {
    * 次の文字を読む
    * @returns 文字列の終わりになったらEOFシンボル
    */
-  peek(): IteratorResult<CharToken, EOF> {
+  peek(): CharToken | EOF {
     const char = this.source[this.position];
     return char === undefined
-      ? {
-          done: true,
-          value: EOF,
-        }
+      ? EOF
       : {
-          done: false,
-          value: {
-            type: "char",
-            value: char,
-          },
+          type: "char",
+          value: char,
         };
   }
 }
