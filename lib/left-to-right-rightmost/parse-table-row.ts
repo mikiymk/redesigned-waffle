@@ -1,4 +1,3 @@
-import { EOF, peek } from "../reader/parse-reader";
 import { equalsRule } from "../rules/define-rules";
 import { ReferenceToken } from "../rules/reference-token";
 import { getFirstSetList } from "../token-set/first-set";

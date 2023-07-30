@@ -33,12 +33,12 @@ export class WordToken implements BaseToken, TerminalToken {
    * @returns 読み込んだ文字列
    */
   read(pr: ParseReader): Result<string> {
-    const peeked = peek(pr, this.type);
+    const peeked = peek(pr);
 
     if (peeked === EOF) {
       return [false, new Error("reach to end")];
     } else if (peeked.type === this.type && peeked.value === this.word) {
-      get(pr, this.type);
+      get(pr);
       return [true, peeked.value];
     } else {
       return [false, new Error("not word")];
@@ -51,7 +51,7 @@ export class WordToken implements BaseToken, TerminalToken {
    * @returns マッチするか
    */
   matchFirstChar(pr: ParseReader): boolean {
-    const token = peek(pr, this.type);
+    const token = peek(pr);
     return token !== EOF && token.type === this.type && token.value === this.word;
   }
 

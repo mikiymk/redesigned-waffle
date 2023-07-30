@@ -1,6 +1,5 @@
 import { eof } from "@/lib/rules/define-rules";
 
-import { peek, EOF } from "../reader/parse-reader";
 import { getDirectorSetList } from "../token-set/director-set";
 import { getFirstSetList } from "../token-set/first-set";
 import { getFollowSetList } from "../token-set/follow-set";
