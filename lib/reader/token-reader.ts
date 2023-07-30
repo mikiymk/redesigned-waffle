@@ -106,10 +106,19 @@ class TokenReader implements ParseReader {
       return { done: false, value: value };
     }
 
-    this.cache[type] = EOF;
+    const value = this.source[this.position];
+
+    if (value === undefined) {
+      this.cache[type] = EOF;
+      return {
+        done: true,
+        value: EOF,
+      };
+    }
+
     return {
-      done: true,
-      value: EOF,
+      done: false,
+      value: (this.cache[type] = { type, value }),
     };
   }
 }

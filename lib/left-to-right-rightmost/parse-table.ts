@@ -89,7 +89,7 @@ export const generateParseTable = <T>(syntax: Syntax<T>): ParseTable<T> => {
  */
 export class ParseTable<T> {
   reduce: [ObjectSet<DirectorSetToken>, number][][] = [];
-  accept: boolean[] = [];
+  accept: [ObjectSet<DirectorSetToken>, number][][] = [];
   shift: [TermToken, number][][] = [];
   goto: [ReferenceToken, number][][] = [];
 
@@ -113,8 +113,13 @@ export class ParseTable<T> {
    * @returns 構文解析表のマッチ結果
    */
   match(state: number, pr: ParseReader): MatchResult {
-    if (this.accept[state] && peek(pr, "eof") === EOF) {
-      return ["accept"];
+    // reduceを調べる
+    for (const [set, _] of this.accept[state] ?? []) {
+      for (const token of set) {
+        if (token.matchFirstChar(pr)) {
+          return ["accept"];
+        }
+      }
     }
 
     // reduceを調べる
@@ -185,8 +190,11 @@ export class ParseTable<T> {
           console.log("   ", token.toKeyString(), "→", number);
         }
       }
-      if (accept) {
-        console.log("  accept:", accept);
+      if (accept.length > 0) {
+        console.log("  accept:");
+        for (const [token, number] of accept) {
+          console.log("   ", token.toKeyString(), "→", number);
+        }
       }
 
       console.log();
