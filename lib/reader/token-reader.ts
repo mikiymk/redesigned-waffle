@@ -14,7 +14,7 @@ export class TokenReaderGen {
    */
   constructor(tokenRules: [type: string, pattern: string][]) {
     this.rules = tokenRules.map(([type, pattern]) => {
-      const regexp = new RegExp(pattern, "g");
+      const regexp = new RegExp(pattern, "y");
       return [
         type,
         (source: string, position: number): string | undefined => {
