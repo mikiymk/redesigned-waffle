@@ -12,7 +12,7 @@ test("disjoint word", () => {
 
   const result = isDisjoint(tokenSet1, tokenSet2);
 
-  expect(result).toBe(false);
+  expect(result).toBe(true);
 });
 
 test("not disjoint word", () => {

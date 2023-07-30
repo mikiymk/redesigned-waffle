@@ -21,66 +21,151 @@ describe("#constructor", () => {
   test("制御文字が含まれる文字列", () => {
     expect(() => new WordToken("word", "\0")).not.toThrow();
   });
+
+  test("単語を指定しない", () => {
+    expect(() => new WordToken("word", undefined)).not.toThrow();
+  });
 });
 
 describe("#read", () => {
-  const token = new WordToken("word", "word");
+  describe("ワード指定あり", () => {
+    const token = new WordToken("word", "word");
 
-  test("同じ文字列", () => {
-    const pr = new WordReader("word");
+    test("同じ文字列", () => {
+      const pr = new WordReader("word");
 
-    const result = token.read(pr);
+      const result = token.read(pr);
 
-    expect(result).toEqual([true, "word"]);
+      expect(result).toEqual([true, "word"]);
+    });
+
+    test("違う文字列", () => {
+      const pr = new WordReader("toast");
+
+      const result = token.read(pr);
+
+      expect(result).toEqual([false, new Error("not word")]);
+    });
+
+    test("追加の文字", () => {
+      const pr = new WordReader("wordy");
+
+      const result = token.read(pr);
+
+      expect(result).toEqual([false, new Error("not word")]);
+    });
+
+    test("短い文字列", () => {
+      const pr = new WordReader("wor");
+
+      const result = token.read(pr);
+
+      expect(result).toEqual([false, new Error("not word")]);
+    });
+
+    test("空文字列", () => {
+      const pr = new WordReader("");
+
+      const result = token.read(pr);
+
+      expect(result).toEqual([false, new Error("reach to end")]);
+    });
   });
 
-  test("違う文字列", () => {
-    const pr = new WordReader("toast");
+  describe("ワード指定なし", () => {
+    const token = new WordToken("word", undefined);
 
-    const result = token.read(pr);
+    test("同じ文字列", () => {
+      const pr = new WordReader("word");
 
-    expect(result).toEqual([false, new Error("not word")]);
-  });
+      const result = token.read(pr);
 
-  test("追加の文字", () => {
-    const pr = new WordReader("wordy");
+      expect(result).toEqual([true, "word"]);
+    });
 
-    const result = token.read(pr);
+    test("違う文字列", () => {
+      const pr = new WordReader("toast");
 
-    expect(result).toEqual([false, new Error("not word")]);
-  });
+      const result = token.read(pr);
 
-  test("短い文字列", () => {
-    const pr = new WordReader("wor");
+      expect(result).toEqual([true, "toast"]);
+    });
 
-    const result = token.read(pr);
+    test("追加の文字", () => {
+      const pr = new WordReader("wordy");
 
-    expect(result).toEqual([false, new Error("not word")]);
+      const result = token.read(pr);
+
+      expect(result).toEqual([true, "wordy"]);
+    });
+
+    test("短い文字列", () => {
+      const pr = new WordReader("wor");
+
+      const result = token.read(pr);
+
+      expect(result).toEqual([true, "wor"]);
+    });
+
+    test("空文字列", () => {
+      const pr = new WordReader("");
+
+      const result = token.read(pr);
+
+      expect(result).toEqual([false, new Error("reach to end")]);
+    });
   });
 });
 
 describe("#matchFirstChar", () => {
-  const token = new WordToken("word", "word");
+  describe("ワード指定あり", () => {
+    const token = new WordToken("word", "word");
 
-  test("先頭の文字", () => {
-    const pr = new WordReader(" word ");
-    const result = token.matchFirstChar(pr);
+    test("先頭の文字", () => {
+      const pr = new WordReader(" word ");
+      const result = token.matchFirstChar(pr);
 
-    expect(result).toBe(true);
+      expect(result).toBe(true);
+    });
+
+    test("違う文字", () => {
+      const pr = new WordReader(" group ");
+      const result = token.matchFirstChar(pr);
+
+      expect(result).toBe(false);
+    });
+
+    test("文字列の終端", () => {
+      const pr = new WordReader(" ");
+      const result = token.matchFirstChar(pr);
+
+      expect(result).toBe(false);
+    });
   });
 
-  test("違う文字", () => {
-    const pr = new WordReader(" group ");
-    const result = token.matchFirstChar(pr);
+  describe("ワード指定なし", () => {
+    const token = new WordToken("word", undefined);
 
-    expect(result).toBe(false);
-  });
+    test("先頭の文字", () => {
+      const pr = new WordReader(" word ");
+      const result = token.matchFirstChar(pr);
 
-  test("文字列の終端", () => {
-    const pr = new WordReader(" ");
-    const result = token.matchFirstChar(pr);
+      expect(result).toBe(true);
+    });
 
-    expect(result).toBe(false);
+    test("違う文字", () => {
+      const pr = new WordReader(" group ");
+      const result = token.matchFirstChar(pr);
+
+      expect(result).toBe(true);
+    });
+
+    test("文字列の終端", () => {
+      const pr = new WordReader(" ");
+      const result = token.matchFirstChar(pr);
+
+      expect(result).toBe(false);
+    });
   });
 });
 
