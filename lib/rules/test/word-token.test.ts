@@ -44,7 +44,7 @@ describe("#read", () => {
 
       const result = token.read(pr);
 
-      expect(result).toEqual([false, new Error("not word")]);
+      expect(result).toEqual([false, new Error("toastは単語とマッチしません。")]);
     });
 
     test("追加の文字", () => {
@@ -52,7 +52,7 @@ describe("#read", () => {
 
       const result = token.read(pr);
 
-      expect(result).toEqual([false, new Error("not word")]);
+      expect(result).toEqual([false, new Error("wordyは単語とマッチしません。")]);
     });
 
     test("短い文字列", () => {
@@ -60,7 +60,7 @@ describe("#read", () => {
 
       const result = token.read(pr);
 
-      expect(result).toEqual([false, new Error("not word")]);
+      expect(result).toEqual([false, new Error("worは単語とマッチしません。")]);
     });
 
     test("空文字列", () => {
@@ -68,7 +68,7 @@ describe("#read", () => {
 
       const result = token.read(pr);
 
-      expect(result).toEqual([false, new Error("reach to end")]);
+      expect(result).toEqual([false, new Error("文字列の終端に到達しました。")]);
     });
   });
 
@@ -112,7 +112,7 @@ describe("#read", () => {
 
       const result = token.read(pr);
 
-      expect(result).toEqual([false, new Error("reach to end")]);
+      expect(result).toEqual([false, new Error("文字列の終端に到達しました。")]);
     });
   });
 });

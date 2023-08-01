@@ -28,8 +28,12 @@ const cases: [ParseToken | EOF, ParseReader, Result<number>][] = [
   [{ type: "word", value: "word" }, new WordReader(" word "), [true, 1]],
   [{ type: "word", value: "code" }, new WordReader(" code "), [true, 2]],
   [{ type: "word", value: "ambitious" }, new WordReader(" ambitious "), [true, 3]],
-  [{ type: "word", value: "forest" }, new WordReader(" forest "), [false, new Error('no rule "S" matches')]],
-  [EOF, new WordReader(" "), [false, new Error('no rule "S" matches')]],
+  [
+    { type: "word", value: "forest" },
+    new WordReader(" forest "),
+    [false, new Error('次の入力にマッチするルール(ルール名:"S")が見つかりませんでした。')],
+  ],
+  [EOF, new WordReader(" "), [false, new Error('次の入力にマッチするルール(ルール名:"S")が見つかりませんでした。')]],
 ];
 
 test.each(cases)("matches %s", (_code, pr, expected) => {
