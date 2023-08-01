@@ -2,7 +2,7 @@ import { expect, test } from "vitest";
 
 import { reference, rule, word } from "@/lib/rules/define-rules";
 
-import { getRuleIndexesFromName } from "../rule-indexes";
+import { eachRules } from "../rule-indexes";
 
 const syntax = [
   rule("rule1", [word("word", "rule"), word("word", "defined")]),
@@ -12,7 +12,13 @@ const syntax = [
 ];
 
 test("get rule indexes from rule name", () => {
-  const result = getRuleIndexesFromName(syntax, "rule1");
+  const result = eachRules(syntax, "rule1", [
+    ["rule1", "rule1", "rule2", "rule2"],
+    [0, 1, 2, 3],
+  ]);
 
-  expect(result).toStrictEqual([0, 1]);
+  expect(result).toStrictEqual([
+    [0, ["rule1", 0]],
+    [1, ["rule1", 1]],
+  ]);
 });

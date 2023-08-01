@@ -1,6 +1,6 @@
 import { eof, empty } from "@/lib/rules/define-rules";
 
-import { getRuleIndexesFromName } from "../left-to-right-leftmost/rule-indexes";
+import { eachRules } from "../left-to-right-leftmost/rule-indexes";
 import { ObjectSet } from "../util/object-set";
 
 import { getFirstSet } from "./first-set";
@@ -76,24 +76,20 @@ const generateFollowSet = <T>(
       const followFirstSet = getFirstSet(syntax, firstSetList, follows);
 
       // その非終端記号のフォロー集合に追加する
-      for (const ruleIndex of getRuleIndexesFromName(syntax, token.name)) {
-        const referenceFollowSet = followSetList[ruleIndex];
+      for (const [_, [referenceFollowSet]] of eachRules(syntax, token.name, [followSetList])) {
+        const length = referenceFollowSet.size;
 
-        if (referenceFollowSet !== undefined) {
-          const length = referenceFollowSet.size;
+        // 空を除いた集合を追加する
+        referenceFollowSet.append(followFirstSet.difference(new ObjectSet([empty])));
 
-          // 空を除いた集合を追加する
-          referenceFollowSet.append(followFirstSet.difference(new ObjectSet([empty])));
+        // 空が含まれるなら、このルールのフォロー集合を追加する
+        if (followFirstSet.has(empty)) {
+          referenceFollowSet.append(followSet);
+        }
 
-          // 空が含まれるなら、このルールのフォロー集合を追加する
-          if (followFirstSet.has(empty)) {
-            referenceFollowSet.append(followSet);
-          }
-
-          // 長さが変わったことを検出する
-          if (length !== referenceFollowSet.size) {
-            updated = true;
-          }
+        // 長さが変わったことを検出する
+        if (length !== referenceFollowSet.size) {
+          updated = true;
         }
       }
     }

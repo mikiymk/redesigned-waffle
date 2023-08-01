@@ -1,5 +1,5 @@
 import { isDisjoint } from "./is-disjoint";
-import { getRuleIndexesFromName } from "./rule-indexes";
+import { eachRules } from "./rule-indexes";
 import { getRuleNames } from "./rule-names";
 
 import type { Result } from "../reader/parse-reader";
@@ -17,16 +17,9 @@ export const isValidLLGrammar = <T>(
   directorSetList: ObjectSet<DirectorSetToken>[],
 ): Result<undefined> => {
   for (const name of getRuleNames(syntax)) {
-    for (const left of getRuleIndexesFromName(syntax, name)) {
-      for (const right of getRuleIndexesFromName(syntax, name)) {
+    for (const [left, [leftRule]] of eachRules(syntax, name, [directorSetList])) {
+      for (const [right, [rightRule]] of eachRules(syntax, name, [directorSetList])) {
         if (left === right) continue;
-
-        const leftRule = directorSetList[left];
-        const rightRule = directorSetList[right];
-
-        if (leftRule === undefined || rightRule === undefined) {
-          return [false, new Error(`director set does not support syntax list`)];
-        }
 
         if (!isDisjoint(leftRule, rightRule)) {
           return [
