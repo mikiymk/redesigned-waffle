@@ -1,6 +1,6 @@
 import { empty } from "@/lib/rules/define-rules";
 
-import { getRuleIndexesFromName } from "../left-to-right-leftmost/rule-indexes";
+import { eachRules } from "../left-to-right-leftmost/rule-indexes";
 import { EmptyToken } from "../rules/empty-token";
 import { ReferenceToken } from "../rules/reference-token";
 import { WordToken } from "../rules/word-token";
@@ -55,7 +55,7 @@ const generateFirstSet = <T>(
   const firstSet = firstSetList[index];
 
   if (!firstSet || !rule) {
-    throw new Error(`rule length is ${syntax.length}, but access index of ${index}`);
+    throw new Error(`文法のルール数:${syntax.length}ですが、${index}個目の要素にアクセスしようとしました。`);
   }
 
   const tokens = rule.tokens;
@@ -96,10 +96,7 @@ export const getFirstSet = <T>(
       }
     } else if (token instanceof ReferenceToken) {
       // もし、他のルールなら、そのルールの文字集合を文字集合に追加する
-      for (const index of getRuleIndexesFromName(syntax, token.name)) {
-        const referenceFirstSet = firstSetList[index];
-        if (!referenceFirstSet) continue;
-
+      for (const [_, [referenceFirstSet]] of eachRules(syntax, token.name, [firstSetList])) {
         for (const token of referenceFirstSet) {
           set.add(token);
         }

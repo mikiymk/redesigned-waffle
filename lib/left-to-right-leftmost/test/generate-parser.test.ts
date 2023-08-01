@@ -67,6 +67,9 @@ describe("parsing", () => {
 
     const result = parser.parse(new CharReader(source));
 
-    expect(result).toStrictEqual([false, new Error('no rule "F" matches')]);
+    expect(result).toStrictEqual([
+      false,
+      new Error('次の入力にマッチするルール(ルール名:"F")が見つかりませんでした。'),
+    ]);
   });
 });

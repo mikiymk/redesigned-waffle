@@ -81,7 +81,7 @@ export class ParseTableRow<T> {
         const ruleNumber = this.#syntax.findIndex((rule) => equalsRule(item.rule, rule));
 
         if (ruleNumber === -1) {
-          throw new Error("item is not in grammar");
+          throw new Error(`ルール[${item.rule.toString()}]は文法の中にありません。`);
         }
 
         if (ruleNumber === 0) {
@@ -192,7 +192,7 @@ export class ParseTableRow<T> {
     }
 
     throw new Error(
-      `not goto ${primitiveToString(nonTermName)} in ${this.gotoMap
+      `ルール名:${primitiveToString(nonTermName)}はGotoテーブルに見つかりませんでした。 ${this.gotoMap
         .map(([t, n]) => `${t.toString()}→${n}`)
         .join(", ")}`,
     );

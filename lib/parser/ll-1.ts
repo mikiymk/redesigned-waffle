@@ -47,14 +47,14 @@ export class LLParser<T> {
       const token = stack.pop();
 
       if (token === undefined) {
-        return [false, new Error("invalid sequence")];
+        return [false, new Error(`スタックが空になりました。 出力: [${output.join(", ")}]`)];
       } else if (token instanceof EOFToken) {
         // EOFなら読み込みを終了する
         if (token.matchFirstChar(pr)) {
           break;
         }
 
-        return [false, new Error("leftover string")];
+        return [false, new Error(`文字列の終端が期待されましたが、読んでいない残りの文字列があります。`)];
       } else if (token instanceof ReferenceToken) {
         // 非終端記号の場合
         const [ok, ruleIndex] = getMatchRuleIndex(this.grammar, this.directorSetList, token.name, pr);

@@ -51,7 +51,10 @@ export class LRParser<T> {
     }
 
     if (!iteratorResult.value[0]) {
-      return [false, iteratorResult.value[1]];
+      return [
+        false,
+        new Error(`パース中にエラーが発生しました。 ${treeToString(tree)}`, { cause: iteratorResult.value[1] }),
+      ];
     }
 
     const rule = this.grammar[0];
@@ -70,7 +73,7 @@ export class LRParser<T> {
       }
     }
 
-    return [false, new Error("cannot construct syntax tree")];
+    return [false, new Error(`正しい構文木が構築されませんでした。 ${treeToString(tree)}`)];
   }
 
   /**
@@ -102,7 +105,7 @@ export class LRParser<T> {
           yield parameter;
           const rule = this.grammar[parameter];
           if (rule === undefined) {
-            return [false, new Error("error")];
+            return [false, new Error(`Reduce操作先が無効なルール番号です。 ${parameter}`)];
           }
 
           const { name, tokens } = rule;
@@ -112,7 +115,7 @@ export class LRParser<T> {
 
           const reduceState = stack.at(-1);
           if (reduceState === undefined) {
-            return [false, new Error("error")];
+            return [false, new Error(`スタックが空になりました。 Reduce:${parameter}`)];
           }
 
           const [ok, newState] = this.table.gotoState(reduceState, name);
@@ -129,9 +132,27 @@ export class LRParser<T> {
         }
 
         default: {
-          return [false, new Error("nomatch input")];
+          return [false, new Error("入力に合う文字列がありませんでした。")];
         }
       }
     }
   }
 }
+
+/**
+ * 構文木を文字列にします。
+ * @param tree 構文木オブジェクト
+ * @returns 文字列表現
+ */
+const treeToString = <T>(tree: Tree<T>[]): string => {
+  const result = [];
+  for (const t of tree) {
+    if (typeof t === "string") {
+      result.push(t);
+    } else {
+      result.push(`${t.index}: [ ${treeToString(t.children)} ]`);
+    }
+  }
+
+  return result.join(", ");
+};

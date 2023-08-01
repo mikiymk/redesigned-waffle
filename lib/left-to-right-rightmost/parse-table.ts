@@ -27,7 +27,7 @@ export const generateParseTable = <T>(syntax: Syntax<T>): ParseTable<T> => {
   // S → E $ であり、Sは他のいずれのルールでも右辺に登場しません。
   const firstRule = syntax[0];
   if (firstRule === undefined) {
-    throw new Error("syntax needs 1 or more rules");
+    throw new Error("文法は１つ以上のルールが必要です。");
   }
 
   const firstSet = getFirstSetList(syntax);
@@ -156,7 +156,7 @@ export class ParseTable<T> {
     return [
       false,
       new Error(
-        `not goto ${primitiveToString(name)} in ${(this.goto[state] ?? [])
+        `ルール名:${primitiveToString(name)}はGotoテーブルに見つかりませんでした。 ${(this.goto[state] ?? [])
           .map(([t, n]) => `${t.toString()}→${n}`)
           .join(", ")}`,
       ),

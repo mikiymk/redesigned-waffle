@@ -20,7 +20,7 @@ export class WordToken implements BaseToken, TerminalToken {
    */
   constructor(type: string, word?: string | undefined) {
     if (type.length === 0 || word?.length === 0) {
-      throw new Error("word must 1 or more characters");
+      throw new Error("単語と種類は１文字以上である必要があります。");
     }
 
     this.type = type;
@@ -36,12 +36,12 @@ export class WordToken implements BaseToken, TerminalToken {
     const peeked = peek(pr);
 
     if (peeked === EOF) {
-      return [false, new Error("reach to end")];
+      return [false, new Error("文字列の終端に到達しました。")];
     } else if (peeked.type === this.type && (undefined === this.word || peeked.value === this.word)) {
       get(pr);
       return [true, peeked.value];
     } else {
-      return [false, new Error("not word")];
+      return [false, new Error(`${peeked.value}は単語とマッチしません。`)];
     }
   }
 
