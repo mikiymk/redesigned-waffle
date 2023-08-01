@@ -6,6 +6,8 @@ import { empty, reference, rule, word } from "@/lib/rules/define-rules";
 
 import type { Tree, TreeBranch } from "@/lib/parser/tree";
 
+type JsonValue = null | boolean | number | string | JsonValue[] | { [x: string]: JsonValue };
+
 const reader = new TokenReaderGen([
   ["true", "true"],
   ["false", "false"],
@@ -21,10 +23,10 @@ const reader = new TokenReaderGen([
   ["0", "0"],
   ["onenine", "[1-9]"],
   ["character", '[ -!#-[\\]-\uFFFF]|\\["\\/bfnrt]|\\u[0-9a-fA-F]{4}'],
-  ["ws", "[ \t\r\n]+"],
+  ["ws", "[ \t\r\n]*"],
 ]);
 
-const parser = generateLRParser<number>([
+const parser = generateLRParser<JsonValue>([
   rule("json", [reference("element")], ([add]) => tree(add).processed),
 
   rule("value", [reference("object")], ([add]) => tree(add).processed),
