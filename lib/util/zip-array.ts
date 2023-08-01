@@ -3,7 +3,7 @@
  * @param arrays 配列リスト。長さを揃える
  * @yields 各配列の同じ添字の要素のタプル
  */
-export const zip = function* <T extends unknown[][]>(
+export const zip = function* <T extends readonly (readonly unknown[])[]>(
   ...arrays: T
 ): Generator<[number, ...{ [K in keyof T]: T[K][number] }]> {
   const firstArray = arrays[0];

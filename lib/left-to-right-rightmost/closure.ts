@@ -1,4 +1,4 @@
-import { getRuleIndexesFromName } from "../left-to-right-leftmost/rule-indexes";
+import { eachRules } from "../left-to-right-leftmost/rule-indexes";
 import { ReferenceToken } from "../rules/reference-token";
 
 import { LR0Item } from "./lr0-item";
@@ -41,12 +41,8 @@ const expansionItems = <T>(
 
   const items: LR0Item<T>[] = [];
 
-  for (const index of getRuleIndexesFromName(syntax, ruleName)) {
+  for (const [_, [rule]] of eachRules(syntax, ruleName, [syntax])) {
     // 各ルールについて実行する
-    const rule = syntax[index];
-    if (rule === undefined) {
-      throw new Error("no match rule and syntax");
-    }
 
     items.push(new LR0Item(rule));
 
