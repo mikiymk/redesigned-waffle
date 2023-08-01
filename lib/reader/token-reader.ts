@@ -14,7 +14,7 @@ export class TokenReaderGen {
    */
   constructor(tokenRules: [type: string, pattern: string][]) {
     this.rules = tokenRules.map(([type, pattern]) => {
-      const regexp = new RegExp(pattern, "g");
+      const regexp = new RegExp(pattern, "y");
       return [
         type,
         (source: string, position: number): string | undefined => {
@@ -43,7 +43,7 @@ class TokenReader implements ParseReader {
   readonly rules;
   position = 0;
 
-  cache: Record<string, ParseToken | EOF> = {};
+  cache: ParseToken | EOF | undefined;
 
   /**
    * 文字列から読み込み用オブジェクトを作成します。
@@ -60,37 +60,27 @@ class TokenReader implements ParseReader {
 
   /**
    * 次の文字を読み、進める
-   * @param type タイプ情報
    * @returns 文字列の終わりになったらEOFシンボル
    */
-  next(type: string): IteratorResult<ParseToken, EOF> {
-    const next = this.peek(type);
-    if (!next.done) {
-      this.position += next.value.value.length;
-      this.cache = {};
+  read(): ParseToken | EOF {
+    const next = this.peek();
+    if (next !== EOF) {
+      this.position += next.value.length;
+      this.cache = undefined;
     }
     return next;
   }
 
   /**
    * 次の文字を読む
-   * @param type タイプ情報
    * @returns 文字列の終わりになったらEOFシンボル
    */
-  peek(type: string): IteratorResult<ParseToken, EOF> {
-    if (type in this.cache) {
-      const value = this.cache[type];
-
-      if (value === EOF) {
-        return { done: true, value };
-      } else if (value) {
-        return { done: false, value };
-      }
+  peek(): ParseToken | EOF {
+    if (this.cache !== undefined) {
+      return this.cache;
     }
 
     for (const [ruleType, rulePattern] of this.rules) {
-      if (type !== ruleType) continue;
-
       const matchResult = rulePattern(this.source, this.position);
 
       console.log(ruleType, rulePattern, matchResult);
@@ -102,14 +92,17 @@ class TokenReader implements ParseReader {
         value: matchResult,
       };
 
-      this.cache[type] = value;
-      return { done: false, value: value };
+      this.cache = value;
+      return value;
     }
 
-    this.cache[type] = EOF;
-    return {
-      done: true,
-      value: EOF,
-    };
+    const value = this.source[this.position];
+
+    if (value === undefined) {
+      this.cache = EOF;
+      return EOF;
+    }
+
+    throw new Error("no match in token rules");
   }
 }

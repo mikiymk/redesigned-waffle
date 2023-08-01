@@ -1,4 +1,3 @@
-import { EOF, peek } from "../reader/parse-reader";
 import { equalsRule } from "../rules/define-rules";
 import { ReferenceToken } from "../rules/reference-token";
 import { getFirstSetList } from "../token-set/first-set";
@@ -35,7 +34,7 @@ export class ParseTableRow<T> {
 
   #collected = false;
   #reduce: [ObjectSet<DirectorSetToken>, number][] = [];
-  #accept = false;
+  #accept: [ObjectSet<DirectorSetToken>, number][] = [];
   #shift: [TermToken, number][] = [];
   #goto: [NonTermToken, number][] = [];
 
@@ -87,7 +86,7 @@ export class ParseTableRow<T> {
 
         if (ruleNumber === 0) {
           // 初期状態の場合はaccept
-          this.#accept = true;
+          this.#accept.push([item.lookahead, ruleNumber]);
         } else {
           // その他のルールではreduce
           this.#reduce.push([item.lookahead, ruleNumber]);
@@ -119,7 +118,7 @@ export class ParseTableRow<T> {
    *
    * @returns Acceptリスト
    */
-  accept(): boolean {
+  accept(): [ObjectSet<DirectorSetToken>, number][] {
     return this.#accept;
   }
 
@@ -149,8 +148,12 @@ export class ParseTableRow<T> {
       throw new Error("not collected");
     }
 
-    if (this.#accept && peek(pr, "eof") === EOF) {
-      return ["accept"];
+    for (const [set, _] of this.#accept) {
+      for (const token of set) {
+        if (token.matchFirstChar(pr)) {
+          return ["accept"];
+        }
+      }
     }
 
     // reduceを調べる
@@ -226,8 +229,11 @@ export class ParseTableRow<T> {
         console.log("   ", token.toKeyString(), "→", number);
       }
     }
-    if (this.#accept) {
-      console.log("  accept:", this.#accept);
+    if (this.#accept.length > 0) {
+      console.log("  accept:");
+      for (const [token, number] of this.#accept) {
+        console.log("   ", token.toKeyString(), "→", number);
+      }
     }
 
     if (this.#reduce.length > 1) {

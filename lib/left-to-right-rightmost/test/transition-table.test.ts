@@ -76,5 +76,5 @@ test("generate parser", () => {
     [reference("B"), 2],
   ]);
   expect(result.reduce[0]).toEqual([]);
-  expect(result.accept[0]).toBe(false);
+  expect(result.accept[0]).toEqual([]);
 });

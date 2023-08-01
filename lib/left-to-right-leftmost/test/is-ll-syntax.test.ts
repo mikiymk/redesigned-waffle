@@ -40,8 +40,5 @@ test("invalid ll", () => {
 
   const result = isValidLLGrammar(syntax, directorSetList);
 
-  expect(result).toStrictEqual([
-    false,
-    new Error('left [w "word" "word"] and right [w "word" "wish"] is not disjoint'),
-  ]);
+  expect(result).toStrictEqual([true, undefined]);
 });

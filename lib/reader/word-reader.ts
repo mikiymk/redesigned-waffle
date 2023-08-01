@@ -23,9 +23,9 @@ export class WordReader implements ParseReader {
    * 次の文字を読み、進める
    * @returns 文字列の終わりになったらEOFシンボル
    */
-  next(): IteratorResult<WordToken, EOF> {
+  read(): WordToken | EOF {
     const next = this.peek();
-    if (!next.done) this.position = this.spaceSkippedPosition + next.value.value.length;
+    if (next !== EOF) this.position = this.spaceSkippedPosition + next.value.length;
     return next;
   }
 
@@ -33,7 +33,7 @@ export class WordReader implements ParseReader {
    * 次の文字を読む
    * @returns 文字列の終わりになったらEOFシンボル
    */
-  peek(): IteratorResult<WordToken, EOF> {
+  peek(): WordToken | EOF {
     let word = "";
     let position = this.position;
 
@@ -41,10 +41,7 @@ export class WordReader implements ParseReader {
       const char = this.source[position];
 
       if (char === undefined) {
-        return {
-          done: true,
-          value: EOF,
-        };
+        return EOF;
       } else if (char === " ") {
         position++;
       } else {
@@ -66,11 +63,8 @@ export class WordReader implements ParseReader {
     }
 
     return {
-      done: false,
-      value: {
-        type: "word",
-        value: word,
-      },
+      type: "word",
+      value: word,
     };
   }
 }
