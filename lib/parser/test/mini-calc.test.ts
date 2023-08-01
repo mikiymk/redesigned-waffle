@@ -7,28 +7,41 @@ import { reference, rule, word } from "@/lib/rules/define-rules";
 import type { Tree, TreeBranch } from "@/lib/parser/tree";
 
 const reader = new TokenReaderGen([
-  ["token", "[()+*]"],
-  ["num", "[01]"],
+  ["token", "[()+*/-]"],
+  ["num", "[0-9]"],
 ]);
 
 const parser = generateLRParser<number>([
-  rule("calc", [reference("add")], ([add]) => tree(add).processed),
+  rule("mini-calc", [reference("addition")], ([a]) => tree(a).processed),
+
   rule(
-    "add",
-    [reference("add"), word("token", "+"), reference("mul")],
-    ([add, _, mul]) => tree(add).processed * tree(mul).processed,
+    "addition",
+    [reference("addition"), word("token", "+"), reference("multiplication")],
+    ([a, _, m]) => tree(a).processed + tree(m).processed,
   ),
-  rule("add", [reference("mul")], ([mul]) => tree(mul).processed),
   rule(
-    "mul",
-    [reference("mul"), word("token", "*"), reference("expr")],
-    ([mul, _, expr]) => tree(mul).processed * tree(expr).processed,
+    "addition",
+    [reference("addition"), word("token", "-"), reference("multiplication")],
+    ([a, _, m]) => tree(a).processed - tree(m).processed,
   ),
-  rule("mul", [reference("expr")], ([expr]) => tree(expr).processed),
-  rule("expr", [word("token", "("), reference("add"), word("token", ")")], ([_, add]) => tree(add).processed),
-  rule("expr", [reference("num")], ([number]) => tree(number).processed),
-  rule("num", [word("num", "0")], () => 0),
-  rule("num", [word("num", "1")], () => 1),
+  rule("addition", [reference("multiplication")], ([mul]) => tree(mul).processed),
+
+  rule(
+    "multiplication",
+    [reference("multiplication"), word("token", "*"), reference("parentheses")],
+    ([m, _, p]) => tree(m).processed * tree(p).processed,
+  ),
+  rule(
+    "multiplication",
+    [reference("multiplication"), word("token", "/"), reference("parentheses")],
+    ([m, _, p]) => tree(m).processed / tree(p).processed,
+  ),
+  rule("multiplication", [reference("parentheses")], ([p]) => tree(p).processed),
+
+  rule("parentheses", [word("token", "("), reference("addition"), word("token", ")")], ([_, a]) => tree(a).processed),
+  rule("parentheses", [reference("number")], ([n]) => tree(n).processed),
+
+  rule("number", [word("num")], ([n]) => Number.parseInt(n as string)),
 ]);
 
 const parseJson = (jsonString: string) => {
@@ -68,32 +81,43 @@ const tree = <T>(tree: Tree<T> | undefined): TreeBranch<T> => {
 };
 
 const cases: [string, number][] = [
+  // 単純な数字
   ["0", 0],
   ["1", 1],
+
+  // 足し算と引き算
   ["1+0", 1],
-  ["1+1", 2],
+  ["1+1+2", 4],
+  ["2-1", 1],
+
+  // 掛け算と割り算
+  ["1*0", 0],
+  ["1*2*3", 6],
+  ["4/2", 2],
+
+  // +-と*/の複合
+  ["1+1*2", 3],
+  ["1*2+3*4", 14],
+
+  // かっこの優先順位
   ["(1)", 1],
   ["(1+1)", 2],
-  ["1*1", 1],
-  ["1*0", 0],
-  ["1+1*1", 2],
-  ["1*1+1*1", 2],
   ["(1+1)*(1+1)", 4],
 ];
 
-test.each(cases)("parse %s = %d", (source, expected) => {
+test.each(cases)("パース成功 %s = %d", (source, expected) => {
   const result = parseJson(source);
 
   expect(result).toBe(expected);
 });
 
 const errors = [
-  ["no in token", "a"],
-  ["no pair parens", "(1"],
-  ["unary operator 1", "1+"],
-  ["unary operator 2", "0*"],
+  ["トークンではない文字", "a"],
+  ["対応しないかっこ", "(1"],
+  ["対応しない演算子１", "1+"],
+  ["対応しない演算子２", "0*"],
 ];
 
-test.each(errors)("parse failed with %s", (_, source) => {
+test.each(errors)("パース失敗 %s", (_, source) => {
   expect(() => parseJson(source)).toThrow();
 });
