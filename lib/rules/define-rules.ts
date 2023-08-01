@@ -50,7 +50,7 @@ export const rule: {
  * @param word キーワード
  * @returns ルール用トークン
  */
-export const word = (type: string, word: string): WordToken => {
+export const word = (type: string, word?: string): WordToken => {
   return new WordToken(type, word);
 };
 

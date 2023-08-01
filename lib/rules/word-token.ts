@@ -18,7 +18,7 @@ export class WordToken implements BaseToken, TerminalToken {
    * @param type ワードタイプ
    * @param word ワード
    */
-  constructor(type: string, word?: string) {
+  constructor(type: string, word?: string | undefined) {
     if (type.length === 0 || word?.length === 0) {
       throw new Error("word must 1 or more characters");
     }
