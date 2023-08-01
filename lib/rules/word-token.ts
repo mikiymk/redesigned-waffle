@@ -10,15 +10,15 @@ import type { ParseReader, Result } from "../reader/parse-reader";
  * キーワードや演算子など
  */
 export class WordToken implements BaseToken, TerminalToken {
-  readonly type;
-  readonly word;
+  readonly type: string;
+  readonly word: string | undefined;
 
   /**
    * ワードトークンを作る
    * @param type ワードタイプ
    * @param word ワード
    */
-  constructor(type: string, word: string | undefined) {
+  constructor(type: string, word?: string) {
     if (type.length === 0 || word?.length === 0) {
       throw new Error("word must 1 or more characters");
     }
