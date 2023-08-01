@@ -10,16 +10,16 @@ import type { ParseReader, Result } from "../reader/parse-reader";
  * キーワードや演算子など
  */
 export class WordToken implements BaseToken, TerminalToken {
-  readonly type;
-  readonly word;
+  readonly type: string;
+  readonly word: string | undefined;
 
   /**
    * ワードトークンを作る
    * @param type ワードタイプ
    * @param word ワード
    */
-  constructor(type: string, word: string) {
-    if (type.length === 0 || word.length === 0) {
+  constructor(type: string, word?: string) {
+    if (type.length === 0 || word?.length === 0) {
       throw new Error("word must 1 or more characters");
     }
 
@@ -33,12 +33,12 @@ export class WordToken implements BaseToken, TerminalToken {
    * @returns 読み込んだ文字列
    */
   read(pr: ParseReader): Result<string> {
-    const peeked = peek(pr, this.type);
+    const peeked = peek(pr);
 
     if (peeked === EOF) {
       return [false, new Error("reach to end")];
-    } else if (peeked.type === this.type && peeked.value === this.word) {
-      get(pr, this.type);
+    } else if (peeked.type === this.type && (undefined === this.word || peeked.value === this.word)) {
+      get(pr);
       return [true, peeked.value];
     } else {
       return [false, new Error("not word")];
@@ -51,8 +51,8 @@ export class WordToken implements BaseToken, TerminalToken {
    * @returns マッチするか
    */
   matchFirstChar(pr: ParseReader): boolean {
-    const token = peek(pr, this.type);
-    return token !== EOF && token.type === this.type && token.value === this.word;
+    const token = peek(pr);
+    return token !== EOF && token.type === this.type && (undefined === this.word || token.value === this.word);
   }
 
   /**

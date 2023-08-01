@@ -1,5 +1,3 @@
-import { WordToken } from "../rules/word-token";
-
 import type { ObjectSet } from "../util/object-set";
 import type { DirectorSetToken } from "@/lib/rules/define-rules";
 
@@ -10,44 +8,16 @@ import type { DirectorSetToken } from "@/lib/rules/define-rules";
  * @returns 互いに素なら `true`
  */
 export const isDisjoint = (left: ObjectSet<DirectorSetToken>, right: ObjectSet<DirectorSetToken>): boolean => {
-  const leftFirstChars = firstChars(left);
-  const rightFirstChars = firstChars(right);
-
   // 左辺の各文字についてループ
-  for (const [leftCharStart, leftCharEnd] of leftFirstChars) {
+  for (const leftToken of left) {
     // 右辺の文字にかぶるところがあるかチェックする
 
     // １つでも範囲が重なるところがあれば
-    if (
-      rightFirstChars.some(
-        ([rightCharStart, rightCharEnd]) => !(leftCharEnd < rightCharStart || rightCharEnd < leftCharStart),
-      )
-    ) {
+    if (right.has(leftToken)) {
       // あったらfalseを返す
       return false;
     }
   }
 
   return true;
-};
-
-/**
- * トークンの１文字目のリストをあげる
- * @param tokens トークン集合
- * @returns それぞれのトークンの１文字目の範囲
- */
-const firstChars = (tokens: ObjectSet<DirectorSetToken>): [number, number][] => {
-  const firstChars: [number, number][] = [];
-
-  for (const token of tokens) {
-    if (token instanceof WordToken) {
-      // eslint-disable-next-line unicorn/prefer-code-point
-      const char = token.word.charCodeAt(0);
-      firstChars.push([char, char]);
-    }
-  }
-
-  firstChars.sort(([a], [b]) => a - b);
-
-  return firstChars;
 };

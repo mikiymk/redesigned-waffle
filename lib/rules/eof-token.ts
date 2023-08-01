@@ -14,7 +14,7 @@ export class EOFToken implements BaseToken, TerminalToken {
    * @returns 読み込んだ文字列
    */
   read(pr: ParseReader): Result<string> {
-    const char = peek(pr, "eof");
+    const char = peek(pr);
     if (char === EOF) {
       return [true, ""];
     }
@@ -27,7 +27,7 @@ export class EOFToken implements BaseToken, TerminalToken {
    * @returns マッチするか
    */
   matchFirstChar(pr: ParseReader): boolean {
-    return peek(pr, "eof") === EOF;
+    return peek(pr) === EOF;
   }
 
   /**
