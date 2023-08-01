@@ -7,20 +7,16 @@ import type { RuleName, Syntax } from "@/lib/rules/define-rules";
  * @param syntax 構文ルールリスト
  * @param ruleName ルール名
  * @param arrays 配列リスト
- * @returns ルール名を持つルールの添字
+ * @yields ルール名を持つルールの添字と配列のアイテム
  */
-export const eachRules = <T, const Arrays extends readonly (readonly unknown[])[]>(
+export const eachRules = function* <T, const Arrays extends readonly (readonly unknown[])[]>(
   syntax: Syntax<T>,
   ruleName: RuleName,
   arrays: Arrays,
-): [number, [...{ [K in keyof Arrays]: Arrays[K][number] }]][] => {
-  const indexes: [number, [...{ [K in keyof Arrays]: Arrays[K][number] }]][] = [];
-
+): Generator<[number, [...{ [K in keyof Arrays]: Arrays[K][number] }]], void, undefined> {
   for (const [index, rule, ...items] of zip(syntax, ...arrays)) {
     if (rule.name === ruleName) {
-      indexes.push([index, items]);
+      yield [index, items];
     }
   }
-
-  return indexes;
 };

@@ -12,10 +12,12 @@ const syntax = [
 ];
 
 test("get rule indexes from rule name", () => {
-  const result = eachRules(syntax, "rule1", [
-    ["rule1", "rule1", "rule2", "rule2"],
-    [0, 1, 2, 3],
-  ]);
+  const result = [
+    ...eachRules(syntax, "rule1", [
+      ["rule1", "rule1", "rule2", "rule2"],
+      [0, 1, 2, 3],
+    ]),
+  ];
 
   expect(result).toStrictEqual([
     [0, ["rule1", 0]],
