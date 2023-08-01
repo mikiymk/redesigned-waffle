@@ -12,7 +12,7 @@ export class ReferenceToken implements BaseToken {
    */
   constructor(name: string | symbol) {
     if (typeof name === "string" && name.length === 0) {
-      throw new Error("rule name must 1 or more characters");
+      throw new Error("ルール名は１文字以上である必要があります。");
     }
 
     this.name = name;

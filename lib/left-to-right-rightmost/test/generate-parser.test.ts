@@ -65,7 +65,10 @@ describe("parsing", () => {
     const parser = generateParser(syntax);
     const source = "(1+)";
 
-    expect(parser.parse(new CharReader(source))).toStrictEqual([false, new Error("nomatch input")]);
+    expect(parser.parse(new CharReader(source))).toStrictEqual([
+      false,
+      new Error("パース中にエラーが発生しました。 (, 1: [ 3: [ 1 ] ], +"),
+    ]);
   });
 });
 
@@ -127,7 +130,10 @@ describe("parsing 2", () => {
     const parser = generateParser(syntax);
     const source = "1+2";
 
-    expect(parser.parse(new CharReader(source))).toStrictEqual([false, new Error("nomatch input")]);
+    expect(parser.parse(new CharReader(source))).toStrictEqual([
+      false,
+      new Error("パース中にエラーが発生しました。 3: [ 5: [ 1 ] ], +"),
+    ]);
   });
 });
 
@@ -182,7 +188,10 @@ describe("parsing 3", () => {
     const parser = generateParser(syntax);
     const source = "112";
 
-    expect(parser.parse(new CharReader(source))).toStrictEqual([false, new Error("nomatch input")]);
+    expect(parser.parse(new CharReader(source))).toStrictEqual([
+      false,
+      new Error("パース中にエラーが発生しました。 1, 1"),
+    ]);
   });
 });
 
@@ -232,6 +241,9 @@ describe("parsing 4", () => {
     const parser = generateParser(syntax);
     const source = "10";
 
-    expect(parser.parse(new CharReader(source))).toStrictEqual([false, new Error("nomatch input")]);
+    expect(parser.parse(new CharReader(source))).toStrictEqual([
+      false,
+      new Error("パース中にエラーが発生しました。 1"),
+    ]);
   });
 });

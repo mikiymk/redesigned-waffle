@@ -31,5 +31,8 @@ export const getMatchRuleIndex = <T>(
     }
   }
 
-  return [false, new Error(`no rule ${primitiveToString(ruleName)} matches`)];
+  return [
+    false,
+    new Error(`次の入力にマッチするルール(ルール名:${primitiveToString(ruleName)})が見つかりませんでした。`),
+  ];
 };

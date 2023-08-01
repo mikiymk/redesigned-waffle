@@ -24,7 +24,7 @@ export const isValidLLGrammar = <T>(
         if (!isDisjoint(leftRule, rightRule)) {
           return [
             false,
-            new Error(`left [${leftRule.toKeyString()}] and right [${rightRule.toKeyString()}] is not disjoint`),
+            new Error(`[${leftRule.toKeyString()}] と [${rightRule.toKeyString()}] は互いに素ではありません。`),
           ];
         }
       }

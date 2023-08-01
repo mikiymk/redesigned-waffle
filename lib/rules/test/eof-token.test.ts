@@ -22,7 +22,7 @@ describe("#read", () => {
 
     const result = (token.read as TerminalToken["read"])(pr);
 
-    expect(result).toEqual([false, new Error("not end of file")]);
+    expect(result).toEqual([false, new Error("文字列の終端ではありません。")]);
   });
 
   test("文字列の終わり", () => {

@@ -30,7 +30,7 @@ test("3つの配列を合わせたイテレータを作成する", () => {
 test("配列がない場合はエラーを起こす", () => {
   const result = zip();
 
-  expect(() => result.next()).toThrow("must 1 or more");
+  expect(() => result.next()).toThrow("１つ以上の配列が必要です。");
 });
 
 test("配列の長さが違う場合はエラーを起こす", () => {
@@ -39,5 +39,5 @@ test("配列の長さが違う場合はエラーを起こす", () => {
 
   const result = zip(array1, array2);
 
-  expect(() => result.next()).toThrow("different lengths");
+  expect(() => result.next()).toThrow("要素数が違う配列があります。");
 });

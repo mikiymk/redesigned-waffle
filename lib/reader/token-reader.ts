@@ -103,6 +103,6 @@ class TokenReader implements ParseReader {
       return EOF;
     }
 
-    throw new Error("no match in token rules");
+    throw new Error("マッチするルールがありませんでした。");
   }
 }

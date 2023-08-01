@@ -19,15 +19,17 @@ export class Rule<T> {
    */
   constructor(name: string, tokens: SyntaxToken[], process?: (children: Tree<T>[]) => T) {
     if (name.length === 0) {
-      throw new Error(`name length must 1 or greater. received: "${name}"`);
+      throw new Error(`ルール名は１文字以上である必要があります。`);
     }
 
     if (tokens.length === 0) {
-      throw new Error(`rule token length must 1 or greater. received: ${tokens.length} items`);
+      throw new Error(`ルールトークンは１つ以上である必要があります。`);
     }
 
     if (tokens.includes(empty) && tokens.length !== 1) {
-      throw new Error(`rule token length, including empty tokens, must be 1. received: ${tokens.length} items`);
+      throw new Error(
+        `ルールに空文字トークンを含む場合、トークン列は空文字トークン１つのみである必要があります。 受け取ったトークン: ${tokens.length}個`,
+      );
     }
 
     this.name = name;
@@ -56,5 +58,13 @@ export class Rule<T> {
       this.tokens.length === other.tokens.length &&
       this.tokens.every((value, index) => other.tokens[index]?.equals(value))
     );
+  }
+
+  /**
+   * 表示用の文字列表現にします
+   * @returns 文字列
+   */
+  toString(): string {
+    return `${this.name} ${this.tokens.map((token) => token.toString()).join(" ")}`;
   }
 }

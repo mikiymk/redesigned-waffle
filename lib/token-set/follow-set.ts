@@ -57,7 +57,7 @@ const generateFollowSet = <T>(
   const followSet = followSetList[index];
 
   if (!followSet || !rule) {
-    throw new Error(`rule length is ${syntax.length}, but access index of ${index}`);
+    throw new Error(`文法のルール数:${syntax.length}ですが、${index}個目の要素にアクセスしようとしました。`);
   }
 
   let updated = false;
