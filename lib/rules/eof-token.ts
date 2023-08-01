@@ -18,7 +18,7 @@ export class EOFToken implements BaseToken, TerminalToken {
     if (char === EOF) {
       return [true, ""];
     }
-    return [false, new Error("not end of file")];
+    return [false, new Error("文字列の終端ではありません。")];
   }
 
   /**

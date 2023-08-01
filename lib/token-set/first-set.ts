@@ -55,7 +55,7 @@ const generateFirstSet = <T>(
   const firstSet = firstSetList[index];
 
   if (!firstSet || !rule) {
-    throw new Error(`rule length is ${syntax.length}, but access index of ${index}`);
+    throw new Error(`文法のルール数:${syntax.length}ですが、${index}個目の要素にアクセスしようとしました。`);
   }
 
   const tokens = rule.tokens;
