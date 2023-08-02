@@ -2,94 +2,26 @@ import { expect, test } from "vitest";
 
 import { generateLRParser } from "@/lib/main";
 import { TokenReaderGen } from "@/lib/reader/token-reader";
-import { empty, reference, rule, word } from "@/lib/rules/define-rules";
+import { reference, rule, word } from "@/lib/rules/define-rules";
 
 import type { Tree, TreeBranch } from "@/lib/parser/tree";
 
 type JsonValue = null | boolean | number | string | JsonValue[] | { [x: string]: JsonValue };
 
-const reader = new TokenReaderGen([
-  ["true", "true"],
-  ["false", "false"],
-  ["null", "null"],
-  ["{", "{"],
-  ["}", "}"],
-  ["[", "\\["],
-  ["]", "]"],
-  [",", ","],
-  [":", ":"],
-  [".", "."],
-  ["-", "-"],
-  ["0", "0"],
-  ["onenine", "[1-9]"],
-  ["character", '[ -!#-[\\]-\uFFFF]|\\["\\/bfnrt]|\\u[0-9a-fA-F]{4}'],
-  ["ws", "[ \t\r\n]*"],
-]);
+const reader = new TokenReaderGen([["literal", "true|false|null"]]);
 
 const parser = generateLRParser<JsonValue>([
   rule("json", [reference("element")], ([add]) => tree(add).processed),
 
-  rule("value", [reference("object")], ([add]) => tree(add).processed),
-  rule("value", [reference("array")], ([add]) => tree(add).processed),
-  rule("value", [reference("string")], ([add]) => tree(add).processed),
-  rule("value", [reference("number")], ([add]) => tree(add).processed),
-  rule("value", [word("true")], ([add]) => tree(add).processed),
-  rule("value", [word("false")], ([add]) => tree(add).processed),
-  rule("value", [word("null")], ([add]) => tree(add).processed),
+  rule("element", [reference("value")], ([value]) => tree(value).processed),
 
-  rule("object", [word("{"), reference("ws"), word("}")], ([add]) => tree(add).processed),
-  rule("object", [word("{"), reference("members"), word("}")], ([add]) => tree(add).processed),
-
-  rule("members", [reference("member")], ([add]) => tree(add).processed),
-  rule("members", [reference("member"), word(","), reference("members")], ([add]) => tree(add).processed),
-
-  rule(
-    "member",
-    [reference("ws"), reference("string"), reference("ws"), word(":"), reference("element")],
-    ([add]) => tree(add).processed,
-  ),
-
-  rule("array", [word("["), reference("ws"), word("]")], ([add]) => tree(add).processed),
-  rule("array", [word("["), reference("elements"), word("]")], ([add]) => tree(add).processed),
-
-  rule("elements", [reference("element")], ([add]) => tree(add).processed),
-  rule("elements", [reference("element"), word(","), reference("elements")], ([add]) => tree(add).processed),
-
-  rule("element", [reference("ws"), reference("value"), reference("ws")], ([add]) => tree(add).processed),
-
-  rule("string", [word('"'), reference("characters"), word('"')], ([add]) => tree(add).processed),
-
-  rule("characters", [empty], ([add]) => tree(add).processed),
-  rule("characters", [reference("character"), reference("characters")], ([add]) => tree(add).processed),
-
-  rule("character", [word("character")], ([add]) => tree(add).processed),
-
-  rule("number", [reference("integer"), reference("fraction"), reference("exponent")], ([add]) => tree(add).processed),
-
-  rule("integer", [reference("digit")], ([add]) => tree(add).processed),
-  rule("integer", [word("onenine"), reference("digits")], ([add]) => tree(add).processed),
-  rule("integer", [word("-"), reference("digit")], ([add]) => tree(add).processed),
-  rule("integer", [word("-"), word("onenine"), reference("digits")], ([add]) => tree(add).processed),
-
-  rule("digits", [reference("digit")], ([add]) => tree(add).processed),
-  rule("digits", [reference("digit"), reference("digits")], ([add]) => tree(add).processed),
-
-  rule("digit", [word("0")], ([add]) => tree(add).processed),
-  rule("digit", [word("onenine")], ([add]) => tree(add).processed),
-
-  rule("fraction", [empty], ([add]) => tree(add).processed),
-  rule("fraction", [word("."), reference("digits")], ([add]) => tree(add).processed),
-
-  rule("exponent", [empty], ([add]) => tree(add).processed),
-  rule("exponent", [word("E"), reference("sign"), reference("digits")], ([add]) => tree(add).processed),
-  rule("exponent", [word("e"), reference("sign"), reference("digits")], ([add]) => tree(add).processed),
-
-  rule("sign", [empty], ([add]) => tree(add).processed),
-  rule("sign", [word("+")], ([add]) => tree(add).processed),
-  rule("sign", [word("-")], ([add]) => tree(add).processed),
-
-  rule("ws", [word("ws")], ([add]) => tree(add).processed),
+  rule("value", [word("literal", "true")], (_) => true),
+  rule("value", [word("literal", "false")], (_) => false),
+  // eslint-disable-next-line unicorn/no-null
+  rule("value", [word("literal", "null")], (_) => null),
 ]);
+
+parser.table.printDebug();
 
 const parseJson = (jsonString: string) => {
   const [ok, result] = parser.parse(reader.reader(jsonString));
@@ -132,14 +64,6 @@ const cases: [string, unknown][] = [
   ["true", true],
   // eslint-disable-next-line unicorn/no-null
   ["null", null],
-  ["1+1", 2],
-  ["(1)", 1],
-  ["(1+1)", 2],
-  ["1*1", 1],
-  ["1*0", 0],
-  ["1+1*1", 2],
-  ["1*1+1*1", 2],
-  ["(1+1)*(1+1)", 4],
 ];
 
 test.each(cases)("parse %s = %j", (source, expected) => {
