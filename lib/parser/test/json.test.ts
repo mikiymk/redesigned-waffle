@@ -8,17 +8,28 @@ import type { Tree, TreeBranch } from "@/lib/parser/tree";
 
 type JsonValue = null | boolean | number | string | JsonValue[] | { [x: string]: JsonValue };
 
-const reader = new TokenReaderGen([["literal", "true|false|null"]]);
+const reader = new TokenReaderGen([
+  ["literal", "true|false|null"],
+  ["zero-start-digits", "0[0-9]+"],
+  ["digits", "[1-9][0-9]*"],
+  ["zero", "0"],
+]);
 
 const parser = generateLRParser<JsonValue>([
   rule("json", [reference("element")], ([add]) => tree(add).processed),
 
   rule("element", [reference("value")], ([value]) => tree(value).processed),
 
+  rule("value", [reference("number")], ([number]) => tree(number).processed),
   rule("value", [word("literal", "true")], (_) => true),
   rule("value", [word("literal", "false")], (_) => false),
   // eslint-disable-next-line unicorn/no-null
   rule("value", [word("literal", "null")], (_) => null),
+
+  rule("number", [reference("integer")], ([integer]) => tree(integer).processed),
+
+  rule("integer", [word("zero")], ([zero]) => Number.parseInt(zero as string)),
+  rule("integer", [word("digits")], ([digits]) => Number.parseInt(digits as string)),
 ]);
 
 parser.table.printDebug();
@@ -64,6 +75,10 @@ const cases: [string, unknown][] = [
   ["true", true],
   // eslint-disable-next-line unicorn/no-null
   ["null", null],
+
+  ["0", 0],
+  ["1", 1],
+  ["123", 123],
 ];
 
 test.each(cases)("parse %s = %j", (source, expected) => {
@@ -73,10 +88,8 @@ test.each(cases)("parse %s = %j", (source, expected) => {
 });
 
 const errors = [
-  ["no in token", "a"],
-  ["no pair parens", "(1"],
-  ["unary operator 1", "1+"],
-  ["unary operator 2", "0*"],
+  ["リテラル以外の文字列", "foo"],
+  ["ゼロ始まりの数字", "012"],
 ];
 
 test.each(errors)("parse failed with %s", (_, source) => {
