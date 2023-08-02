@@ -2,7 +2,7 @@ import { expect, test } from "vitest";
 
 import { generateLRParser } from "@/lib/main";
 import { TokenReaderGen } from "@/lib/reader/token-reader";
-import { reference, rule, word } from "@/lib/rules/define-rules";
+import { empty, reference, rule, word } from "@/lib/rules/define-rules";
 
 import type { Tree, TreeBranch } from "@/lib/parser/tree";
 
@@ -10,6 +10,7 @@ type JsonValue = null | boolean | number | string | JsonValue[] | { [x: string]:
 
 const reader = new TokenReaderGen([
   ["literal", "true|false|null"],
+  ["token", "[.]"],
   ["zero-start-digits", "0[0-9]+"],
   ["digits", "[1-9][0-9]*"],
   ["zero", "0"],
@@ -26,10 +27,24 @@ const parser = generateLRParser<JsonValue>([
   // eslint-disable-next-line unicorn/no-null
   rule("value", [word("literal", "null")], (_) => null),
 
-  rule("number", [reference("integer")], ([integer]) => tree(integer).processed),
+  rule(
+    "number",
+    [reference("integer"), reference("fractional")],
+    ([integer, fractional]) => (tree(integer).processed as number) + (tree(fractional).processed as number),
+  ),
 
   rule("integer", [word("zero")], ([zero]) => Number.parseInt(zero as string)),
   rule("integer", [word("digits")], ([digits]) => Number.parseInt(digits as string)),
+
+  rule("fractional", [empty], (_) => 0),
+  rule("fractional", [word("token", "."), reference("digits")], ([_, digits]) => {
+    const n = Number.parseInt(digits as string);
+    return n === 0 ? 0 : n / 10 ** (Math.floor(Math.log10(n)) + 1);
+  }),
+
+  rule("digits", [word("zero-start-digits")], ([digits]) => digits as string),
+  rule("digits", [word("digits")], ([digits]) => digits as string),
+  rule("digits", [word("zero")], ([digits]) => digits as string),
 ]);
 
 parser.table.printDebug();
@@ -79,6 +94,9 @@ const cases: [string, unknown][] = [
   ["0", 0],
   ["1", 1],
   ["123", 123],
+
+  ["0.1", 0.1],
+  ["123.456", 123.456],
 ];
 
 test.each(cases)("parse %s = %j", (source, expected) => {

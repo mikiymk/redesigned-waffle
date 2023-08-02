@@ -156,7 +156,9 @@ export class ParseTable<T> {
     return [
       false,
       new Error(
-        `ルール名:${primitiveToString(name)}はGotoテーブルに見つかりませんでした。 ${(this.goto[state] ?? [])
+        `ルール名:${primitiveToString(name)}は状態: ${state} のGotoテーブルに見つかりませんでした。 ${(
+          this.goto[state] ?? []
+        )
           .map(([t, n]) => `${t.toString()}→${n}`)
           .join(", ")}`,
       ),
