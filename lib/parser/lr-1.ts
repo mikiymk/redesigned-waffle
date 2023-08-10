@@ -1,3 +1,5 @@
+import { peek, EOF } from "../reader/parse-reader";
+
 import type { Tree } from "./tree";
 import type { ParseTable } from "../left-to-right-rightmost/parse-table";
 import type { ParseReader, Result } from "../reader/parse-reader";
@@ -115,7 +117,7 @@ export class LRParser<T> {
 
           const reduceState = stack.at(-1);
           if (reduceState === undefined) {
-            return [false, new Error(`スタックが空になりました。 Reduce:${parameter}`)];
+            return [false, new Error(`スタックが空になりました。 状態:${state} Reduce先:${parameter}`)];
           }
 
           const [ok, newState] = this.table.gotoState(reduceState, name);
@@ -132,7 +134,10 @@ export class LRParser<T> {
         }
 
         default: {
-          return [false, new Error("入力に合う文字列がありませんでした。")];
+          const input = peek(pr);
+
+          const inputString = input === EOF ? "EOF" : `${input.type}:${input.value}`;
+          return [false, new Error(`入力:(${inputString})に合う文字列がありませんでした。 状態:${state}`)];
         }
       }
     }
