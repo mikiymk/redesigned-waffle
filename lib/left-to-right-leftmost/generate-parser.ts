@@ -22,25 +22,6 @@ export const generateParser = <T>(syntax: Syntax<T>): LLParser<T> => {
     throw error[1];
   }
 
-  console.log("# generate parser");
-  console.log("syntax:");
-  for (const { name, tokens } of syntax) {
-    console.log(" ", name, ...tokens.map((token) => token.toString()));
-  }
-  console.log("first set:");
-  for (const set of firstSetList) {
-    console.log(" ", set.toKeyString());
-  }
-  console.log("follow set:");
-  for (const set of followSetList) {
-    console.log(" ", set.toKeyString());
-  }
-  console.log("director set:");
-  for (const set of directorSetList) {
-    console.log(" ", set.toKeyString());
-  }
-  console.log();
-
   // パーサー
   return new LLParser(syntax, directorSetList);
 };

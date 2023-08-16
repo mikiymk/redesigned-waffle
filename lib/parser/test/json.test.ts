@@ -47,8 +47,6 @@ const parser = generateLRParser<JsonValue>([
   rule("digits", [word("zero")], ([digits]) => digits as string),
 ]);
 
-parser.table.printDebug();
-
 const parseJson = (jsonString: string) => {
   const [ok, result] = parser.parse(reader.reader(jsonString));
 
@@ -56,23 +54,7 @@ const parseJson = (jsonString: string) => {
     throw result;
   }
 
-  log(result);
-
   return typeof result === "string" ? result : result.processed;
-};
-
-const log = <T>(tree: Tree<T>, ind = 0) => {
-  const indentString = " ".repeat(ind);
-  if (typeof tree === "string") {
-    console.log(indentString, tree);
-  } else {
-    console.log(indentString, "index:", tree.index);
-    console.log(indentString, "children:");
-    for (const child of tree.children) {
-      log(child, ind + 1);
-    }
-    console.log(indentString, "processed:", tree.processed);
-  }
 };
 
 const tree = <T>(tree: Tree<T> | undefined): TreeBranch<T> => {

@@ -1,11 +1,7 @@
 import { eof } from "@/lib/rules/define-rules";
 
-import { getDirectorSetList } from "../token-set/director-set";
-import { getFirstSetList } from "../token-set/first-set";
-import { getFollowSetList } from "../token-set/follow-set";
 import { ObjectSet } from "../util/object-set";
 import { primitiveToString } from "../util/primitive-to-string";
-import { zip } from "../util/zip-array";
 
 import { groupByNextToken } from "./group-next-token";
 import { LR0Item } from "./lr0-item";
@@ -29,25 +25,6 @@ export const generateParseTable = <T>(syntax: Syntax<T>): ParseTable<T> => {
   if (firstRule === undefined) {
     throw new Error("文法は１つ以上のルールが必要です。");
   }
-
-  const firstSet = getFirstSetList(syntax);
-  const followSet = getFollowSetList(syntax, firstSet);
-  const lookaheadSet = getDirectorSetList(firstSet, followSet);
-
-  console.log("# parse table");
-  console.log("first set:");
-  for (const set of firstSet) {
-    console.log(" ", set.toKeyString());
-  }
-  console.log("follow set:");
-  for (const set of followSet) {
-    console.log(" ", set.toKeyString());
-  }
-  console.log("lookahead set:");
-  for (const set of lookaheadSet) {
-    console.log(" ", set.toKeyString());
-  }
-  console.log();
 
   const firstItem = new LR0Item(firstRule, 0, [eof]);
 
@@ -163,42 +140,5 @@ export class ParseTable<T> {
           .join(", ")}`,
       ),
     ];
-  }
-
-  /**
-   * デバッグ用に表示します
-   */
-  printDebug(): void {
-    for (const [index, shift, goto, accept, reduce] of zip(this.shift, this.goto, this.accept, this.reduce)) {
-      console.log("table-row", index, ":");
-
-      if (shift.length > 0) {
-        console.log("  shift:");
-        for (const [token, number] of shift) {
-          console.log("   ", token.toString(), "→", number);
-        }
-      }
-
-      if (goto.length > 0) {
-        console.log("  goto:");
-        for (const [token, number] of goto) {
-          console.log("   ", token.toString(), "→", number);
-        }
-      }
-      if (reduce.length > 0) {
-        console.log("  reduce:");
-        for (const [token, number] of reduce) {
-          console.log("   ", token.toKeyString(), "→", number);
-        }
-      }
-      if (accept.length > 0) {
-        console.log("  accept:");
-        for (const [token, number] of accept) {
-          console.log("   ", token.toKeyString(), "→", number);
-        }
-      }
-
-      console.log();
-    }
   }
 }

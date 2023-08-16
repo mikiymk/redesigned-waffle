@@ -12,7 +12,5 @@ import type { Syntax } from "../rules/define-rules";
 export const generateParser = <T>(syntax: Syntax<T>) => {
   const table = generateParseTable(syntax);
 
-  table.printDebug();
-
   return new LRParser(syntax, table);
 };

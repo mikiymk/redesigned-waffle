@@ -62,13 +62,4 @@ export class EOFToken implements BaseToken, TerminalToken {
   equals(other: BaseToken): boolean {
     return other instanceof EOFToken;
   }
-
-  /**
-   * デバッグ用に出力をします。
-   * @param indent インデント数
-   */
-  debugPrint(indent = 0): void {
-    const indentSpaces = " ".repeat(indent);
-    console.log(indentSpaces, this.toString());
-  }
 }
