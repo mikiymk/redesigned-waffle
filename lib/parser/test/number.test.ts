@@ -6,18 +6,16 @@ import { empty, reference, rule, word } from "@/lib/rules/define-rules";
 
 import type { Tree, TreeBranch } from "@/lib/parser/tree";
 
-type JsonValue = null | boolean | number | string | JsonValue[] | { [x: string]: JsonValue };
-
 const reader = new TokenReaderGen([
   ["digit", "[0-9]"],
   ["dot", "."],
 ]);
 
-const parser = generateLRParser<JsonValue>([
+const parser = generateLRParser<number>([
   rule(
     "number",
     [reference("integer"), reference("fractional")],
-    ([integer, fractional]) => (tree(integer).processed as number) + (tree(fractional).processed as number),
+    ([integer, fractional]) => tree(integer).processed + tree(fractional).processed,
   ),
 
   rule("integer", [word("digit")], ([digit]) => Number.parseInt(digit as string)),
@@ -28,7 +26,7 @@ const parser = generateLRParser<JsonValue>([
 
 parser.table.printDebug();
 
-const parseJson = (jsonString: string) => {
+const parseNumber = (jsonString: string) => {
   const [ok, result] = parser.parse(reader.reader(jsonString));
 
   if (!ok) {
@@ -74,7 +72,7 @@ const cases: [string, unknown][] = [
 ];
 
 test.each(cases)("parse %s = %j", (source, expected) => {
-  const result = parseJson(source);
+  const result = parseNumber(source);
 
   expect(result).toBe(expected);
 });
@@ -85,5 +83,5 @@ const errors = [
 ];
 
 test.each(errors)("parse failed with %s", (_, source) => {
-  expect(() => parseJson(source)).toThrow();
+  expect(() => parseNumber(source)).toThrow();
 });

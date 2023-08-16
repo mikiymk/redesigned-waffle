@@ -38,7 +38,7 @@ const parser = generateLRParser<JsonValue>([
 
   rule("fractional", [empty], (_) => 0),
   rule("fractional", [word("token", "."), reference("digits")], ([_, digits]) => {
-    const n = Number.parseInt(digits as string);
+    const n = Number.parseInt(tree(digits).processed as string);
     return n === 0 ? 0 : n / 10 ** (Math.floor(Math.log10(n)) + 1);
   }),
 
