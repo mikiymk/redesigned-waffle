@@ -6,29 +6,29 @@ import { reference, rule, word } from "@/lib/rules/define-rules";
 
 import type { Tree, TreeBranch } from "@/lib/parser/tree";
 
-type JsonValue = null | boolean | number | string | JsonValue[] | { [x: string]: JsonValue };
-
-const reader = new TokenReaderGen([
-  ["digit", "[0-9]"],
-  ["dot", "."],
-]);
-
-const parser = generateLRParser<JsonValue>([
-  rule("number", [reference("integer")], ([integer]) => tree(integer).processed as number),
-  rule(
-    "number",
-    [reference("integer"), reference("fractional")],
-    ([integer, fractional]) => (tree(integer).processed as number) + (tree(fractional).processed as number),
-  ),
-
-  rule("integer", [word("digit")], ([digit]) => Number.parseInt(digit as string)),
-
-  rule("fractional", [word("dot", "."), word("digit")], ([_, digit]) => Number.parseInt(digit as string) / 10),
-]);
-
-parser.table.printDebug();
-
 const parseJson = (jsonString: string) => {
+  const reader = new TokenReaderGen([
+    ["digit", "[0-9]"],
+    ["dot", "."],
+  ]);
+
+  const parser = generateLRParser<number>([
+    rule("start", [reference("number")], ([number]) => tree(number).processed),
+
+    rule("number", [reference("integer")], ([integer]) => tree(integer).processed),
+    rule(
+      "number",
+      [reference("integer"), reference("fractional")],
+      ([integer, fractional]) => tree(integer).processed + tree(fractional).processed,
+    ),
+
+    rule("integer", [word("digit")], ([digit]) => Number.parseInt(digit as string)),
+
+    rule("fractional", [word("dot", "."), word("digit")], ([_, digit]) => Number.parseInt(digit as string) / 10),
+  ]);
+
+  parser.table.printDebug();
+
   const [ok, result] = parser.parse(reader.reader(jsonString));
 
   if (!ok) {

@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { reference, rule, word } from "@/lib/rules/define-rules";
+import { empty, eof, reference, rule, word } from "@/lib/rules/define-rules";
 
 import { closure } from "../closure";
 import { LR0Item } from "../lr0-item";
@@ -49,4 +49,58 @@ test("終端記号のクロージャ展開", () => {
   const result = closure(syntax, item);
 
   expect(result).toStrictEqual([]);
+});
+
+test("分岐のある展開", () => {
+  // (0) S → N
+  // (1) N → I
+  // (2) N → I F
+  // (3) I → n
+  // (4) F → . n
+  const syntax: Syntax<undefined> = [
+    rule("S", [reference("N")]),
+    rule("N", [reference("I")]),
+    rule("N", [reference("I"), reference("F")]),
+    rule("I", [word("n")]),
+    rule("F", [word("d", "."), word("n")]),
+  ];
+
+  // S → • E [$]
+  const item = new LR0Item(syntax[0]!, 0, [eof]);
+
+  const result = closure(syntax, item);
+
+  // + N → • I   [$]
+  expect(result).toContainEqual(new LR0Item(syntax[1]!, 0, [eof]));
+  // + N → • I F [$]
+  expect(result).toContainEqual(new LR0Item(syntax[2]!, 0, [eof]));
+  // + I → • n   [$]
+  expect(result).toContainEqual(new LR0Item(syntax[3]!, 0, [eof]));
+  // + I → • n   [F]
+  expect(result).toContainEqual(new LR0Item(syntax[3]!, 0, [word("d", ".")]));
+});
+
+test("空のルールがある展開", () => {
+  // (0) S → N
+  // (1) N → I F
+  // (2) I → n
+  // (3) F → ε
+  // (4) F → . n
+  const syntax: Syntax<undefined> = [
+    rule("S", [reference("N")]),
+    rule("N", [reference("I"), reference("F")]),
+    rule("I", [word("n")]),
+    rule("F", [empty]),
+    rule("F", [word("d", "."), word("n")]),
+  ];
+
+  // S → • E [$]
+  const item = new LR0Item(syntax[0]!, 0, [eof]);
+
+  const result = closure(syntax, item);
+
+  // + N → • I F [$]
+  expect(result).toContainEqual(new LR0Item(syntax[1]!, 0, [eof]));
+  // + I → • n   [F]
+  expect(result).toContainEqual(new LR0Item(syntax[2]!, 0, [word("d", "."), eof]));
 });
