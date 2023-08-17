@@ -14,6 +14,7 @@ const reader = new TokenReaderGen([
   ["zero-start-digits", "0[0-9]+"],
   ["digits", "[1-9][0-9]*"],
   ["zero", "0"],
+  ["string", '"([^\\\\"]|\\\\[\\\\"/bfnrt]|\\\\u[0-9a-fA-F]{4})*"'],
 ]);
 
 const parser = generateLRParser<JsonValue>([
@@ -21,11 +22,26 @@ const parser = generateLRParser<JsonValue>([
 
   rule("element", [reference("value")], ([value]) => tree(value).processed),
 
+  rule("value", [reference("string")], ([string]) => tree(string).processed),
   rule("value", [reference("number")], ([number]) => tree(number).processed),
   rule("value", [word("literal", "true")], (_) => true),
   rule("value", [word("literal", "false")], (_) => false),
   // eslint-disable-next-line unicorn/no-null
   rule("value", [word("literal", "null")], (_) => null),
+
+  rule("string", [word("string")], ([string]) => {
+    const s = string as string;
+
+    return s
+      .replaceAll("\\b", "\b")
+      .replaceAll("\\f", "\f")
+      .replaceAll("\\n", "\n")
+      .replaceAll("\\r", "\r")
+      .replaceAll("\\t", "\t")
+      .replaceAll(/\\u[\dA-Fa-f]{4}/g, (s) => String.fromCodePoint(Number.parseInt(s.slice(2), 16)))
+      .replaceAll(/\\["/\\]/g, (s) => s.slice(1))
+      .slice(1, -1);
+  }),
 
   rule(
     "number",
@@ -106,6 +122,20 @@ const cases: [string, unknown][] = [
   ["12E-34", 12e-34],
 
   ["1.23E45", 1.23e45],
+
+  ['""', ""],
+  ['"abc"', "abc"],
+
+  ['"\\""', '"'],
+  ['"\\\\"', "\\"],
+  ['"\\/"', "/"],
+  ['"\\b"', "\b"],
+  ['"\\f"', "\f"],
+  ['"\\n"', "\n"],
+  ['"\\r"', "\r"],
+  ['"\\t"', "\t"],
+  ['"\\u2bc1"', "⯁"],
+  ['"\\u2BC1"', "⯁"],
 ];
 
 test.each(cases)("parse %s = %j", (source, expected) => {
@@ -117,6 +147,7 @@ test.each(cases)("parse %s = %j", (source, expected) => {
 const errors = [
   ["リテラル以外の文字列", "foo"],
   ["ゼロ始まりの数字", "012"],
+  ["シングルクオートで囲まれた文字列", "'abc'"],
 ];
 
 test.each(errors)("%s は構文解析に失敗します。", (_, source) => {
