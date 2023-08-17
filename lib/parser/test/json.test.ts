@@ -48,7 +48,7 @@ const parser = generateLRParser<JsonValue>([
 ]);
 
 const parseJson = (jsonString: string) => {
-  parser.table.printDebug();
+  // parser.table.printDebug();
 
   const [ok, result] = parser.parse(reader.reader(jsonString));
 

@@ -40,7 +40,6 @@ export const generateParseTable = <T>(syntax: Syntax<T>): ParseTable<T> => {
 
     // 各グループについて
     outer: for (const [token, itemSet] of groups) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const next = nextItemSet(itemSet);
 
       // もし既存のアイテム集合に同じものがあったら

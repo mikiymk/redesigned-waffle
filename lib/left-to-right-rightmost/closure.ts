@@ -3,10 +3,11 @@ import { empty } from "@/lib/rules/define-rules";
 import { eachRules } from "../left-to-right-leftmost/rule-indexes";
 import { ReferenceToken } from "../rules/reference-token";
 import { getFirstSet, getFirstSetList } from "../token-set/first-set";
-import { ObjectSet } from "../util/object-set";
+import { ObjectMap } from "../util/object-map";
 
 import { LR0Item } from "./lr0-item";
 
+import type { ObjectSet } from "../util/object-set";
 import type { RuleName, Syntax, FollowSetToken } from "@/lib/rules/define-rules";
 
 /**
@@ -17,7 +18,7 @@ import type { RuleName, Syntax, FollowSetToken } from "@/lib/rules/define-rules"
  */
 export const closure = <T>(syntax: Syntax<T>, item: LR0Item<T>): LR0Item<T>[] => {
   const closuredItems = [item];
-  const closuredItemSet = new ObjectSet([item]);
+  const closuredItemSet = new ObjectMap([[item, item]]);
 
   for (const item of closuredItems) {
     // アイテムからドットの後ろのトークンを得る
@@ -27,13 +28,18 @@ export const closure = <T>(syntax: Syntax<T>, item: LR0Item<T>): LR0Item<T>[] =>
       // 次のトークンが非終端記号なら
       // 非終端記号を展開する
       const ruleName = nextToken.name;
-      const items = expansionItems(syntax, ruleName);
+      const expansionedItems = expansionItems(syntax, ruleName);
+      const items = [];
 
       // 展開した新しいアイテムを追加する
-      for (const item of items) {
-        if (!closuredItemSet.has(item)) {
+      for (const item of expansionedItems) {
+        const existingItem = closuredItemSet.get(item);
+        if (existingItem) {
+          items.push(existingItem);
+        } else {
           closuredItems.push(item);
-          closuredItemSet.add(item);
+          closuredItemSet.set(item, item);
+          items.push(item);
         }
       }
 
@@ -43,8 +49,8 @@ export const closure = <T>(syntax: Syntax<T>, item: LR0Item<T>): LR0Item<T>[] =>
       // First集合を求める
       const firstSetList = getFirstSetList(syntax);
       const afterNextTokenFirst: ObjectSet<FollowSetToken> = getFirstSet(syntax, firstSetList, afterNextToken);
-
-      // もし、Emptyが含まれるならば、先読み集合を追加する
+      
+      // もし、Emptyが含まれるならば、先読み集合を追加する。
       if (afterNextTokenFirst.has(empty)) {
         afterNextTokenFirst.delete(empty);
         afterNextTokenFirst.append(item.lookahead);

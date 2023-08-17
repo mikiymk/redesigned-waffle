@@ -67,7 +67,7 @@ export class LR0Item<T> {
       .join(" ")} . ${this.rule.tokens
       .slice(this.position)
       .map((value) => value.toKeyString())
-      .join(" ")}`;
+      .join(" ")} [${[...this.lookahead].map((value) => value.toKeyString()).join(" ")}]`;
   }
 
   /**
