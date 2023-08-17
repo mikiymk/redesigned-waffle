@@ -10,27 +10,78 @@ type JsonValue = null | boolean | number | string | JsonValue[] | { [x: string]:
 
 const reader = new TokenReaderGen([
   ["literal", "true|false|null"],
-  ["token", "[.]"],
+  ["token", "[-.eE+[\\],{}:]"],
   ["zero-start-digits", "0[0-9]+"],
   ["digits", "[1-9][0-9]*"],
   ["zero", "0"],
+  ["string", '"([^\\\\"]|\\\\[\\\\"/bfnrt]|\\\\u[0-9a-fA-F]{4})*"'],
+  ["ws", "[\u0020\u000A\u000D\u0009]+"],
 ]);
 
 const parser = generateLRParser<JsonValue>([
   rule("json", [reference("element")], ([add]) => tree(add).processed),
 
-  rule("element", [reference("value")], ([value]) => tree(value).processed),
+  rule("element", [reference("ws"), reference("value"), reference("ws")], ([_, value]) => tree(value).processed),
 
+  rule("value", [reference("object")], ([string]) => tree(string).processed),
+  rule("value", [reference("array")], ([string]) => tree(string).processed),
+  rule("value", [reference("string")], ([string]) => tree(string).processed),
   rule("value", [reference("number")], ([number]) => tree(number).processed),
   rule("value", [word("literal", "true")], (_) => true),
   rule("value", [word("literal", "false")], (_) => false),
   // eslint-disable-next-line unicorn/no-null
   rule("value", [word("literal", "null")], (_) => null),
 
+  rule("object", [word("token", "{"), reference("ws"), word("token", "}")], (_) => ({})),
+  rule("object", [word("token", "{"), reference("members"), word("token", "}")], ([_, members]) =>
+    Object.fromEntries(tree(members).processed as [string, JsonValue][]),
+  ),
+
+  rule("members", [reference("member")], ([member]) => [tree(member).processed]),
+  rule("members", [reference("member"), word("token", ","), reference("members")], ([member, _, members]) => [
+    tree(member).processed,
+    ...(tree(members).processed as JsonValue[]),
+  ]),
+
+  rule(
+    "member",
+    [reference("ws"), reference("string"), reference("ws"), word("token", ":"), reference("element")],
+    ([_, key, _1, _2, value]) => [tree(key).processed, tree(value).processed],
+  ),
+
+  rule("array", [word("token", "["), reference("ws"), word("token", "]")], (_) => []),
+  rule(
+    "array",
+    [word("token", "["), reference("elements"), word("token", "]")],
+    ([_, elements]) => tree(elements).processed,
+  ),
+
+  rule("elements", [reference("element")], ([element]) => [tree(element).processed]),
+  rule("elements", [reference("element"), word("token", ","), reference("elements")], ([element, _, elements]) => [
+    tree(element).processed,
+    ...(tree(elements).processed as JsonValue[]),
+  ]),
+
+  rule("string", [word("string")], ([string]) => {
+    const s = string as string;
+
+    return s
+      .replaceAll("\\b", "\b")
+      .replaceAll("\\f", "\f")
+      .replaceAll("\\n", "\n")
+      .replaceAll("\\r", "\r")
+      .replaceAll("\\t", "\t")
+      .replaceAll(/\\u[\dA-Fa-f]{4}/g, (s) => String.fromCodePoint(Number.parseInt(s.slice(2), 16)))
+      .replaceAll(/\\["/\\]/g, (s) => s.slice(1))
+      .slice(1, -1);
+  }),
+
   rule(
     "number",
-    [reference("integer"), reference("fractional")],
-    ([integer, fractional]) => (tree(integer).processed as number) + (tree(fractional).processed as number),
+    [reference("integer"), reference("fractional"), reference("exponent")],
+    ([integer, fractional, exponent]) =>
+      ((tree(integer).processed as number) + (tree(fractional).processed as number)) *
+      10 ** (tree(exponent).processed as number),
   ),
 
   rule("integer", [word("zero")], ([zero]) => Number.parseInt(zero as string)),
@@ -42,9 +93,28 @@ const parser = generateLRParser<JsonValue>([
     return n === 0 ? 0 : n / 10 ** (Math.floor(Math.log10(n)) + 1);
   }),
 
+  rule("exponent", [empty], (_) => 0),
+  rule("exponent", [word("token", "e"), reference("sign"), reference("digits")], ([_, sign, digits]) => {
+    const n = Number.parseInt(tree(digits).processed as string);
+
+    return (tree(sign).processed as number) * n;
+  }),
+  rule("exponent", [word("token", "E"), reference("sign"), reference("digits")], ([_, sign, digits]) => {
+    const n = Number.parseInt(tree(digits).processed as string);
+
+    return (tree(sign).processed as number) * n;
+  }),
+
   rule("digits", [word("zero-start-digits")], ([digits]) => digits as string),
   rule("digits", [word("digits")], ([digits]) => digits as string),
   rule("digits", [word("zero")], ([digits]) => digits as string),
+
+  rule("sign", [empty], (_) => 1),
+  rule("sign", [word("token", "+")], (_) => 1),
+  rule("sign", [word("token", "-")], (_) => -1),
+
+  rule("ws", [empty], (_) => 0),
+  rule("ws", [word("ws")], (_) => 0),
 ]);
 
 const parseJson = (jsonString: string) => {
@@ -81,19 +151,55 @@ const cases: [string, unknown][] = [
 
   ["0.1", 0.1],
   ["123.456", 123.456],
+
+  ["1e2", 100],
+  ["123E45", 123e45],
+  ["12e+34", 12e34],
+  ["12E-34", 12e-34],
+
+  ["1.23E45", 1.23e45],
+
+  ['""', ""],
+  ['"abc"', "abc"],
+
+  ['"\\""', '"'],
+  ['"\\\\"', "\\"],
+  ['"\\/"', "/"],
+  ['"\\b"', "\b"],
+  ['"\\f"', "\f"],
+  ['"\\n"', "\n"],
+  ['"\\r"', "\r"],
+  ['"\\t"', "\t"],
+  ['"\\u2bc1"', "⯁"],
+  ['"\\u2BC1"', "⯁"],
+
+  ["[]", []],
+  ["[  ]", []],
+  ["[1]", [1]],
+  [" [ 1 ] ", [1]],
+  ['[1,"a",false]', [1, "a", false]],
+  [' [ 1 , "a" , false ] ', [1, "a", false]],
+
+  ["{}", {}],
+  [" {  } ", {}],
+  ['{"a":5}', { a: 5 }],
+  [' { "a" : 5 } ', { a: 5 }],
+  ['{"a":5,"b":"foo","c":true}', { a: 5, b: "foo", c: true }],
+  [' { "a" : 5 , "b" : "foo" , "c" : true } ', { a: 5, b: "foo", c: true }],
 ];
 
 test.each(cases)("parse %s = %j", (source, expected) => {
   const result = parseJson(source);
 
-  expect(result).toBe(expected);
+  expect(result).toStrictEqual(expected);
 });
 
 const errors = [
   ["リテラル以外の文字列", "foo"],
   ["ゼロ始まりの数字", "012"],
+  ["シングルクオートで囲まれた文字列", "'abc'"],
 ];
 
-test.each(errors)("parse failed with %s", (_, source) => {
+test.each(errors)("%s は構文解析に失敗します。", (_, source) => {
   expect(() => parseJson(source)).toThrow();
 });
