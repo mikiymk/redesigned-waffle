@@ -3,6 +3,16 @@ import { EOF } from "./parse-reader";
 import type { ParseReader, ParseToken } from "./parse-reader";
 
 /**
+ * パース中にルールにない文字が出たとき、その文字を取得します。
+ * @param source ソース文字列
+ * @param position パース中の位置
+ * @returns 次の１文字
+ */
+const anyCharacter = (source: string, position: number) => {
+  return source[position];
+};
+
+/**
  *
  */
 export class TokenReaderGen {
@@ -101,6 +111,6 @@ class TokenReader implements ParseReader {
       return EOF;
     }
 
-    throw new Error("マッチするルールがありませんでした。");
+    throw new Error(`マッチするルールがありませんでした。次の文字: ${anyCharacter(this.source, this.position)}`);
   }
 }

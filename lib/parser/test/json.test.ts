@@ -10,24 +10,39 @@ type JsonValue = null | boolean | number | string | JsonValue[] | { [x: string]:
 
 const reader = new TokenReaderGen([
   ["literal", "true|false|null"],
-  ["token", "[.eE+-]"],
+  ["token", "[-.eE+[\\],]"],
   ["zero-start-digits", "0[0-9]+"],
   ["digits", "[1-9][0-9]*"],
   ["zero", "0"],
   ["string", '"([^\\\\"]|\\\\[\\\\"/bfnrt]|\\\\u[0-9a-fA-F]{4})*"'],
+  ["ws", "[\u0020\u000A\u000D\u0009]+"],
 ]);
 
 const parser = generateLRParser<JsonValue>([
   rule("json", [reference("element")], ([add]) => tree(add).processed),
 
-  rule("element", [reference("value")], ([value]) => tree(value).processed),
+  rule("element", [reference("ws"), reference("value"), reference("ws")], ([_, value]) => tree(value).processed),
 
+  rule("value", [reference("array")], ([string]) => tree(string).processed),
   rule("value", [reference("string")], ([string]) => tree(string).processed),
   rule("value", [reference("number")], ([number]) => tree(number).processed),
   rule("value", [word("literal", "true")], (_) => true),
   rule("value", [word("literal", "false")], (_) => false),
   // eslint-disable-next-line unicorn/no-null
   rule("value", [word("literal", "null")], (_) => null),
+
+  rule("array", [word("token", "["), reference("ws"), word("token", "]")], (_) => []),
+  rule(
+    "array",
+    [word("token", "["), reference("elements"), word("token", "]")],
+    ([_, elements]) => tree(elements).processed,
+  ),
+
+  rule("elements", [reference("element")], ([element]) => [tree(element).processed]),
+  rule("elements", [reference("element"), word("token", ","), reference("elements")], ([element, _, elements]) => [
+    tree(element).processed,
+    ...(tree(elements).processed as JsonValue[]),
+  ]),
 
   rule("string", [word("string")], ([string]) => {
     const s = string as string;
@@ -79,6 +94,9 @@ const parser = generateLRParser<JsonValue>([
   rule("sign", [empty], (_) => 1),
   rule("sign", [word("token", "+")], (_) => 1),
   rule("sign", [word("token", "-")], (_) => -1),
+
+  rule("ws", [empty], (_) => 0),
+  rule("ws", [word("ws")], (_) => 0),
 ]);
 
 const parseJson = (jsonString: string) => {
@@ -136,12 +154,19 @@ const cases: [string, unknown][] = [
   ['"\\t"', "\t"],
   ['"\\u2bc1"', "⯁"],
   ['"\\u2BC1"', "⯁"],
+
+  ["[]", []],
+  ["[  ]", []],
+  ["[1]", [1]],
+  [" [ 1 ] ", [1]],
+  ['[1,"a",false]', [1, "a", false]],
+  [' [ 1 , "a" , false ] ', [1, "a", false]],
 ];
 
 test.each(cases)("parse %s = %j", (source, expected) => {
   const result = parseJson(source);
 
-  expect(result).toBe(expected);
+  expect(result).toStrictEqual(expected);
 });
 
 const errors = [
