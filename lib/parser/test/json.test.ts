@@ -10,7 +10,7 @@ type JsonValue = null | boolean | number | string | JsonValue[] | { [x: string]:
 
 const reader = new TokenReaderGen([
   ["literal", "true|false|null"],
-  ["token", "[-.eE+[\\],]"],
+  ["token", "[-.eE+[\\],{}:]"],
   ["zero-start-digits", "0[0-9]+"],
   ["digits", "[1-9][0-9]*"],
   ["zero", "0"],
@@ -23,6 +23,7 @@ const parser = generateLRParser<JsonValue>([
 
   rule("element", [reference("ws"), reference("value"), reference("ws")], ([_, value]) => tree(value).processed),
 
+  rule("value", [reference("object")], ([string]) => tree(string).processed),
   rule("value", [reference("array")], ([string]) => tree(string).processed),
   rule("value", [reference("string")], ([string]) => tree(string).processed),
   rule("value", [reference("number")], ([number]) => tree(number).processed),
@@ -30,6 +31,23 @@ const parser = generateLRParser<JsonValue>([
   rule("value", [word("literal", "false")], (_) => false),
   // eslint-disable-next-line unicorn/no-null
   rule("value", [word("literal", "null")], (_) => null),
+
+  rule("object", [word("token", "{"), reference("ws"), word("token", "}")], (_) => ({})),
+  rule("object", [word("token", "{"), reference("members"), word("token", "}")], ([_, members]) =>
+    Object.fromEntries(tree(members).processed as [string, JsonValue][]),
+  ),
+
+  rule("members", [reference("member")], ([member]) => [tree(member).processed]),
+  rule("members", [reference("member"), word("token", ","), reference("members")], ([member, _, members]) => [
+    tree(member).processed,
+    ...(tree(members).processed as JsonValue[]),
+  ]),
+
+  rule(
+    "member",
+    [reference("ws"), reference("string"), reference("ws"), word("token", ":"), reference("element")],
+    ([_, key, _1, _2, value]) => [tree(key).processed, tree(value).processed],
+  ),
 
   rule("array", [word("token", "["), reference("ws"), word("token", "]")], (_) => []),
   rule(
@@ -161,6 +179,13 @@ const cases: [string, unknown][] = [
   [" [ 1 ] ", [1]],
   ['[1,"a",false]', [1, "a", false]],
   [' [ 1 , "a" , false ] ', [1, "a", false]],
+
+  ["{}", {}],
+  [" {  } ", {}],
+  ['{"a":5}', { a: 5 }],
+  [' { "a" : 5 } ', { a: 5 }],
+  ['{"a":5,"b":"foo","c":true}', { a: 5, b: "foo", c: true }],
+  [' { "a" : 5 , "b" : "foo" , "c" : true } ', { a: 5, b: "foo", c: true }],
 ];
 
 test.each(cases)("parse %s = %j", (source, expected) => {
