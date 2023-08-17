@@ -45,6 +45,8 @@ const parser = generateLRParser<number>([
 ]);
 
 const parseJson = (jsonString: string) => {
+  parser.table.printDebug();
+
   const [ok, result] = parser.parse(reader.reader(jsonString));
 
   if (!ok) {

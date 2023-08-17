@@ -27,6 +27,8 @@ const parseJson = (jsonString: string) => {
     rule("fractional", [word("dot", "."), word("digit")], ([_, digit]) => Number.parseInt(digit as string) / 10),
   ]);
 
+  parser.table.printDebug();
+
   const [ok, result] = parser.parse(reader.reader(jsonString));
 
   if (!ok) {
