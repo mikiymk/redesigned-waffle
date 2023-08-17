@@ -38,7 +38,7 @@ const parser = generateLRParser<JsonValue>([
 
   rule("fractional", [empty], (_) => 0),
   rule("fractional", [word("token", "."), reference("digits")], ([_, digits]) => {
-    const n = Number.parseInt(digits as string);
+    const n = Number.parseInt(tree(digits).processed as string);
     return n === 0 ? 0 : n / 10 ** (Math.floor(Math.log10(n)) + 1);
   }),
 
@@ -47,32 +47,16 @@ const parser = generateLRParser<JsonValue>([
   rule("digits", [word("zero")], ([digits]) => digits as string),
 ]);
 
-parser.table.printDebug();
-
 const parseJson = (jsonString: string) => {
+  // parser.table.printDebug();
+
   const [ok, result] = parser.parse(reader.reader(jsonString));
 
   if (!ok) {
     throw result;
   }
 
-  log(result);
-
   return typeof result === "string" ? result : result.processed;
-};
-
-const log = <T>(tree: Tree<T>, ind = 0) => {
-  const indentString = " ".repeat(ind);
-  if (typeof tree === "string") {
-    console.log(indentString, tree);
-  } else {
-    console.log(indentString, "index:", tree.index);
-    console.log(indentString, "children:");
-    for (const child of tree.children) {
-      log(child, ind + 1);
-    }
-    console.log(indentString, "processed:", tree.processed);
-  }
 };
 
 const tree = <T>(tree: Tree<T> | undefined): TreeBranch<T> => {

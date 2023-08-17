@@ -1,9 +1,14 @@
+import { empty } from "@/lib/rules/define-rules";
+
 import { eachRules } from "../left-to-right-leftmost/rule-indexes";
 import { ReferenceToken } from "../rules/reference-token";
+import { getFirstSet, getFirstSetList } from "../token-set/first-set";
+import { ObjectMap } from "../util/object-map";
 
 import { LR0Item } from "./lr0-item";
 
-import type { RuleName, Syntax } from "@/lib/rules/define-rules";
+import type { ObjectSet } from "../util/object-set";
+import type { RuleName, Syntax, FollowSetToken } from "@/lib/rules/define-rules";
 
 /**
  * ドットが非終端記号の前にある場合、その非終端記号を展開したアイテムリストを作る
@@ -12,45 +17,66 @@ import type { RuleName, Syntax } from "@/lib/rules/define-rules";
  * @returns アイテム集合
  */
 export const closure = <T>(syntax: Syntax<T>, item: LR0Item<T>): LR0Item<T>[] => {
-  // アイテムからドットの後ろのトークンを得る
-  const nextToken = item.nextToken();
+  const closuredItems = [item];
+  const closuredItemSet = new ObjectMap([[item, item]]);
 
-  if (nextToken instanceof ReferenceToken) {
-    // 次のトークンが非終端記号なら
-    const ruleName = nextToken.name;
+  for (const item of closuredItems) {
+    // アイテムからドットの後ろのトークンを得る
+    const nextToken = item.nextToken();
 
-    return expansionItems(syntax, ruleName);
+    if (nextToken instanceof ReferenceToken) {
+      // 次のトークンが非終端記号なら
+      // 非終端記号を展開する
+      const ruleName = nextToken.name;
+      const expansionedItems = expansionItems(syntax, ruleName);
+      const items = [];
+
+      // 展開した新しいアイテムを追加する
+      for (const item of expansionedItems) {
+        const existingItem = closuredItemSet.get(item);
+        if (existingItem) {
+          items.push(existingItem);
+        } else {
+          closuredItems.push(item);
+          closuredItemSet.set(item, item);
+          items.push(item);
+        }
+      }
+
+      // さらに後ろのトークンのリスト
+      const afterNextToken = item.rule.tokens.slice(item.position + 1);
+
+      // First集合を求める
+      const firstSetList = getFirstSetList(syntax);
+      const afterNextTokenFirst: ObjectSet<FollowSetToken> = getFirstSet(syntax, firstSetList, afterNextToken);
+
+      // もし、Emptyが含まれるならば、先読み集合を追加する。
+      if (afterNextTokenFirst.has(empty)) {
+        afterNextTokenFirst.delete(empty);
+        afterNextTokenFirst.append(item.lookahead);
+      }
+
+      for (const item of items) {
+        item.lookahead.append(afterNextTokenFirst);
+      }
+    }
   }
 
-  return [];
+  return closuredItems.slice(1);
 };
 
 /**
- * 再帰的にルール名から展開する
+ * ルール名から展開する
  * @param syntax 構文ルールリスト
  * @param ruleName ルール名
- * @param calledRule 無限再帰を防ぐため、一度呼ばれたルール名を記録しておく
  * @returns ルールから予測される
  */
-const expansionItems = <T>(
-  syntax: Syntax<T>,
-  ruleName: RuleName,
-  calledRule: Set<RuleName> = new Set(),
-): LR0Item<T>[] => {
-  calledRule.add(ruleName);
-
+const expansionItems = <T>(syntax: Syntax<T>, ruleName: RuleName): LR0Item<T>[] => {
   const items: LR0Item<T>[] = [];
 
   for (const [_, [rule]] of eachRules(syntax, ruleName, [syntax])) {
     // 各ルールについて実行する
-
     items.push(new LR0Item(rule));
-
-    // さらにそのルールの先頭が非終端記号だった場合、再帰的に追加する
-    const firstToken = rule.tokens[0];
-    if (firstToken instanceof ReferenceToken && !calledRule.has(firstToken.name)) {
-      items.push(...expansionItems(syntax, firstToken.name));
-    }
   }
 
   return items;

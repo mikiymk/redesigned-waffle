@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { reference, rule, word } from "@/lib/rules/define-rules";
+import { eof, reference, rule, word } from "@/lib/rules/define-rules";
 import { ObjectSet } from "@/lib/util/object-set";
 
 import { closure } from "../closure";
@@ -25,7 +25,7 @@ const syntax: Syntax<undefined> = [
 ];
 
 test("closure test non-terminal", () => {
-  const item = new LR0Item<undefined>(syntax[0]!);
+  const item = new LR0Item<undefined>(syntax[0]!, 0, [eof]);
 
   const result = groupByNextToken([item, ...closure(syntax, item)]);
 
@@ -33,13 +33,36 @@ test("closure test non-terminal", () => {
     [
       reference("E"),
       new ObjectSet<LR0Item<undefined>>([
-        new LR0Item(rule("S", [reference("E")])),
-        new LR0Item(rule("E", [reference("E"), word("word", "*"), reference("B")])),
-        new LR0Item(rule("E", [reference("E"), word("word", "+"), reference("B")])),
+        new LR0Item(rule("S", [reference("E")]), 0, [eof]),
+        new LR0Item(rule("E", [reference("E"), word("word", "*"), reference("B")]), 0, [
+          eof,
+          word("word", "*"),
+          word("word", "+"),
+        ]),
+        new LR0Item(rule("E", [reference("E"), word("word", "+"), reference("B")]), 0, [
+          eof,
+          word("word", "*"),
+          word("word", "+"),
+        ]),
       ]),
     ],
-    [reference("B"), new ObjectSet<LR0Item<undefined>>([new LR0Item(rule("E", [reference("B")]))])],
-    [word("word", "0"), new ObjectSet<LR0Item<undefined>>([new LR0Item(rule("B", [word("word", "0")]))])],
-    [word("word", "1"), new ObjectSet<LR0Item<undefined>>([new LR0Item(rule("B", [word("word", "1")]))])],
+    [
+      reference("B"),
+      new ObjectSet<LR0Item<undefined>>([
+        new LR0Item(rule("E", [reference("B")]), 0, [eof, word("word", "*"), word("word", "+")]),
+      ]),
+    ],
+    [
+      word("word", "0"),
+      new ObjectSet<LR0Item<undefined>>([
+        new LR0Item(rule("B", [word("word", "0")]), 0, [eof, word("word", "*"), word("word", "+")]),
+      ]),
+    ],
+    [
+      word("word", "1"),
+      new ObjectSet<LR0Item<undefined>>([
+        new LR0Item(rule("B", [word("word", "1")]), 0, [eof, word("word", "*"), word("word", "+")]),
+      ]),
+    ],
   ]);
 });

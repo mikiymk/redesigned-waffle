@@ -1,57 +1,55 @@
-import { expect, test } from "vitest";
+import { describe, expect, test } from "vitest";
 
+import { closure } from "@/lib/left-to-right-rightmost/closure";
+import { groupByNextToken } from "@/lib/left-to-right-rightmost/group-next-token";
+import { LR0Item } from "@/lib/left-to-right-rightmost/lr0-item";
+import { ParseTableRow } from "@/lib/left-to-right-rightmost/parse-table-row";
 import { generateLRParser } from "@/lib/main";
 import { TokenReaderGen } from "@/lib/reader/token-reader";
-import { reference, rule, word } from "@/lib/rules/define-rules";
+import { empty, eof, reference, rule, word } from "@/lib/rules/define-rules";
+import { getFirstSet, getFirstSetList } from "@/lib/token-set/first-set";
+import { ObjectSet } from "@/lib/util/object-set";
 
 import type { Tree, TreeBranch } from "@/lib/parser/tree";
+import type { Syntax } from "@/lib/rules/define-rules";
 
-type JsonValue = null | boolean | number | string | JsonValue[] | { [x: string]: JsonValue };
+// (0) S -> N
+// (1) N -> I
+// (2) N -> I F
+// (3) I -> dig
+// (4) F -> dot dig
+const grammar: Syntax<number> = [
+  rule("start", [reference("num")], ([number]) => tree(number).processed),
 
-const reader = new TokenReaderGen([
-  ["digit", "[0-9]"],
-  ["dot", "."],
-]);
-
-const parser = generateLRParser<JsonValue>([
-  rule("number", [reference("integer")], ([integer]) => tree(integer).processed as number),
+  rule("num", [reference("int")], ([integer]) => tree(integer).processed),
   rule(
-    "number",
-    [reference("integer"), reference("fractional")],
-    ([integer, fractional]) => (tree(integer).processed as number) + (tree(fractional).processed as number),
+    "num",
+    [reference("int"), reference("frac")],
+    ([integer, fractional]) => tree(integer).processed + tree(fractional).processed,
   ),
 
-  rule("integer", [word("digit")], ([digit]) => Number.parseInt(digit as string)),
+  rule("int", [word("dig")], ([digit]) => Number.parseInt(digit as string)),
 
-  rule("fractional", [word("dot", "."), word("digit")], ([_, digit]) => Number.parseInt(digit as string) / 10),
-]);
-
-parser.table.printDebug();
+  rule("frac", [word("dot", "."), word("dig")], ([_, digit]) => Number.parseInt(digit as string) / 10),
+];
 
 const parseJson = (jsonString: string) => {
+  const reader = new TokenReaderGen([
+    ["dig", "[0-9]"],
+    ["dot", "."],
+  ]);
+
+  const parser = generateLRParser<number>(grammar);
+
+  // parser.table.printDebug();
+
   const [ok, result] = parser.parse(reader.reader(jsonString));
 
   if (!ok) {
     throw result;
   }
 
-  log(result);
-
   return typeof result === "string" ? result : result.processed;
-};
-
-const log = <T>(tree: Tree<T>, ind = 0) => {
-  const indentString = " ".repeat(ind);
-  if (typeof tree === "string") {
-    console.log(indentString, tree);
-  } else {
-    console.log(indentString, "index:", tree.index);
-    console.log(indentString, "children:");
-    for (const child of tree.children) {
-      log(child, ind + 1);
-    }
-    console.log(indentString, "processed:", tree.processed);
-  }
 };
 
 const tree = <T>(tree: Tree<T> | undefined): TreeBranch<T> => {
@@ -86,4 +84,122 @@ const errors = [
 
 test.each(errors)("parse failed with %s", (_, source) => {
   expect(() => parseJson(source)).toThrow();
+});
+
+describe("処理の流れで調べる", () => {
+  test("最初のルールがある", () => {
+    expect(grammar[0]).toBeDefined();
+  });
+
+  test("最初のルールをLRアイテムに変換する", () => {
+    const result = new LR0Item(grammar[0]!, 0, [eof]);
+
+    expect(result).toStrictEqual(new LR0Item(rule("start", [reference("num")]), 0, [eof]));
+  });
+
+  test("アイテムの後ろの部分のFirst集合を求める", () => {
+    const firstSetList = getFirstSetList(grammar);
+
+    {
+      const item = new LR0Item(grammar[0]!, 0, [eof]);
+      const afterNextToken = item.rule.tokens.slice(item.position + 1);
+
+      const result = [...getFirstSet(grammar, firstSetList, afterNextToken)];
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toStrictEqual(empty);
+    }
+
+    {
+      const item = new LR0Item(grammar[1]!, 0, [eof]);
+      const afterNextToken = item.rule.tokens.slice(item.position + 1);
+
+      const result = [...getFirstSet(grammar, firstSetList, afterNextToken)];
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toStrictEqual(empty);
+    }
+
+    {
+      const item = new LR0Item(grammar[2]!, 0, [eof]);
+      const afterNextToken = item.rule.tokens.slice(item.position + 1);
+
+      const result = [...getFirstSet(grammar, firstSetList, afterNextToken)];
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toStrictEqual(word("dot", "."));
+    }
+
+    {
+      const item = new LR0Item(grammar[3]!, 0, [eof]);
+      const afterNextToken = item.rule.tokens.slice(item.position + 1);
+
+      const result = [...getFirstSet(grammar, firstSetList, afterNextToken)];
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toStrictEqual(empty);
+    }
+  });
+
+  test("最初のアイテムをクロージャ展開する", () => {
+    const firstItem = new LR0Item(grammar[0]!, 0, [eof]);
+
+    const result = closure(grammar, firstItem).map((value) => value.toKeyString());
+
+    expect(result).toHaveLength(3);
+    expect(result).toContain(new LR0Item(rule<number>("num", [reference("int")]), 0, [eof]).toKeyString());
+    expect(result).toContain(
+      new LR0Item(rule<number>("num", [reference("int"), reference("frac")]), 0, [eof]).toKeyString(),
+    );
+    expect(result).toContain(new LR0Item(rule<number>("int", [word("dig")]), 0, [eof, word("dot", ".")]).toKeyString());
+  });
+
+  test("最初のアイテムから最初の行を作成する", () => {
+    const firstItem = new LR0Item(grammar[0]!, 0, [eof]);
+
+    const result = new ParseTableRow(grammar, [firstItem]);
+
+    expect(result.kernels.size).toBe(1);
+    expect(result.kernels.has(new LR0Item(rule<number>("start", [reference("num")]), 0, [eof]))).toBe(true);
+
+    expect(result.additions.size).toBe(3);
+    expect(result.additions.has(new LR0Item(rule<number>("num", [reference("int")]), 0, [eof]))).toBe(true);
+    expect(
+      result.additions.has(new LR0Item(rule<number>("num", [reference("int"), reference("frac")]), 0, [eof])),
+    ).toBe(true);
+    expect(result.additions.has(new LR0Item(rule<number>("int", [word("dig")]), 0, [eof, word("dot", ".")]))).toBe(
+      true,
+    );
+  });
+
+  test("最初の行のアイテムをグループ分けする", () => {
+    const result = groupByNextToken(
+      new ObjectSet([
+        new LR0Item(rule<number>("start", [reference("num")]), 0, [eof]),
+        new LR0Item(rule<number>("num", [reference("int")]), 0, [eof]),
+        new LR0Item(rule<number>("num", [reference("int"), reference("frac")]), 0, [eof]),
+        new LR0Item(rule<number>("int", [word("dig")]), 0, [eof, word("dot", ".")]),
+      ]),
+    );
+
+    expect(result).toHaveLength(3);
+
+    expect(result[0]).toStrictEqual([
+      reference("num"),
+      new ObjectSet([new LR0Item(rule<number>("start", [reference("num")]), 0, [eof])]),
+    ]);
+
+    expect(result[1]).toStrictEqual([
+      reference("int"),
+      new ObjectSet([
+        new LR0Item(rule<number>("num", [reference("int")]), 0, [eof]),
+        new LR0Item(rule<number>("num", [reference("int"), reference("frac")]), 0, [eof]),
+      ]),
+    ]);
+
+    expect(result[2]).toStrictEqual([
+      word("dig"),
+      new ObjectSet([new LR0Item(rule<number>("int", [word("dig")]), 0, [eof, word("dot", ".")])]),
+    ]);
+  });
 });

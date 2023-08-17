@@ -1,8 +1,6 @@
 import { eof } from "@/lib/rules/define-rules";
 
-import { getDirectorSetList } from "../token-set/director-set";
-import { getFirstSetList } from "../token-set/first-set";
-import { getFollowSetList } from "../token-set/follow-set";
+import { ObjectMap } from "../util/object-map";
 import { ObjectSet } from "../util/object-set";
 import { primitiveToString } from "../util/primitive-to-string";
 import { zip } from "../util/zip-array";
@@ -15,7 +13,7 @@ import { ParseTableRow } from "./parse-table-row";
 import type { MatchResult } from "./parse-table-row";
 import type { ParseReader, Result } from "../reader/parse-reader";
 import type { ReferenceToken } from "../rules/reference-token";
-import type { DirectorSetToken, Syntax, TermToken } from "@/lib/rules/define-rules";
+import type { DirectorSetToken, NonTermToken, Syntax, TermToken, Token } from "@/lib/rules/define-rules";
 
 /**
  * 構文ルールリストからアイテム集合のリストを作ります。
@@ -30,25 +28,6 @@ export const generateParseTable = <T>(syntax: Syntax<T>): ParseTable<T> => {
     throw new Error("文法は１つ以上のルールが必要です。");
   }
 
-  const firstSet = getFirstSetList(syntax);
-  const followSet = getFollowSetList(syntax, firstSet);
-  const lookaheadSet = getDirectorSetList(firstSet, followSet);
-
-  console.log("# parse table");
-  console.log("first set:");
-  for (const set of firstSet) {
-    console.log(" ", set.toKeyString());
-  }
-  console.log("follow set:");
-  for (const set of followSet) {
-    console.log(" ", set.toKeyString());
-  }
-  console.log("lookahead set:");
-  for (const set of lookaheadSet) {
-    console.log(" ", set.toKeyString());
-  }
-  console.log();
-
   const firstItem = new LR0Item(firstRule, 0, [eof]);
 
   const itemSetList = [new ParseTableRow(syntax, [firstItem])];
@@ -61,7 +40,6 @@ export const generateParseTable = <T>(syntax: Syntax<T>): ParseTable<T> => {
 
     // 各グループについて
     outer: for (const [token, itemSet] of groups) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const next = nextItemSet(itemSet);
 
       // もし既存のアイテム集合に同じものがあったら
@@ -166,39 +144,127 @@ export class ParseTable<T> {
   }
 
   /**
-   * デバッグ用に表示します
+   * デバッグ出力
    */
   printDebug(): void {
-    for (const [index, shift, goto, accept, reduce] of zip(this.shift, this.goto, this.accept, this.reduce)) {
-      console.log("table-row", index, ":");
+    const termTokenSet = new ObjectSet<TermToken>();
+    const nonTermTokenSet = new ObjectSet<NonTermToken>();
 
-      if (shift.length > 0) {
-        console.log("  shift:");
-        for (const [token, number] of shift) {
-          console.log("   ", token.toString(), "→", number);
-        }
+    for (const [_, reduce, accept, shift, goto] of zip(this.reduce, this.accept, this.shift, this.goto)) {
+      for (const [set] of reduce) {
+        termTokenSet.append(set.difference(new ObjectSet([eof])) as ObjectSet<TermToken>);
       }
 
-      if (goto.length > 0) {
-        console.log("  goto:");
-        for (const [token, number] of goto) {
-          console.log("   ", token.toString(), "→", number);
-        }
+      for (const [set] of accept) {
+        termTokenSet.append(set.difference(new ObjectSet([eof])) as ObjectSet<TermToken>);
       }
-      if (reduce.length > 0) {
-        console.log("  reduce:");
-        for (const [token, number] of reduce) {
-          console.log("   ", token.toKeyString(), "→", number);
-        }
+
+      for (const [token] of shift) {
+        termTokenSet.add(token);
       }
-      if (accept.length > 0) {
-        console.log("  accept:");
-        for (const [token, number] of accept) {
-          console.log("   ", token.toKeyString(), "→", number);
+
+      for (const [token] of goto) {
+        nonTermTokenSet.add(token);
+      }
+    }
+
+    const termTokens = [...termTokenSet].sort((a, b) => {
+      if (a.type < b.type) {
+        return -1;
+      }
+      if (a.type > b.type) {
+        return 1;
+      }
+
+      if (a.word == undefined) {
+        return -1;
+      }
+      if (b.word == undefined) {
+        return 1;
+      }
+
+      if (a.word < b.word) {
+        return -1;
+      }
+      if (a.word > b.word) {
+        return 1;
+      }
+
+      return 0;
+    });
+
+    let lineString = "| State |";
+    let lineString1 = "| ----- |";
+    for (const term of termTokens) {
+      const termTitle = term.word ? `${term.type} ${term.word}` : `${term.type}`;
+      lineString += ` ${termTitle} |`;
+      lineString1 += ` ${"-".repeat(termTitle.length)} |`;
+    }
+
+    lineString += "   $ |";
+    lineString1 += " --- |";
+
+    for (const nonTerm of nonTermTokenSet) {
+      const nonTermTitle = typeof nonTerm.name === "symbol" ? `Symbol(${nonTerm.name.description})` : nonTerm.name;
+      lineString += ` ${nonTermTitle} |`;
+      lineString1 += ` ${"-".repeat(nonTermTitle.length)} |`;
+    }
+
+    console.log(lineString);
+    console.log(lineString1);
+
+    for (const [index, reduce, accept, shift, goto] of zip(this.reduce, this.accept, this.shift, this.goto)) {
+      const tokenMap = new ObjectMap<Token, string[]>();
+
+      for (const [set, n] of reduce) {
+        for (const token of set) {
+          const value = tokenMap.get(token) ?? [];
+          value.push(`r ${n}`);
+          tokenMap.set(token, value);
         }
       }
 
-      console.log();
+      for (const [set] of accept) {
+        for (const token of set) {
+          const value = tokenMap.get(token) ?? [];
+          value.push("acc");
+          tokenMap.set(token, value);
+        }
+      }
+
+      for (const [token, n] of shift) {
+        const value = tokenMap.get(token) ?? [];
+        value.push(`s ${n}`);
+        tokenMap.set(token, value);
+      }
+
+      for (const [token, n] of goto) {
+        const value = tokenMap.get(token) ?? [];
+        value.push(`g ${n}`);
+        tokenMap.set(token, value);
+      }
+
+      lineString = `| ${index.toString().padStart(5, " ")} |`;
+
+      for (const term of termTokens) {
+        const termTitle = term.word ? `${term.type} ${term.word}` : `${term.type}`;
+        const result = tokenMap.get(term);
+        const termValue = (result?.join("<br>") ?? "").padEnd(termTitle.length, " ");
+
+        lineString += ` ${termValue} |`;
+      }
+
+      lineString += ` ${tokenMap.get(eof)?.join("<br>") ?? "   "} |`;
+
+      for (const nonTerm of nonTermTokenSet) {
+        const nonTermTitle = typeof nonTerm.name === "symbol" ? `Symbol(${nonTerm.name.description})` : nonTerm.name;
+        const result = tokenMap.get(nonTerm);
+        const nonTermValue = (result?.join("<br>") ?? "").padEnd(nonTermTitle.length, " ");
+
+        lineString += ` ${nonTermValue} |`;
+      }
+
+      console.log(lineString);
     }
   }
 }

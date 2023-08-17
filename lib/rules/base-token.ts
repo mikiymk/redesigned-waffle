@@ -25,12 +25,6 @@ export type BaseToken = {
    * @returns 等しいなら`true`
    */
   equals(other: BaseToken): boolean;
-
-  /**
-   * デバッグ用に出力をします。
-   * @param indent インデント数
-   */
-  debugPrint(indent?: number): void;
 };
 
 export type TerminalToken = {

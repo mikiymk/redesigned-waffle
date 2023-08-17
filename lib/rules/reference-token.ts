@@ -52,13 +52,4 @@ export class ReferenceToken implements BaseToken {
   equals(other: BaseToken): boolean {
     return other instanceof ReferenceToken && other.name === this.name;
   }
-
-  /**
-   * デバッグ用に出力をします。
-   * @param indent インデント数
-   */
-  debugPrint(indent = 0): void {
-    const indentSpaces = " ".repeat(indent);
-    console.log(indentSpaces, this.toString());
-  }
 }

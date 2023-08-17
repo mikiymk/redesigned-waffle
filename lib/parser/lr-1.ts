@@ -1,4 +1,5 @@
 import { peek, EOF } from "../reader/parse-reader";
+import { empty } from "../rules/define-rules";
 
 import type { Tree } from "./tree";
 import type { ParseTable } from "../left-to-right-rightmost/parse-table";
@@ -39,7 +40,7 @@ export class LRParser<T> {
         const rule = this.grammar[index];
 
         if (rule) {
-          const tokens = rule.tokens;
+          const tokens = rule.tokens.filter((token) => token !== empty);
           const children = tree.splice(-tokens.length, tokens.length);
           tree.push({
             index,
@@ -63,7 +64,7 @@ export class LRParser<T> {
     if (rule) {
       const { tokens } = rule;
 
-      if (tokens.length === tree.length) {
+      if (tokens.filter((token) => token !== empty).length === tree.length) {
         return [
           true,
           {
@@ -111,7 +112,7 @@ export class LRParser<T> {
           }
 
           const { name, tokens } = rule;
-          for (const _ of tokens) {
+          for (const _ of tokens.filter((token) => token !== empty)) {
             stack.pop();
           }
 
