@@ -18,7 +18,7 @@ export class WordToken implements BaseToken, TerminalToken {
    * @param type ワードタイプ
    * @param word ワード
    */
-  constructor(type: string, word?: string) {
+  constructor(type: string, word?: string | undefined) {
     if (type.length === 0 || word?.length === 0) {
       throw new Error("単語と種類は１文字以上である必要があります。");
     }
@@ -86,14 +86,5 @@ export class WordToken implements BaseToken, TerminalToken {
    */
   equals(other: BaseToken): boolean {
     return other instanceof WordToken && other.type === this.type && other.word === this.word;
-  }
-
-  /**
-   * デバッグ用に出力をします。
-   * @param indent インデント数
-   */
-  debugPrint(indent = 0): void {
-    const indentSpaces = " ".repeat(indent);
-    console.log(indentSpaces, this.toString());
   }
 }

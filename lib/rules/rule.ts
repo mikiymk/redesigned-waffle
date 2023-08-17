@@ -44,7 +44,7 @@ export class Rule<T> {
    * @returns 処理済み値
    */
   process(children: Tree<T>[]) {
-    return this.#process?.(children) ?? (undefined as unknown as T);
+    return this.#process ? this.#process(children) : (undefined as unknown as T);
   }
 
   /**
