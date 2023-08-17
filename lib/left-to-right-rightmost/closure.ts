@@ -49,7 +49,7 @@ export const closure = <T>(syntax: Syntax<T>, item: LR0Item<T>): LR0Item<T>[] =>
       // First集合を求める
       const firstSetList = getFirstSetList(syntax);
       const afterNextTokenFirst: ObjectSet<FollowSetToken> = getFirstSet(syntax, firstSetList, afterNextToken);
-      
+
       // もし、Emptyが含まれるならば、先読み集合を追加する。
       if (afterNextTokenFirst.has(empty)) {
         afterNextTokenFirst.delete(empty);
