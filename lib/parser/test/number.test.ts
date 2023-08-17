@@ -32,7 +32,7 @@ const reader = new TokenReaderGen([
 const parser = generateLRParser(grammar);
 
 const parseNumber = (jsonString: string) => {
-  parser.table.printDebug();
+  // parser.table.printDebug();
 
   const [ok, result] = parser.parse(reader.reader(jsonString));
 
@@ -40,7 +40,7 @@ const parseNumber = (jsonString: string) => {
     throw result;
   }
 
-  log(result);
+  // _log(result);
 
   return typeof result === "string" ? result : result.processed;
 };
@@ -58,7 +58,7 @@ const tree = <T>(tree: Tree<T> | undefined, default_?: T): T => {
   return tree.processed;
 };
 
-const log = <T>(tree: Tree<T>, ind = 0) => {
+const _log = <T>(tree: Tree<T>, ind = 0) => {
   const indentString = "  ".repeat(ind);
   if (typeof tree === "string") {
     console.log(indentString, " ", tree);
@@ -67,7 +67,7 @@ const log = <T>(tree: Tree<T>, ind = 0) => {
     console.log(indentString, " ", "index:", tree.index);
     console.log(indentString, " ", "children:");
     for (const child of tree.children) {
-      log(child, ind + 1);
+      _log(child, ind + 1);
     }
     console.log(indentString, " ", "processed:", tree.processed);
     console.log(indentString, "}");

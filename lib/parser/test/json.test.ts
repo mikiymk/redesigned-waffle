@@ -10,7 +10,7 @@ type JsonValue = null | boolean | number | string | JsonValue[] | { [x: string]:
 
 const reader = new TokenReaderGen([
   ["literal", "true|false|null"],
-  ["token", "[.]"],
+  ["token", "[.eE+-]"],
   ["zero-start-digits", "0[0-9]+"],
   ["digits", "[1-9][0-9]*"],
   ["zero", "0"],
@@ -29,8 +29,10 @@ const parser = generateLRParser<JsonValue>([
 
   rule(
     "number",
-    [reference("integer"), reference("fractional")],
-    ([integer, fractional]) => (tree(integer).processed as number) + (tree(fractional).processed as number),
+    [reference("integer"), reference("fractional"), reference("exponent")],
+    ([integer, fractional, exponent]) =>
+      ((tree(integer).processed as number) + (tree(fractional).processed as number)) *
+      10 ** (tree(exponent).processed as number),
   ),
 
   rule("integer", [word("zero")], ([zero]) => Number.parseInt(zero as string)),
@@ -42,9 +44,25 @@ const parser = generateLRParser<JsonValue>([
     return n === 0 ? 0 : n / 10 ** (Math.floor(Math.log10(n)) + 1);
   }),
 
+  rule("exponent", [empty], (_) => 0),
+  rule("exponent", [word("token", "e"), reference("sign"), reference("digits")], ([_, sign, digits]) => {
+    const n = Number.parseInt(tree(digits).processed as string);
+
+    return (tree(sign).processed as number) * n;
+  }),
+  rule("exponent", [word("token", "E"), reference("sign"), reference("digits")], ([_, sign, digits]) => {
+    const n = Number.parseInt(tree(digits).processed as string);
+
+    return (tree(sign).processed as number) * n;
+  }),
+
   rule("digits", [word("zero-start-digits")], ([digits]) => digits as string),
   rule("digits", [word("digits")], ([digits]) => digits as string),
   rule("digits", [word("zero")], ([digits]) => digits as string),
+
+  rule("sign", [empty], (_) => 1),
+  rule("sign", [word("token", "+")], (_) => 1),
+  rule("sign", [word("token", "-")], (_) => -1),
 ]);
 
 const parseJson = (jsonString: string) => {
@@ -81,6 +99,13 @@ const cases: [string, unknown][] = [
 
   ["0.1", 0.1],
   ["123.456", 123.456],
+
+  ["1e2", 100],
+  ["123E45", 123e45],
+  ["12e+34", 12e34],
+  ["12E-34", 12e-34],
+
+  ["1.23E45", 1.23e45],
 ];
 
 test.each(cases)("parse %s = %j", (source, expected) => {
@@ -94,6 +119,6 @@ const errors = [
   ["ゼロ始まりの数字", "012"],
 ];
 
-test.each(errors)("parse failed with %s", (_, source) => {
+test.each(errors)("%s は構文解析に失敗します。", (_, source) => {
   expect(() => parseJson(source)).toThrow();
 });
