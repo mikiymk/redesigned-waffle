@@ -25,6 +25,11 @@ export class TokenReaderGen {
   constructor(tokenRules: [type: string, pattern: string][]) {
     this.rules = tokenRules.map(([type, pattern]) => {
       const regexp = new RegExp(pattern, "y");
+
+      if (regexp.test("")) {
+        throw new Error(`パターン ${type} は空文字列にマッチします。 ${pattern}`);
+      }
+
       return [
         type,
         (source: string, position: number): string | undefined => {

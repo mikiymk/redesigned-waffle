@@ -28,3 +28,7 @@ test("記号と文字を分けて読み込む", () => {
   expect(reader.read()).toStrictEqual({ type: "word", value: "efg" });
   expect(reader.read()).toStrictEqual(EOF);
 });
+
+test("空のパターン", () => {
+  expect(() => new TokenReaderGen([["word", "[a-z]*"]])).toThrow();
+});
