@@ -119,7 +119,7 @@ export class ObjectMap<K extends ToKey, V> {
     }
 
     for (const [key, value] of this) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      // rome-ignore lint/style/noNonNullAssertion: <explanation>
       if (!(comparator?.(other.get(key)!, value) ?? other.get(key) === value)) {
         return false;
       }

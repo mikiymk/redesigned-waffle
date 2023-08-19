@@ -19,7 +19,9 @@ export const isValidLLGrammar = <T>(
   for (const name of getRuleNames(syntax)) {
     for (const [left, [leftRule]] of eachRules(syntax, name, [directorSetList])) {
       for (const [right, [rightRule]] of eachRules(syntax, name, [directorSetList])) {
-        if (left === right) continue;
+        if (left === right) {
+          continue;
+        }
 
         if (!isDisjoint(leftRule, rightRule)) {
           return [

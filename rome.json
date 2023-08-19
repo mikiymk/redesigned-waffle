@@ -31,15 +31,12 @@
                 "useShorthandArrayType": "error",
                 "useSingleCaseStatement": "error"
             },
-            "suspicious": {
-                "noConsoleLog": "warn"
-            },
+            "suspicious": {},
             "nursery": {}
         }
     },
     "organizeImports": {
         "enabled": true
     },
-    "javascript": {},
-    "json": {}
+    "javascript": {}
 }

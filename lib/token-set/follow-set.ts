@@ -1,4 +1,4 @@
-import { eof, empty } from "@/lib/rules/define-rules";
+import { empty, eof } from "@/lib/rules/define-rules";
 
 import { eachRules } from "../left-to-right-leftmost/rule-indexes";
 import { ObjectSet } from "../util/object-set";
@@ -56,7 +56,7 @@ const generateFollowSet = <T>(
   const rule = syntax[index];
   const followSet = followSetList[index];
 
-  if (!followSet || !rule) {
+  if (!(followSet && rule)) {
     throw new Error(`文法のルール数:${syntax.length}ですが、${index}個目の要素にアクセスしようとしました。`);
   }
 

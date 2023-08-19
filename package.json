@@ -10,13 +10,15 @@
     "format": "rome format src lib --write",
     "lint:ts": "tsc",
     "lint:eslint": "eslint src lib --cache",
+    "lint:rome": "rome check src lib",
+    "lint:rome-ci": "rome ci src lib",
     "build:page": "vite build",
     "build:lib": "vite build --mode lib",
     "build:lib-type": "tsc --project ./tsconfig.lib.json",
     "serve": "vite",
     "watch:test": "vitest watch",
     "watch:ts": "tsc --watch",
-    "check-all": "run-s format lint:ts lint:eslint test build:page build:lib build:lib-type"
+    "check-all": "run-s format lint:ts lint:eslint lint:rome test build:page build:lib build:lib-type"
   },
   "keywords": [],
   "author": "mikiymk",

@@ -18,6 +18,11 @@ export const zip = function* <T extends readonly (readonly unknown[])[]>(
   }
 
   for (const index of firstArray.keys()) {
-    yield [index, ...(arrays.map((array) => array[index]) as { [K in keyof T]: T[K][number] })];
+    yield [
+      index,
+      ...(arrays.map((array) => array[index]) as {
+        [K in keyof T]: T[K][number];
+      }),
+    ];
   }
 };

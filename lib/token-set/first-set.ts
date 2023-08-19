@@ -54,7 +54,7 @@ const generateFirstSet = <T>(
   const rule = syntax[index];
   const firstSet = firstSetList[index];
 
-  if (!firstSet || !rule) {
+  if (!(firstSet && rule)) {
     throw new Error(`文法のルール数:${syntax.length}ですが、${index}個目の要素にアクセスしようとしました。`);
   }
 
@@ -90,9 +90,6 @@ export const getFirstSet = <T>(
 
         set.add(token);
         return set;
-      } else {
-        // もし、空かつその後にトークンがあるなら、後ろのトークンを文字集合に追加する
-        continue;
       }
     } else if (token instanceof ReferenceToken) {
       // もし、他のルールなら、そのルールの文字集合を文字集合に追加する

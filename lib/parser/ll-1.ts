@@ -1,14 +1,13 @@
 import { getMatchRuleIndex } from "../left-to-right-leftmost/get-match-rule";
 import { eof, reference } from "../rules/define-rules";
-import { EmptyToken } from "../rules/empty-token";
 import { EOFToken } from "../rules/eof-token";
 import { ReferenceToken } from "../rules/reference-token";
 import { WordToken } from "../rules/word-token";
 
-import type { Tree } from "./tree";
 import type { ParseReader, Result } from "../reader/parse-reader";
 import type { DirectorSetToken, Syntax, Token } from "../rules/define-rules";
 import type { ObjectSet } from "../util/object-set";
+import type { Tree } from "./tree";
 
 /**
  * LLパーサー
@@ -54,7 +53,7 @@ export class LLParser<T> {
           break;
         }
 
-        return [false, new Error(`文字列の終端が期待されましたが、読んでいない残りの文字列があります。`)];
+        return [false, new Error("文字列の終端が期待されましたが、読んでいない残りの文字列があります。")];
       } else if (token instanceof ReferenceToken) {
         // 非終端記号の場合
         const [ok, ruleIndex] = getMatchRuleIndex(this.grammar, this.directorSetList, token.name, pr);
@@ -80,8 +79,6 @@ export class LLParser<T> {
         } else {
           return [false, result];
         }
-      } else if (token instanceof EmptyToken) {
-        continue;
       }
     }
 

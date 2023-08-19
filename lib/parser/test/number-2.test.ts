@@ -92,7 +92,12 @@ describe("処理の流れで調べる", () => {
   });
 
   test("最初のルールをLRアイテムに変換する", () => {
-    const result = new LR0Item(grammar[0]!, 0, [eof]);
+    const baseRule = grammar[0];
+    if (!baseRule) {
+      expect.fail("rule is null");
+    }
+
+    const result = new LR0Item(baseRule, 0, [eof]);
 
     expect(result).toStrictEqual(new LR0Item(rule("start", [reference("num")]), 0, [eof]));
   });
@@ -101,7 +106,12 @@ describe("処理の流れで調べる", () => {
     const firstSetList = getFirstSetList(grammar);
 
     {
-      const item = new LR0Item(grammar[0]!, 0, [eof]);
+      const baseRule = grammar[0];
+      if (!baseRule) {
+        expect.fail("rule is null");
+      }
+
+      const item = new LR0Item(baseRule, 0, [eof]);
       const afterNextToken = item.rule.tokens.slice(item.position + 1);
 
       const result = [...getFirstSet(grammar, firstSetList, afterNextToken)];
@@ -111,7 +121,12 @@ describe("処理の流れで調べる", () => {
     }
 
     {
-      const item = new LR0Item(grammar[1]!, 0, [eof]);
+      const baseRule = grammar[1];
+      if (!baseRule) {
+        expect.fail("rule is null");
+      }
+
+      const item = new LR0Item(baseRule, 0, [eof]);
       const afterNextToken = item.rule.tokens.slice(item.position + 1);
 
       const result = [...getFirstSet(grammar, firstSetList, afterNextToken)];
@@ -121,7 +136,12 @@ describe("処理の流れで調べる", () => {
     }
 
     {
-      const item = new LR0Item(grammar[2]!, 0, [eof]);
+      const baseRule = grammar[2];
+      if (!baseRule) {
+        expect.fail("rule is null");
+      }
+
+      const item = new LR0Item(baseRule, 0, [eof]);
       const afterNextToken = item.rule.tokens.slice(item.position + 1);
 
       const result = [...getFirstSet(grammar, firstSetList, afterNextToken)];
@@ -131,7 +151,12 @@ describe("処理の流れで調べる", () => {
     }
 
     {
-      const item = new LR0Item(grammar[3]!, 0, [eof]);
+      const baseRule = grammar[3];
+      if (!baseRule) {
+        expect.fail("rule is null");
+      }
+
+      const item = new LR0Item(baseRule, 0, [eof]);
       const afterNextToken = item.rule.tokens.slice(item.position + 1);
 
       const result = [...getFirstSet(grammar, firstSetList, afterNextToken)];
@@ -142,7 +167,12 @@ describe("処理の流れで調べる", () => {
   });
 
   test("最初のアイテムをクロージャ展開する", () => {
-    const firstItem = new LR0Item(grammar[0]!, 0, [eof]);
+    const baseRule = grammar[0];
+    if (!baseRule) {
+      expect.fail("rule is null");
+    }
+
+    const firstItem = new LR0Item(baseRule, 0, [eof]);
 
     const result = closure(grammar, firstItem).map((value) => value.toKeyString());
 
@@ -155,7 +185,12 @@ describe("処理の流れで調べる", () => {
   });
 
   test("最初のアイテムから最初の行を作成する", () => {
-    const firstItem = new LR0Item(grammar[0]!, 0, [eof]);
+    const baseRule = grammar[0];
+    if (!baseRule) {
+      expect.fail("rule is null");
+    }
+
+    const firstItem = new LR0Item(baseRule, 0, [eof]);
 
     const result = new ParseTableRow(grammar, [firstItem]);
 

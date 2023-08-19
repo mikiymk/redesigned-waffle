@@ -41,7 +41,10 @@
     "@typescript-eslint/consistent-type-definitions": ["warn", "type"],
     "@typescript-eslint/consistent-type-imports": "error",
 
-    "eslint-comments/no-use": ["error", { "allow": ["eslint-disable-next-line"] }],
+    "eslint-comments/no-use": [
+      "error",
+      { "allow": ["eslint-disable-next-line"] }
+    ],
 
     "jsdoc/require-jsdoc": [
       "warn",
@@ -71,13 +74,12 @@
       "error",
       {
         "groups": ["external", "internal", "parent", "sibling", "type"],
-        "newlines-between": "always",
-        "alphabetize": {
-          "order": "asc",
-          "caseInsensitive": true
-        }
+        "newlines-between": "always"
       }
-    ]
+    ],
+
+    // rome disabled
+    "@typescript-eslint/no-non-null-assertion": "off"
   },
 
   "overrides": [

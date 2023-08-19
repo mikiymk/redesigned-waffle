@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { eof, empty, reference, rule, word } from "@/lib/rules/define-rules";
+import { empty, eof, reference, rule, word } from "@/lib/rules/define-rules";
 import { ObjectSet } from "@/lib/util/object-set";
 
 import { getFirstSetList } from "../first-set";

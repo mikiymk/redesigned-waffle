@@ -24,7 +24,9 @@ export class CharReader implements ParseReader {
    */
   read(): CharToken | EOF {
     const next = this.peek();
-    if (next !== EOF) this.position++;
+    if (next !== EOF) {
+      this.position++;
+    }
     return next;
   }
 

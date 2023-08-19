@@ -1,10 +1,10 @@
-import { peek, EOF } from "../reader/parse-reader";
+import { EOF, peek } from "../reader/parse-reader";
 import { empty } from "../rules/define-rules";
 
-import type { Tree } from "./tree";
 import type { ParseTable } from "../left-to-right-rightmost/parse-table";
 import type { ParseReader, Result } from "../reader/parse-reader";
 import type { Syntax } from "../rules/define-rules";
+import type { Tree } from "./tree";
 
 /**
  * LRパーサー
@@ -32,9 +32,22 @@ export class LRParser<T> {
     // 規則適用列から構文木に変換する
     const tree: Tree<T>[] = [];
     const it = this.parseIterator(pr);
-    let iteratorResult: IteratorResult<string | number, Result<string>>;
-    while (!(iteratorResult = it.next()).done) {
-      const { value: index } = iteratorResult;
+    for (;;) {
+      const { done, value: index } = it.next();
+
+      if (done) {
+        const [ok, result] = index;
+        if (ok) {
+          break;
+        }
+
+        return [
+          false,
+          new Error(`パース中にエラーが発生しました。 ${treeToString(tree)}`, {
+            cause: result,
+          }),
+        ];
+      }
 
       if (typeof index === "number") {
         const rule = this.grammar[index];
@@ -51,13 +64,6 @@ export class LRParser<T> {
       } else {
         tree.push(index);
       }
-    }
-
-    if (!iteratorResult.value[0]) {
-      return [
-        false,
-        new Error(`パース中にエラーが発生しました。 ${treeToString(tree)}`, { cause: iteratorResult.value[1] }),
-      ];
     }
 
     const rule = this.grammar[0];

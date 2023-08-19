@@ -7,22 +7,28 @@ import { ParseTableRow } from "@/lib/left-to-right-rightmost/parse-table-row";
 import { generateLRParser } from "@/lib/main";
 import { TokenReaderGen } from "@/lib/reader/token-reader";
 import { empty, eof, reference, rule, word } from "@/lib/rules/define-rules";
-import { getFirstSetList, getFirstSet } from "@/lib/token-set/first-set";
+import { getFirstSet, getFirstSetList } from "@/lib/token-set/first-set";
 import { ObjectSet } from "@/lib/util/object-set";
 
 import type { Tree } from "@/lib/parser/tree";
 import type { Syntax } from "@/lib/rules/define-rules";
 
-const grammar: Syntax<number> = [
-  rule("start", [reference("num")], ([number]) => tree(number)),
+// (0) Start -> Num
+const rule0 = rule<number>("start", [reference("num")], ([number]) => tree(number));
+// (1) Num -> Int Frac
+const rule1 = rule<number>(
+  "num",
+  [reference("int"), reference("frac")],
+  ([integer, fractional]) => tree(integer) + tree(fractional, 0),
+);
+// (2) Int -> digit
+const rule2 = rule<number>("int", [word("dig")], ([digit]) => Number.parseInt(digit as string));
+// (3) Frac ->
+const rule3 = rule<number>("frac", [empty], (_) => 0);
+// (4) Frac -> . digit
+const rule4 = rule<number>("frac", [word("dot"), word("dig")], ([_, digit]) => Number.parseInt(digit as string) / 10);
 
-  rule("num", [reference("int"), reference("frac")], ([integer, fractional]) => tree(integer) + tree(fractional, 0)),
-
-  rule("int", [word("dig")], ([digit]) => Number.parseInt(digit as string)),
-
-  rule("frac", [empty], (_) => 0),
-  rule("frac", [word("dot"), word("dig")], ([_, digit]) => Number.parseInt(digit as string) / 10),
-];
+const grammar: Syntax<number> = [rule0, rule1, rule2, rule3, rule4];
 
 const reader = new TokenReaderGen([
   ["dig", "[0-9]"],
@@ -104,7 +110,7 @@ describe("処理の流れで調べる", () => {
   });
 
   test("最初のルールをLRアイテムに変換する", () => {
-    const result = new LR0Item(grammar[0]!, 0, [eof]);
+    const result = new LR0Item(rule0, 0, [eof]);
 
     expect(result).toStrictEqual(new LR0Item(rule("start", [reference("num")]), 0, [eof]));
   });
@@ -113,7 +119,7 @@ describe("処理の流れで調べる", () => {
     const firstSetList = getFirstSetList(grammar);
 
     {
-      const item = new LR0Item(grammar[0]!, 0, [eof]);
+      const item = new LR0Item(rule0, 0, [eof]);
       const afterNextToken = item.rule.tokens.slice(item.position + 1);
 
       const result = [...getFirstSet(grammar, firstSetList, afterNextToken)];
@@ -123,7 +129,7 @@ describe("処理の流れで調べる", () => {
     }
 
     {
-      const item = new LR0Item(grammar[1]!, 0, [eof]);
+      const item = new LR0Item(rule1, 0, [eof]);
       const afterNextToken = item.rule.tokens.slice(item.position + 1);
 
       const result = [...getFirstSet(grammar, firstSetList, afterNextToken)];
@@ -134,7 +140,7 @@ describe("処理の流れで調べる", () => {
     }
 
     {
-      const item = new LR0Item(grammar[2]!, 0, [eof]);
+      const item = new LR0Item(rule2, 0, [eof]);
       const afterNextToken = item.rule.tokens.slice(item.position + 1);
 
       const result = [...getFirstSet(grammar, firstSetList, afterNextToken)];
@@ -145,7 +151,7 @@ describe("処理の流れで調べる", () => {
   });
 
   test("最初のアイテムをクロージャ展開する", () => {
-    const firstItem = new LR0Item(grammar[0]!, 0, [eof]);
+    const firstItem = new LR0Item(rule0, 0, [eof]);
 
     const result = closure(grammar, firstItem).map((value) => value.toKeyString());
 
@@ -155,7 +161,7 @@ describe("処理の流れで調べる", () => {
   });
 
   test("最初のアイテムから最初の行を作成する", () => {
-    const firstItem = new LR0Item(grammar[0]!, 0, [eof]);
+    const firstItem = new LR0Item(rule0, 0, [eof]);
 
     const result = new ParseTableRow(grammar, [firstItem]);
 
