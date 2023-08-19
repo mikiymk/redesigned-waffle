@@ -8,7 +8,6 @@ import { zip } from "../util/zip-array";
 
 import { closure } from "./closure";
 
-import type { LR0Item } from "./lr0-item";
 import type { ParseReader } from "../reader/parse-reader";
 import type {
   DirectorSetToken,
@@ -19,6 +18,7 @@ import type {
   Syntax,
   TermToken,
 } from "../rules/define-rules";
+import type { LR0Item } from "./lr0-item";
 
 export type MatchResult = ["reduce", number] | ["shift", number, TermToken] | ["accept"] | ["error"];
 
@@ -64,7 +64,9 @@ export class ParseTableRow<T> {
     // 各アイテムにフォロー集合のトークンを追加する
     for (const item of [...this.kernels, ...this.additions]) {
       const set = lookahead[item.rule.name];
-      if (set) item.lookahead.append(set);
+      if (set) {
+        item.lookahead.append(set);
+      }
     }
   }
 

@@ -1,9 +1,9 @@
 import { EOF, get, peek } from "../reader/parse-reader";
 import { primitiveToString } from "../util/primitive-to-string";
 
+import type { ParseReader, Result } from "../reader/parse-reader";
 import type { BaseToken, TerminalToken } from "./base-token";
 import type { ReferenceToken } from "./reference-token";
-import type { ParseReader, Result } from "../reader/parse-reader";
 
 /**
  * 文字列トークン

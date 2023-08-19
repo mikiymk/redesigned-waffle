@@ -25,7 +25,9 @@ export class WordReader implements ParseReader {
    */
   read(): WordToken | EOF {
     const next = this.peek();
-    if (next !== EOF) this.position = this.spaceSkippedPosition + next.value.length;
+    if (next !== EOF) {
+      this.position = this.spaceSkippedPosition + next.value.length;
+    }
     return next;
   }
 

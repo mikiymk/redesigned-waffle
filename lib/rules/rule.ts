@@ -1,7 +1,7 @@
 import { empty } from "./define-rules";
 
-import type { SyntaxToken } from "./define-rules";
 import type { Tree } from "../parser/tree";
+import type { SyntaxToken } from "./define-rules";
 
 /**
  *
@@ -19,11 +19,11 @@ export class Rule<T> {
    */
   constructor(name: string, tokens: SyntaxToken[], process?: (children: Tree<T>[]) => T) {
     if (name.length === 0) {
-      throw new Error(`ルール名は１文字以上である必要があります。`);
+      throw new Error("ルール名は１文字以上である必要があります。");
     }
 
     if (tokens.length === 0) {
-      throw new Error(`ルールトークンは１つ以上である必要があります。`);
+      throw new Error("ルールトークンは１つ以上である必要があります。");
     }
 
     if (tokens.includes(empty) && tokens.length !== 1) {

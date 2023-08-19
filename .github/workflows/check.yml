@@ -33,6 +33,7 @@ jobs:
 
       - run: pnpm run lint:ts
       - run: pnpm run lint:eslint
+      - run: pnpm run lint:rome-ci
       - run: pnpm run test-coverage
       - run: pnpm run build:lib
       - run: pnpm run build:lib-type

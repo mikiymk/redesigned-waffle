@@ -98,7 +98,9 @@ class TokenReader implements ParseReader {
     for (const [ruleType, rulePattern] of this.rules) {
       const matchResult = rulePattern(this.source, this.position);
 
-      if (matchResult === undefined) continue;
+      if (matchResult === undefined) {
+        continue;
+      }
 
       const value = {
         type: ruleType,

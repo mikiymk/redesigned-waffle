@@ -8,7 +8,7 @@ import { ObjectMap } from "../util/object-map";
 import { LR0Item } from "./lr0-item";
 
 import type { ObjectSet } from "../util/object-set";
-import type { RuleName, Syntax, FollowSetToken } from "@/lib/rules/define-rules";
+import type { FollowSetToken, RuleName, Syntax } from "@/lib/rules/define-rules";
 
 /**
  * ドットが非終端記号の前にある場合、その非終端記号を展開したアイテムリストを作る

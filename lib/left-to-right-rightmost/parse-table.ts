@@ -10,9 +10,9 @@ import { LR0Item } from "./lr0-item";
 import { nextItemSet } from "./next-item";
 import { ParseTableRow } from "./parse-table-row";
 
-import type { MatchResult } from "./parse-table-row";
 import type { ParseReader, Result } from "../reader/parse-reader";
 import type { ReferenceToken } from "../rules/reference-token";
+import type { MatchResult } from "./parse-table-row";
 import type { DirectorSetToken, NonTermToken, Syntax, TermToken, Token } from "@/lib/rules/define-rules";
 
 /**
@@ -176,10 +176,10 @@ export class ParseTable<T> {
         return 1;
       }
 
-      if (a.word == undefined) {
+      if (a.word === undefined) {
         return -1;
       }
-      if (b.word == undefined) {
+      if (b.word === undefined) {
         return 1;
       }
 
