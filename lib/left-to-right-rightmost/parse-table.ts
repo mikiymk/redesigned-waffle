@@ -1,4 +1,4 @@
-import { eof } from "@/lib/rules/define-rules";
+import { eof, equalsRule } from "@/lib/rules/define-rules";
 
 import { ObjectMap } from "../util/object-map";
 import { ObjectSet } from "../util/object-set";
@@ -84,11 +84,17 @@ export const generateParseTable = <T>(syntax: Syntax<T>): ParseTable<T> => {
       states.push(new ParseTableRow(syntax, next));
     }
 
+    for (const item of [...kernels, ...additions]) {
+      if (syntax[0] && equalsRule(item.rule, syntax[0])) {
+        acceptStates.push(index);
+      }
+    }
+
     row.collectRow();
   }
 
   const dfa = new DFA(states, symbols, 0, transition, acceptStates);
-  console.log(dfa);
+  console.log(dfa.minimization());
 
   return new ParseTable(states);
 };
