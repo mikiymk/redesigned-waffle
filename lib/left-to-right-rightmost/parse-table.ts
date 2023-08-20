@@ -4,6 +4,7 @@ import { ObjectMap } from "../util/object-map";
 import { ObjectSet } from "../util/object-set";
 import { primitiveToString } from "../util/primitive-to-string";
 import { zip } from "../util/zip-array";
+import { DFA } from "../deterministic-finite-automaton/dfa";
 
 import { groupByNextToken } from "./group-next-token";
 import { LR0Item } from "./lr0-item";
@@ -13,7 +14,7 @@ import { ParseTableRow } from "./parse-table-row";
 import type { ParseReader, Result } from "../reader/parse-reader";
 import type { ReferenceToken } from "../rules/reference-token";
 import type { MatchResult } from "./parse-table-row";
-import type { DirectorSetToken, NonTermToken, Syntax, TermToken, Token } from "@/lib/rules/define-rules";
+import type { DirectorSetToken, LR0ItemToken, NonTermToken, Syntax, TermToken, Token } from "@/lib/rules/define-rules";
 
 /**
  * 構文ルールリストからアイテム集合のリストを作ります。
@@ -30,35 +31,66 @@ export const generateParseTable = <T>(syntax: Syntax<T>): ParseTable<T> => {
 
   const firstItem = new LR0Item(firstRule, 0, [eof]);
 
-  const itemSetList = [new ParseTableRow(syntax, [firstItem])];
+  // DFA 初期状態
+  const initialState = new ParseTableRow(syntax, [firstItem]);
 
-  for (const row of itemSetList) {
+  // DFA 状態集合
+  const states = [initialState];
+  // DFA 文字集合
+  const symbols: LR0ItemToken[] = [];
+  const symbolsSet = new ObjectSet<LR0ItemToken>();
+  // DFA 遷移関数 状態 → 文字 → 状態
+  const transition: Record<number, Record<number, number>> = {};
+  // DFA 受理状態
+  const acceptStates: number[] = [];
+
+  for (const [index, row] of zip(states)) {
     const { kernels, additions, gotoMap } = row;
+    const transitionState = transition[index] ?? {};
+    transition[index] = transitionState;
 
     // アイテム集合をグループ分けする
     const groups = groupByNextToken(new ObjectSet<LR0Item<T>>([...kernels, ...additions]));
 
     // 各グループについて
     outer: for (const [token, itemSet] of groups) {
+      let tokenId: number;
+      // 登場するシンボルを集める
+      if (symbolsSet.has(token)) {
+        const tokenKey = token.toKeyString();
+        tokenId = symbols.findIndex((value) => value.toKeyString() === tokenKey);
+      } else {
+        tokenId = symbols.length;
+        symbols.push(token);
+        symbolsSet.add(token);
+      }
+
       const next = nextItemSet(itemSet);
 
       // もし既存のアイテム集合に同じものがあったら
       // 新しく追加しない
-      for (const [index, { kernels }] of itemSetList.entries()) {
+      for (const [index, { kernels }] of states.entries()) {
         if (kernels.equals(next)) {
+          transitionState[tokenId] = index;
           gotoMap.push([token, index]);
           continue outer;
         }
       }
 
-      gotoMap.push([token, itemSetList.length]);
-      itemSetList.push(new ParseTableRow(syntax, next));
+      const nextIndex = states.length;
+
+      transitionState[tokenId] = nextIndex;
+      gotoMap.push([token, nextIndex]);
+      states.push(new ParseTableRow(syntax, next));
     }
 
     row.collectRow();
   }
 
-  return new ParseTable(itemSetList);
+  const dfa = new DFA(states, symbols, 0, transition, acceptStates);
+  console.log(dfa);
+
+  return new ParseTable(states);
 };
 
 /**
