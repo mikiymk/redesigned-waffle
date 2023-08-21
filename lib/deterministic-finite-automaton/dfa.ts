@@ -1,14 +1,11 @@
 import { zip } from "../util/zip-array";
 
-import type { ParseTableRow } from "../left-to-right-rightmost/parse-table-row";
-import type { LR0ItemToken } from "../rules/define-rules";
-
 /**
  *
  */
-export class DFA<T> {
-  states: ParseTableRow<T>[];
-  symbols: LR0ItemToken[];
+export class DFA<T, U> {
+  states: T[];
+  symbols: U[];
   initialState: number;
   transition: Record<number, Record<number, number>>;
   acceptStates: number[];
@@ -22,8 +19,8 @@ export class DFA<T> {
    * @param acceptStates 受理状態
    */
   constructor(
-    states: ParseTableRow<T>[],
-    symbols: LR0ItemToken[],
+    states: T[],
+    symbols: U[],
     initialState: number,
     transition: Record<number, Record<number, number>>,
     acceptStates: number[],

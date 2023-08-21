@@ -1,10 +1,10 @@
 import { eof, equalsRule } from "@/lib/rules/define-rules";
 
+import { DFA } from "../deterministic-finite-automaton/dfa";
 import { ObjectMap } from "../util/object-map";
 import { ObjectSet } from "../util/object-set";
 import { primitiveToString } from "../util/primitive-to-string";
 import { zip } from "../util/zip-array";
-import { DFA } from "../deterministic-finite-automaton/dfa";
 
 import { groupByNextToken } from "./group-next-token";
 import { LR0Item } from "./lr0-item";
