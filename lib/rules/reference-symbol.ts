@@ -1,9 +1,9 @@
-import type { BaseToken } from "./base-token";
+import type { BaseSymbol } from "./base-symbol";
 
 /**
  * 非終端記号トークン
  */
-export class ReferenceToken implements BaseToken {
+export class ReferenceSymbol implements BaseSymbol {
   readonly name;
 
   /**
@@ -22,7 +22,7 @@ export class ReferenceToken implements BaseToken {
    * 終端記号かどうかを判定します。
    * @returns 終端記号なら`true`、非終端記号なら`false`
    */
-  isNonTerminal(): this is ReferenceToken {
+  isNonTerminal(): this is ReferenceSymbol {
     return true;
   }
 
@@ -49,7 +49,7 @@ export class ReferenceToken implements BaseToken {
    * @param other もう一つのトークン
    * @returns 等しいなら`true`
    */
-  equals(other: BaseToken): boolean {
-    return other instanceof ReferenceToken && other.name === this.name;
+  equals(other: BaseSymbol): boolean {
+    return other instanceof ReferenceSymbol && other.name === this.name;
   }
 }

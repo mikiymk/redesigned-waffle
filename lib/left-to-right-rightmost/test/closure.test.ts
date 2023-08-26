@@ -5,7 +5,7 @@ import { empty, eof, reference, rule, word } from "@/lib/rules/define-rules";
 import { closure } from "../closure";
 import { LR0Item } from "../lr0-item";
 
-import type { Syntax } from "@/lib/rules/define-rules";
+import type { Grammar } from "@/lib/rules/define-rules";
 
 // (0) S → E
 const rule0 = rule("S", [reference("E")]);
@@ -20,7 +20,7 @@ const rule4 = rule("B", [word("word", "0")]);
 // (5) B → 1
 const rule5 = rule("B", [word("word", "1")]);
 
-const grammar: Syntax<undefined> = [rule0, rule1, rule2, rule3, rule4, rule5];
+const grammar: Grammar<undefined> = [rule0, rule1, rule2, rule3, rule4, rule5];
 
 test("非終端記号のクロージャ展開", () => {
   // S → • E [$]
@@ -63,12 +63,12 @@ test("分岐のある展開", () => {
   // (4) F → . n
   const rule4 = rule("F", [word("d", "."), word("n")]);
 
-  const syntax: Syntax<undefined> = [rule0, rule1, rule2, rule3, rule4];
+  const grammar: Grammar<undefined> = [rule0, rule1, rule2, rule3, rule4];
 
   // S → • E [$]
   const item = new LR0Item(rule0, 0, [eof]);
 
-  const result = closure(syntax, item).map((value) => value.toKeyString());
+  const result = closure(grammar, item).map((value) => value.toKeyString());
 
   expect(result).toHaveLength(3);
   // + N → • I   [$]
@@ -91,12 +91,12 @@ test("空のルールがある展開", () => {
   // (4) F → . n
   const rule4 = rule("F", [word("d", "."), word("n")]);
 
-  const syntax: Syntax<undefined> = [rule0, rule1, rule2, rule3, rule4];
+  const grammar: Grammar<undefined> = [rule0, rule1, rule2, rule3, rule4];
 
   // S → • E [$]
   const item = new LR0Item(rule0, 0, [eof]);
 
-  const result = closure(syntax, item);
+  const result = closure(grammar, item);
 
   // + N → • I F [$]
   expect(result).toContainEqual(new LR0Item(rule1, 0, [eof]));

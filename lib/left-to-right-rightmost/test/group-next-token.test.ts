@@ -4,10 +4,10 @@ import { eof, reference, rule, word } from "@/lib/rules/define-rules";
 import { ObjectSet } from "@/lib/util/object-set";
 
 import { closure } from "../closure";
-import { groupByNextToken } from "../group-next-token";
+import { groupByNextToken } from "../group-next-symbol";
 import { LR0Item } from "../lr0-item";
 
-import type { Syntax } from "@/lib/rules/define-rules";
+import type { Grammar } from "@/lib/rules/define-rules";
 
 // (0) S → E
 const rule0 = rule("S", [reference("E")]);
@@ -22,7 +22,7 @@ const rule4 = rule("B", [word("word", "0")]);
 // (5) B → 1
 const rule5 = rule("B", [word("word", "1")]);
 
-const grammar: Syntax<undefined> = [rule0, rule1, rule2, rule3, rule4, rule5];
+const grammar: Grammar<undefined> = [rule0, rule1, rule2, rule3, rule4, rule5];
 
 test("closure test non-terminal", () => {
   const item = new LR0Item<undefined>(rule0, 0, [eof]);

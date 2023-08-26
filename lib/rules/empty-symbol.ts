@@ -1,11 +1,11 @@
 import type { Result } from "../reader/parse-reader";
-import type { BaseToken, TerminalToken } from "./base-token";
-import type { ReferenceToken } from "./reference-token";
+import type { BaseSymbol, TerminalSymbol } from "./base-symbol";
+import type { ReferenceSymbol } from "./reference-symbol";
 
 /**
  * 空文字トークン
  */
-export class EmptyToken implements BaseToken, TerminalToken {
+export class EmptySymbol implements BaseSymbol, TerminalSymbol {
   /**
    * リーダーからトークンにマッチする文字列を読み込みます
    * @returns 読み込んだ文字列
@@ -26,7 +26,7 @@ export class EmptyToken implements BaseToken, TerminalToken {
    * 終端記号かどうかを判定します。
    * @returns 終端記号なら`true`、非終端記号なら`false`
    */
-  isNonTerminal(): this is ReferenceToken {
+  isNonTerminal(): this is ReferenceSymbol {
     return false;
   }
 
@@ -51,7 +51,7 @@ export class EmptyToken implements BaseToken, TerminalToken {
    * @param other もう一つのトークン
    * @returns 等しいなら`true`
    */
-  equals(other: BaseToken): boolean {
-    return other instanceof EmptyToken;
+  equals(other: BaseSymbol): boolean {
+    return other instanceof EmptySymbol;
   }
 }

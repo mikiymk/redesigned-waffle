@@ -1,14 +1,31 @@
 import { expect, test } from "vitest";
 
-import { empty, eof, reference, rule, word } from "@/lib/rules/define-rules";
+import { empty, reference, rule, word } from "@/lib/rules/define-rules";
 import { ObjectSet } from "@/lib/util/object-set";
 
-import { getDirectorSetList } from "../director-set";
 import { getFirstSetList } from "../first-set";
-import { getFollowSetList } from "../follow-set";
 
-test("１つの記号", () => {
-  const syntax = [
+test("終端記号", () => {
+  const grammar = [
+    // start
+    rule("S", [reference("E")]),
+
+    // terminal
+    rule("E", [word("word", "word")]),
+    rule("E", [empty]),
+  ];
+
+  const result = getFirstSetList(grammar);
+
+  expect(result).toHaveLength(3);
+
+  expect(result[0]).toStrictEqual(new ObjectSet([word("word", "word"), empty]));
+  expect(result[1]).toStrictEqual(new ObjectSet([word("word", "word")]));
+  expect(result[2]).toStrictEqual(new ObjectSet([empty]));
+});
+
+test("非終端記号", () => {
+  const grammar = [
     // start
     rule("S", [reference("E")]),
 
@@ -20,41 +37,17 @@ test("１つの記号", () => {
     rule("B", [empty]),
   ];
 
-  const firstSet = getFirstSetList(syntax);
-  const followSet = getFollowSetList(syntax, firstSet);
-  const result = getDirectorSetList(firstSet, followSet);
+  const result = getFirstSetList(grammar);
 
   expect(result).toHaveLength(4);
-  expect(result[0]).toStrictEqual(new ObjectSet([word("word", "word"), eof]));
-  expect(result[1]).toStrictEqual(new ObjectSet([word("word", "word"), eof]));
+  expect(result[0]).toStrictEqual(new ObjectSet([word("word", "word"), empty]));
+  expect(result[1]).toStrictEqual(new ObjectSet([word("word", "word"), empty]));
   expect(result[2]).toStrictEqual(new ObjectSet([word("word", "word")]));
-  expect(result[3]).toStrictEqual(new ObjectSet([eof]));
+  expect(result[3]).toStrictEqual(new ObjectSet([empty]));
 });
 
-test("非終端記号の後に終端記号", () => {
-  const syntax = [
-    // start
-    rule("S", [reference("E")]),
-
-    // reference
-    rule("E", [reference("B"), word("word", "after defined")]),
-
-    // terminal
-    rule("B", [word("word", "word")]),
-  ];
-
-  const firstSet = getFirstSetList(syntax);
-  const followSet = getFollowSetList(syntax, firstSet);
-  const result = getDirectorSetList(firstSet, followSet);
-
-  expect(result).toHaveLength(3);
-  expect(result[0]).toStrictEqual(new ObjectSet([word("word", "word")]));
-  expect(result[1]).toStrictEqual(new ObjectSet([word("word", "word")]));
-  expect(result[2]).toStrictEqual(new ObjectSet([word("word", "word")]));
-});
-
-test("空になる可能性がある非終端記号の後に終端記号", () => {
-  const syntax = [
+test("空文字になる可能性がある非終端記号", () => {
+  const grammar = [
     // start
     rule("S", [reference("E")]),
 
@@ -66,19 +59,17 @@ test("空になる可能性がある非終端記号の後に終端記号", () =>
     rule("B", [empty]),
   ];
 
-  const firstSet = getFirstSetList(syntax);
-  const followSet = getFollowSetList(syntax, firstSet);
-  const result = getDirectorSetList(firstSet, followSet);
+  const result = getFirstSetList(grammar);
 
   expect(result).toHaveLength(4);
   expect(result[0]).toStrictEqual(new ObjectSet([word("word", "word"), word("word", "after defined")]));
   expect(result[1]).toStrictEqual(new ObjectSet([word("word", "word"), word("word", "after defined")]));
   expect(result[2]).toStrictEqual(new ObjectSet([word("word", "word")]));
-  expect(result[3]).toStrictEqual(new ObjectSet([word("word", "after defined")]));
+  expect(result[3]).toStrictEqual(new ObjectSet([empty]));
 });
 
 test("左再帰", () => {
-  const syntax = [
+  const grammar = [
     // start
     rule("S", [reference("E")]),
 
@@ -87,9 +78,7 @@ test("左再帰", () => {
     rule("E", [word("word", "word lr")]),
   ];
 
-  const firstSet = getFirstSetList(syntax);
-  const followSet = getFollowSetList(syntax, firstSet);
-  const result = getDirectorSetList(firstSet, followSet);
+  const result = getFirstSetList(grammar);
 
   expect(result).toHaveLength(3);
   expect(result[0]).toStrictEqual(new ObjectSet([word("word", "word lr")]));
@@ -98,7 +87,7 @@ test("左再帰", () => {
 });
 
 test("右再帰", () => {
-  const syntax = [
+  const grammar = [
     // start
     rule("S", [reference("E")]),
 
@@ -107,9 +96,7 @@ test("右再帰", () => {
     rule("E", [word("word", "word rr")]),
   ];
 
-  const firstSet = getFirstSetList(syntax);
-  const followSet = getFollowSetList(syntax, firstSet);
-  const result = getDirectorSetList(firstSet, followSet);
+  const result = getFirstSetList(grammar);
 
   expect(result).toHaveLength(3);
   expect(result[0]).toStrictEqual(new ObjectSet([word("word", "lead rr"), word("word", "word rr")]));
@@ -118,7 +105,7 @@ test("右再帰", () => {
 });
 
 test("間接の左再帰", () => {
-  const syntax = [
+  const grammar = [
     // start
     rule("S", [reference("A")]),
 
@@ -130,9 +117,7 @@ test("間接の左再帰", () => {
     rule("B", [word("word", "word in-lr")]),
   ];
 
-  const firstSet = getFirstSetList(syntax);
-  const followSet = getFollowSetList(syntax, firstSet);
-  const result = getDirectorSetList(firstSet, followSet);
+  const result = getFirstSetList(grammar);
 
   expect(result).toHaveLength(4);
   expect(result[0]).toStrictEqual(new ObjectSet([word("word", "word in-lr")]));
@@ -142,7 +127,7 @@ test("間接の左再帰", () => {
 });
 
 test("間接の右再帰", () => {
-  const syntax = [
+  const grammar = [
     // start
     rule("S", [reference("A")]),
 
@@ -154,9 +139,7 @@ test("間接の右再帰", () => {
     rule("B", [word("word", "word in-rr")]),
   ];
 
-  const firstSet = getFirstSetList(syntax);
-  const followSet = getFollowSetList(syntax, firstSet);
-  const result = getDirectorSetList(firstSet, followSet);
+  const result = getFirstSetList(grammar);
 
   expect(result).toHaveLength(4);
   expect(result[0]).toStrictEqual(new ObjectSet([word("word", "lead in-rr 1")]));

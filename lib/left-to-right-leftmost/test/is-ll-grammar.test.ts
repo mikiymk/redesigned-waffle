@@ -2,10 +2,10 @@ import { expect, test } from "vitest";
 
 import { reference, rule, word } from "@/lib/rules/define-rules";
 
-import { getDirectorSetList } from "../../token-set/director-set";
-import { getFirstSetList } from "../../token-set/first-set";
-import { getFollowSetList } from "../../token-set/follow-set";
-import { isValidLLGrammar } from "../is-ll-syntax";
+import { getDirectorSetList } from "../../symbol-set/director-set";
+import { getFirstSetList } from "../../symbol-set/first-set";
+import { getFollowSetList } from "../../symbol-set/follow-set";
+import { isValidLLGrammar } from "../is-ll-grammar";
 
 test("valid ll", () => {
   const syntax = [

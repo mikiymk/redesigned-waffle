@@ -5,29 +5,29 @@ import { ObjectSet } from "../util/object-set";
 
 import { getFirstSet } from "./first-set";
 
-import type { FirstSetToken, FollowSetToken, Syntax } from "@/lib/rules/define-rules";
+import type { FirstSetSymbol, FollowSetSymbol, Grammar } from "@/lib/rules/define-rules";
 
 /**
  * 各ルールについて、続く文字の文字を求める。
- * @param syntax 構文ルールリスト
+ * @param grammar 構文ルールリスト
  * @param firstSetList 最初の文字集合リスト
  * @returns 続く文字の文字の集合リスト
  */
 export const getFollowSetList = <T>(
-  syntax: Syntax<T>,
-  firstSetList: ObjectSet<FirstSetToken>[],
-): ObjectSet<FollowSetToken>[] => {
+  grammar: Grammar<T>,
+  firstSetList: ObjectSet<FirstSetSymbol>[],
+): ObjectSet<FollowSetSymbol>[] => {
   // ルールリストと同じ長さで文字集合リストを作る
-  const followSetList = syntax.map(() => new ObjectSet<FollowSetToken>());
+  const followSetList = grammar.map(() => new ObjectSet<FollowSetSymbol>());
 
   followSetList[0]?.add(eof);
 
   for (;;) {
     let updated = false;
     // 各ルールについてループする
-    for (const index of syntax.keys()) {
+    for (const index of grammar.keys()) {
       // 集合に変化があったらマーク
-      updated = generateFollowSet(syntax, followSetList, firstSetList, index) || updated;
+      updated = generateFollowSet(grammar, followSetList, firstSetList, index) || updated;
     }
 
     // 全てに変化がなかったら終了
@@ -41,42 +41,42 @@ export const getFollowSetList = <T>(
 
 /**
  * １つのルールの続く文字の文字集合を作る
- * @param syntax 構文ルールリスト
+ * @param grammar 構文ルールリスト
  * @param followSetList 続く文字の文字集合リスト
  * @param firstSetList 最初の文字集合リスト
  * @param index 作るルールのインデックス
  * @returns 集合に変化があったかどうか
  */
 const generateFollowSet = <T>(
-  syntax: Syntax<T>,
-  followSetList: ObjectSet<FollowSetToken>[],
-  firstSetList: ObjectSet<FirstSetToken>[],
+  grammar: Grammar<T>,
+  followSetList: ObjectSet<FollowSetSymbol>[],
+  firstSetList: ObjectSet<FirstSetSymbol>[],
   index: number,
 ): boolean => {
-  const rule = syntax[index];
+  const rule = grammar[index];
   const followSet = followSetList[index];
 
   if (!(followSet && rule)) {
-    throw new Error(`文法のルール数:${syntax.length}ですが、${index}個目の要素にアクセスしようとしました。`);
+    throw new Error(`文法のルール数:${grammar.length}ですが、${index}個目の要素にアクセスしようとしました。`);
   }
 
   let updated = false;
-  const tokens = rule.tokens;
+  const symbols = rule.symbols;
 
   //   Aj → wAiw' という形式の規則がある場合、
 
   //     終端記号 a が Fi(w' ) に含まれるなら、a を Fo(Ai) に追加する。
   //     ε が Fi(w' ) に含まれるなら、Fo(Aj) を Fo(Ai) に追加する。
 
-  for (const [index, token] of tokens.entries()) {
+  for (const [index, symbol] of symbols.entries()) {
     // 非終端記号なら
-    if (token.isNonTerminal()) {
+    if (symbol.isNonTerminal()) {
       // 現在のトークンより後ろのファースト集合を作る
-      const follows = tokens.slice(index + 1);
-      const followFirstSet = getFirstSet(syntax, firstSetList, follows);
+      const follows = symbols.slice(index + 1);
+      const followFirstSet = getFirstSet(grammar, firstSetList, follows);
 
       // その非終端記号のフォロー集合に追加する
-      for (const [_, [referenceFollowSet]] of eachRules(syntax, token.name, [followSetList])) {
+      for (const [_, [referenceFollowSet]] of eachRules(grammar, symbol.name, [followSetList])) {
         const length = referenceFollowSet.size;
 
         // 空を除いた集合を追加する

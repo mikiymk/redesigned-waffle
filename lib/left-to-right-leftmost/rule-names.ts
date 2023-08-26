@@ -1,14 +1,14 @@
-import type { RuleName, Syntax } from "@/lib/rules/define-rules";
+import type { Grammar, RuleName } from "@/lib/rules/define-rules";
 
 /**
  * 構文ルールリストからルールの名前を一覧します。
- * @param syntax 構文りすと
+ * @param grammar 構文りすと
  * @returns ルールの名前の配列
  */
-export const getRuleNames = <T>(syntax: Syntax<T>): RuleName[] => {
+export const getRuleNames = <T>(grammar: Grammar<T>): RuleName[] => {
   const names = new Set<RuleName>();
 
-  for (const { name } of syntax) {
+  for (const { name } of grammar) {
     names.add(name);
   }
 

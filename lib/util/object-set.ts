@@ -61,8 +61,8 @@ export class ObjectSet<T extends ToKey> {
    * @returns 要素を追加した自身
    */
   append(items: Iterable<T>): this {
-    for (const token of items) {
-      this.map.set(token.toKeyString(), token);
+    for (const item of items) {
+      this.map.set(item.toKeyString(), item);
     }
 
     return this;
@@ -85,9 +85,9 @@ export class ObjectSet<T extends ToKey> {
   intersection(other: ObjectSet<T>): ObjectSet<T> {
     const newSet = new ObjectSet<T>([]);
 
-    for (const token of this) {
-      if (other.has(token)) {
-        newSet.add(token);
+    for (const item of this) {
+      if (other.has(item)) {
+        newSet.add(item);
       }
     }
 
@@ -102,9 +102,9 @@ export class ObjectSet<T extends ToKey> {
   difference(other: ObjectSet<T>): ObjectSet<T> {
     const newSet = new ObjectSet<T>([]);
 
-    for (const token of this) {
-      if (!other.has(token)) {
-        newSet.add(token);
+    for (const item of this) {
+      if (!other.has(item)) {
+        newSet.add(item);
       }
     }
 

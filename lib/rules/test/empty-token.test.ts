@@ -3,86 +3,86 @@ import { describe, expect, test } from "vitest";
 import { CharReader } from "@/lib/reader/char-reader";
 import { WordReader } from "@/lib/reader/word-reader";
 
-import { EmptyToken } from "../empty-token";
-import { WordToken } from "../word-token";
+import { EmptySymbol } from "../empty-symbol";
+import { WordSymbol } from "../word-symbol";
 
-import type { TerminalToken } from "../base-token";
+import type { TerminalSymbol } from "../base-symbol";
 
 describe("#constructor", () => {
   test("成功", () => {
-    expect(() => new EmptyToken()).not.toThrow();
+    expect(() => new EmptySymbol()).not.toThrow();
   });
 });
 
 describe("#read", () => {
-  const token = new EmptyToken();
+  const symbol = new EmptySymbol();
 
   test("文字列", () => {
     const pr = new CharReader("word");
 
-    const result = (token.read as TerminalToken["read"])(pr);
+    const result = (symbol.read as TerminalSymbol["read"])(pr);
 
     expect(result).toEqual([true, ""]);
   });
 });
 
 describe("#matchFirstChar", () => {
-  const token = new EmptyToken();
+  const symbol = new EmptySymbol();
 
   test("文字", () => {
     const pr = new WordReader(" word ");
-    const result = (token.matchFirstChar as TerminalToken["matchFirstChar"])(pr);
+    const result = (symbol.matchFirstChar as TerminalSymbol["matchFirstChar"])(pr);
 
     expect(result).toBe(true);
   });
 
   test("文字列の終端", () => {
     const pr = new WordReader(" ");
-    const result = (token.matchFirstChar as TerminalToken["matchFirstChar"])(pr);
+    const result = (symbol.matchFirstChar as TerminalSymbol["matchFirstChar"])(pr);
 
     expect(result).toBe(true);
   });
 });
 
 test("#isNonTerminal", () => {
-  const token = new EmptyToken();
+  const symbol = new EmptySymbol();
 
-  const result = token.isNonTerminal();
+  const result = symbol.isNonTerminal();
 
   expect(result).toBe(false);
 });
 
 test("#toKeyString", () => {
-  const token = new EmptyToken();
+  const symbol = new EmptySymbol();
 
-  const result = token.toKeyString();
+  const result = symbol.toKeyString();
 
   expect(result).toBe("e");
 });
 
 test("#toString", () => {
-  const token = new EmptyToken();
+  const symbol = new EmptySymbol();
 
-  const result = token.toString();
+  const result = symbol.toString();
 
   expect(result).toBe("empty");
 });
 
 describe("#equal", () => {
   test("同じクラス", () => {
-    const token1 = new EmptyToken();
-    const token2 = new EmptyToken();
+    const symbol1 = new EmptySymbol();
+    const symbol2 = new EmptySymbol();
 
-    const result = token1.equals(token2);
+    const result = symbol1.equals(symbol2);
 
     expect(result).toBe(true);
   });
 
   test("違うクラス", () => {
-    const token1 = new EmptyToken();
-    const token2 = new WordToken("word", "word");
+    const symbol1 = new EmptySymbol();
+    const symbol2 = new WordSymbol("word", "word");
 
-    const result = token1.equals(token2);
+    const result = symbol1.equals(symbol2);
 
     expect(result).toBe(false);
   });

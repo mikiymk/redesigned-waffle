@@ -1,11 +1,11 @@
 import { getMatchRuleIndex } from "../left-to-right-leftmost/get-match-rule";
 import { eof, reference } from "../rules/define-rules";
-import { EOFToken } from "../rules/eof-token";
-import { ReferenceToken } from "../rules/reference-token";
-import { WordToken } from "../rules/word-token";
+import { EOFSymbol } from "../rules/eof-symbol";
+import { ReferenceSymbol } from "../rules/reference-symbol";
+import { WordSymbol } from "../rules/word-symbol";
 
 import type { ParseReader, Result } from "../reader/parse-reader";
-import type { DirectorSetToken, Syntax, Token } from "../rules/define-rules";
+import type { DirectorSetSymbol, Grammar, RuleSymbol } from "../rules/define-rules";
 import type { ObjectSet } from "../util/object-set";
 import type { Tree } from "./tree";
 
@@ -13,15 +13,15 @@ import type { Tree } from "./tree";
  * LLパーサー
  */
 export class LLParser<T> {
-  grammar: Syntax<T>;
-  directorSetList: ObjectSet<DirectorSetToken>[];
+  grammar: Grammar<T>;
+  directorSetList: ObjectSet<DirectorSetSymbol>[];
 
   /**
    * LRパーサーを作成する
    * @param grammar 文法
    * @param directorSetList 構文解析表
    */
-  constructor(grammar: Syntax<T>, directorSetList: ObjectSet<DirectorSetToken>[]) {
+  constructor(grammar: Grammar<T>, directorSetList: ObjectSet<DirectorSetSymbol>[]) {
     this.grammar = grammar;
     this.directorSetList = directorSetList;
   }
@@ -35,7 +35,7 @@ export class LLParser<T> {
     // パーサー
 
     // 構文スタック
-    const stack: Token[] = [eof, reference("start")];
+    const stack: RuleSymbol[] = [eof, reference("start")];
 
     // 出力リスト
     const output: (number | string)[] = [];
@@ -43,36 +43,36 @@ export class LLParser<T> {
     // 入力に対してループする
     for (;;) {
       // スタックのトップ
-      const token = stack.pop();
+      const symbol = stack.pop();
 
-      if (token === undefined) {
+      if (symbol === undefined) {
         return [false, new Error(`スタックが空になりました。 出力: [${output.join(", ")}]`)];
-      } else if (token instanceof EOFToken) {
+      } else if (symbol instanceof EOFSymbol) {
         // EOFなら読み込みを終了する
-        if (token.matchFirstChar(pr)) {
+        if (symbol.matchFirstChar(pr)) {
           break;
         }
 
         return [false, new Error("文字列の終端が期待されましたが、読んでいない残りの文字列があります。")];
-      } else if (token instanceof ReferenceToken) {
+      } else if (symbol instanceof ReferenceSymbol) {
         // 非終端記号の場合
-        const [ok, ruleIndex] = getMatchRuleIndex(this.grammar, this.directorSetList, token.name, pr);
+        const [ok, ruleIndex] = getMatchRuleIndex(this.grammar, this.directorSetList, symbol.name, pr);
         if (!ok) {
           return [false, ruleIndex];
         }
 
         // 破壊的メソッドの影響を与えないために新しい配列を作る
-        const tokens = [...(this.grammar[ruleIndex]?.tokens ?? [])];
+        const symbols = [...(this.grammar[ruleIndex]?.symbols ?? [])];
 
         // 構文スタックに逆順で追加する
-        for (const token of tokens.reverse()) {
-          stack.push(token);
+        for (const symbol of symbols.reverse()) {
+          stack.push(symbol);
         }
 
         output.push(ruleIndex);
-      } else if (token instanceof WordToken) {
+      } else if (symbol instanceof WordSymbol) {
         // 文字列の場合
-        const [ok, result] = token.read(pr);
+        const [ok, result] = symbol.read(pr);
         if (ok) {
           // 成功したら出力
           output.push(result);
@@ -89,9 +89,9 @@ export class LLParser<T> {
         const rule = this.grammar[ident];
 
         if (rule) {
-          const { tokens } = rule;
+          const { symbols } = rule;
 
-          const children = tree.splice(-tokens.length, tokens.length).reverse();
+          const children = tree.splice(-symbols.length, symbols.length).reverse();
           tree.push({
             index: ident,
             children,

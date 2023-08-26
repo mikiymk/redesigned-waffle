@@ -4,28 +4,28 @@ import { eachRules } from "./rule-indexes";
 
 import type { ParseReader, Result } from "../reader/parse-reader";
 import type { ObjectSet } from "../util/object-set";
-import type { DirectorSetToken, RuleName, Syntax } from "@/lib/rules/define-rules";
+import type { DirectorSetSymbol, Grammar, RuleName } from "@/lib/rules/define-rules";
 
 /**
  * 次の文字にマッチするルール番号を探します。
- * @param syntax 構文リスト
+ * @param grammar 構文リスト
  * @param directorSetList ディレクター集合リスト
  * @param ruleName ルール名
  * @param pr 次の入力
  * @returns マッチするルールがあれば、その数字
  */
 export const getMatchRuleIndex = <T>(
-  syntax: Syntax<T>,
-  directorSetList: ObjectSet<DirectorSetToken>[],
+  grammar: Grammar<T>,
+  directorSetList: ObjectSet<DirectorSetSymbol>[],
   ruleName: RuleName,
   pr: ParseReader,
 ): Result<number> => {
   // 各ルールについてループする
-  for (const [ruleIndex, [tokens]] of eachRules(syntax, ruleName, [directorSetList])) {
+  for (const [ruleIndex, [symbols]] of eachRules(grammar, ruleName, [directorSetList])) {
     // ルールの文字範囲をループ
-    for (const token of tokens) {
+    for (const symbol of symbols) {
       // 先読みした入力が範囲に入っている場合
-      if (token.matchFirstChar(pr)) {
+      if (symbol.matchFirstChar(pr)) {
         return [true, ruleIndex];
       }
     }

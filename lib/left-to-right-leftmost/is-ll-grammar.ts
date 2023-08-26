@@ -4,7 +4,7 @@ import { getRuleNames } from "./rule-names";
 
 import type { Result } from "../reader/parse-reader";
 import type { ObjectSet } from "../util/object-set";
-import type { DirectorSetToken, Syntax } from "@/lib/rules/define-rules";
+import type { DirectorSetSymbol, Grammar } from "@/lib/rules/define-rules";
 
 /**
  * 構文リストがLL(1)パーサーになれるか調べます。
@@ -13,8 +13,8 @@ import type { DirectorSetToken, Syntax } from "@/lib/rules/define-rules";
  * @returns 結果オブジェクト
  */
 export const isValidLLGrammar = <T>(
-  syntax: Syntax<T>,
-  directorSetList: ObjectSet<DirectorSetToken>[],
+  syntax: Grammar<T>,
+  directorSetList: ObjectSet<DirectorSetSymbol>[],
 ): Result<undefined> => {
   for (const name of getRuleNames(syntax)) {
     for (const [left, [leftRule]] of eachRules(syntax, name, [directorSetList])) {

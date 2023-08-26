@@ -10,7 +10,7 @@ type JsonValue = null | boolean | number | string | JsonValue[] | { [x: string]:
 
 const reader = new TokenReaderGen([
   ["literal", "true|false|null"],
-  ["token", "[-.eE+[\\],{}:]"],
+  ["operator", "[-.eE+[\\],{}:]"],
   ["zero-start-digits", "0[0-9]+"],
   ["digits", "[1-9][0-9]*"],
   ["zero", "0"],
@@ -32,32 +32,32 @@ const parser = generateLRParser<JsonValue>([
   // eslint-disable-next-line unicorn/no-null
   rule("value", [word("literal", "null")], (_) => null),
 
-  rule("object", [word("token", "{"), reference("ws"), word("token", "}")], (_) => ({})),
-  rule("object", [word("token", "{"), reference("members"), word("token", "}")], ([_, members]) =>
+  rule("object", [word("operator", "{"), reference("ws"), word("operator", "}")], (_) => ({})),
+  rule("object", [word("operator", "{"), reference("members"), word("operator", "}")], ([_, members]) =>
     Object.fromEntries(tree(members).processed as [string, JsonValue][]),
   ),
 
   rule("members", [reference("member")], ([member]) => [tree(member).processed]),
-  rule("members", [reference("member"), word("token", ","), reference("members")], ([member, _, members]) => [
+  rule("members", [reference("member"), word("operator", ","), reference("members")], ([member, _, members]) => [
     tree(member).processed,
     ...(tree(members).processed as JsonValue[]),
   ]),
 
   rule(
     "member",
-    [reference("ws"), reference("string"), reference("ws"), word("token", ":"), reference("element")],
+    [reference("ws"), reference("string"), reference("ws"), word("operator", ":"), reference("element")],
     ([_, key, _1, _2, value]) => [tree(key).processed, tree(value).processed],
   ),
 
-  rule("array", [word("token", "["), reference("ws"), word("token", "]")], (_) => []),
+  rule("array", [word("operator", "["), reference("ws"), word("operator", "]")], (_) => []),
   rule(
     "array",
-    [word("token", "["), reference("elements"), word("token", "]")],
+    [word("operator", "["), reference("elements"), word("operator", "]")],
     ([_, elements]) => tree(elements).processed,
   ),
 
   rule("elements", [reference("element")], ([element]) => [tree(element).processed]),
-  rule("elements", [reference("element"), word("token", ","), reference("elements")], ([element, _, elements]) => [
+  rule("elements", [reference("element"), word("operator", ","), reference("elements")], ([element, _, elements]) => [
     tree(element).processed,
     ...(tree(elements).processed as JsonValue[]),
   ]),
@@ -88,18 +88,18 @@ const parser = generateLRParser<JsonValue>([
   rule("integer", [word("digits")], ([digits]) => Number.parseInt(digits as string)),
 
   rule("fractional", [empty], (_) => 0),
-  rule("fractional", [word("token", "."), reference("digits")], ([_, digits]) => {
+  rule("fractional", [word("operator", "."), reference("digits")], ([_, digits]) => {
     const n = Number.parseInt(tree(digits).processed as string);
     return n === 0 ? 0 : n / 10 ** (Math.floor(Math.log10(n)) + 1);
   }),
 
   rule("exponent", [empty], (_) => 0),
-  rule("exponent", [word("token", "e"), reference("sign"), reference("digits")], ([_, sign, digits]) => {
+  rule("exponent", [word("operator", "e"), reference("sign"), reference("digits")], ([_, sign, digits]) => {
     const n = Number.parseInt(tree(digits).processed as string);
 
     return (tree(sign).processed as number) * n;
   }),
-  rule("exponent", [word("token", "E"), reference("sign"), reference("digits")], ([_, sign, digits]) => {
+  rule("exponent", [word("operator", "E"), reference("sign"), reference("digits")], ([_, sign, digits]) => {
     const n = Number.parseInt(tree(digits).processed as string);
 
     return (tree(sign).processed as number) * n;
@@ -110,8 +110,8 @@ const parser = generateLRParser<JsonValue>([
   rule("digits", [word("zero")], ([digits]) => digits as string),
 
   rule("sign", [empty], (_) => 1),
-  rule("sign", [word("token", "+")], (_) => 1),
-  rule("sign", [word("token", "-")], (_) => -1),
+  rule("sign", [word("operator", "+")], (_) => 1),
+  rule("sign", [word("operator", "-")], (_) => -1),
 
   rule("ws", [empty], (_) => 0),
   rule("ws", [word("ws")], (_) => 0),

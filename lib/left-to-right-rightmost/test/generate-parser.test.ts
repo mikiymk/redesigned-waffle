@@ -5,10 +5,10 @@ import { reference, rule, word } from "@/lib/rules/define-rules";
 
 import { generateParser } from "../generate-parser";
 
-import type { Syntax } from "@/lib/rules/define-rules";
+import type { Grammar } from "@/lib/rules/define-rules";
 
 describe("parsing", () => {
-  const syntax: Syntax<undefined> = [
+  const grammar: Grammar<undefined> = [
     rule("start", [reference("S")]),
     rule("S", [reference("F")]),
     rule("S", [word("char", "("), reference("S"), word("char", "+"), reference("F"), word("char", ")")]),
@@ -16,11 +16,11 @@ describe("parsing", () => {
   ];
 
   test("generating parser", () => {
-    expect(() => generateParser(syntax)).not.toThrow();
+    expect(() => generateParser(grammar)).not.toThrow();
   });
 
   test("parse success", () => {
-    const parser = generateParser(syntax);
+    const parser = generateParser(grammar);
     const source = "(1+1)";
 
     const result = parser.parse(new CharReader(source));
@@ -62,7 +62,7 @@ describe("parsing", () => {
   });
 
   test("parse failure", () => {
-    const parser = generateParser(syntax);
+    const parser = generateParser(grammar);
     const source = "(1+)";
 
     expect(parser.parse(new CharReader(source))).toStrictEqual([
@@ -73,7 +73,7 @@ describe("parsing", () => {
 });
 
 describe("parsing 2", () => {
-  const syntax: Syntax<undefined> = [
+  const grammar: Grammar<undefined> = [
     rule("S", [reference("E")]),
     rule("E", [reference("E"), word("char", "*"), reference("B")]),
     rule("E", [reference("E"), word("char", "+"), reference("B")]),
@@ -83,11 +83,11 @@ describe("parsing 2", () => {
   ];
 
   test("generating parser", () => {
-    expect(() => generateParser(syntax)).not.toThrow();
+    expect(() => generateParser(grammar)).not.toThrow();
   });
 
   test("parse success", () => {
-    const parser = generateParser(syntax);
+    const parser = generateParser(grammar);
     const source = "1+1";
 
     const result = parser.parse(new CharReader(source));
@@ -127,7 +127,7 @@ describe("parsing 2", () => {
   });
 
   test("parse failure", () => {
-    const parser = generateParser(syntax);
+    const parser = generateParser(grammar);
     const source = "1+2";
 
     expect(parser.parse(new CharReader(source))).toStrictEqual([
@@ -138,18 +138,18 @@ describe("parsing 2", () => {
 });
 
 describe("parsing 3", () => {
-  const syntax: Syntax<undefined> = [
+  const grammar: Grammar<undefined> = [
     rule("S", [reference("E")]),
     rule("E", [word("char", "1"), reference("E")]),
     rule("E", [word("char", "1")]),
   ];
 
   test("generating parser", () => {
-    expect(() => generateParser(syntax)).not.toThrow();
+    expect(() => generateParser(grammar)).not.toThrow();
   });
 
   test("parse success", () => {
-    const parser = generateParser(syntax);
+    const parser = generateParser(grammar);
     const source = "111";
 
     const result = parser.parse(new CharReader(source));
@@ -185,7 +185,7 @@ describe("parsing 3", () => {
   });
 
   test("parse failure", () => {
-    const parser = generateParser(syntax);
+    const parser = generateParser(grammar);
     const source = "112";
 
     expect(parser.parse(new CharReader(source))).toStrictEqual([
@@ -196,7 +196,7 @@ describe("parsing 3", () => {
 });
 
 describe("parsing 4", () => {
-  const syntax: Syntax<undefined> = [
+  const grammar: Grammar<undefined> = [
     rule("S", [reference("E")]),
     rule("E", [reference("A"), word("char", "1")]),
     rule("E", [reference("B"), word("char", "2")]),
@@ -205,11 +205,11 @@ describe("parsing 4", () => {
   ];
 
   test("generating parser", () => {
-    expect(() => generateParser(syntax)).not.toThrow();
+    expect(() => generateParser(grammar)).not.toThrow();
   });
 
   test("parse success", () => {
-    const parser = generateParser(syntax);
+    const parser = generateParser(grammar);
     const source = "12";
 
     const result = parser.parse(new CharReader(source));
@@ -238,7 +238,7 @@ describe("parsing 4", () => {
   });
 
   test("parse failure", () => {
-    const parser = generateParser(syntax);
+    const parser = generateParser(grammar);
     const source = "10";
 
     expect(parser.parse(new CharReader(source))).toStrictEqual([

@@ -1,17 +1,17 @@
 import { describe, expect, test } from "vitest";
 
 import { closure } from "@/lib/left-to-right-rightmost/closure";
-import { groupByNextToken } from "@/lib/left-to-right-rightmost/group-next-token";
+import { groupByNextToken } from "@/lib/left-to-right-rightmost/group-next-symbol";
 import { LR0Item } from "@/lib/left-to-right-rightmost/lr0-item";
 import { ParseTableRow } from "@/lib/left-to-right-rightmost/parse-table-row";
 import { generateLRParser } from "@/lib/main";
 import { TokenReaderGen } from "@/lib/reader/token-reader";
 import { empty, eof, reference, rule, word } from "@/lib/rules/define-rules";
-import { getFirstSet, getFirstSetList } from "@/lib/token-set/first-set";
+import { getFirstSet, getFirstSetList } from "@/lib/symbol-set/first-set";
 import { ObjectSet } from "@/lib/util/object-set";
 
 import type { Tree } from "@/lib/parser/tree";
-import type { Syntax } from "@/lib/rules/define-rules";
+import type { Grammar } from "@/lib/rules/define-rules";
 
 // (0) Start -> Num
 const rule0 = rule<number>("start", [reference("num")], ([number]) => tree(number));
@@ -28,7 +28,7 @@ const rule3 = rule<number>("frac", [empty], (_) => 0);
 // (4) Frac -> . digit
 const rule4 = rule<number>("frac", [word("dot"), word("dig")], ([_, digit]) => Number.parseInt(digit as string) / 10);
 
-const grammar: Syntax<number> = [rule0, rule1, rule2, rule3, rule4];
+const grammar: Grammar<number> = [rule0, rule1, rule2, rule3, rule4];
 
 const reader = new TokenReaderGen([
   ["dig", "[0-9]"],
@@ -120,7 +120,7 @@ describe("処理の流れで調べる", () => {
 
     {
       const item = new LR0Item(rule0, 0, [eof]);
-      const afterNextToken = item.rule.tokens.slice(item.position + 1);
+      const afterNextToken = item.rule.symbols.slice(item.position + 1);
 
       const result = [...getFirstSet(grammar, firstSetList, afterNextToken)];
 
@@ -130,7 +130,7 @@ describe("処理の流れで調べる", () => {
 
     {
       const item = new LR0Item(rule1, 0, [eof]);
-      const afterNextToken = item.rule.tokens.slice(item.position + 1);
+      const afterNextToken = item.rule.symbols.slice(item.position + 1);
 
       const result = [...getFirstSet(grammar, firstSetList, afterNextToken)];
 
@@ -141,7 +141,7 @@ describe("処理の流れで調べる", () => {
 
     {
       const item = new LR0Item(rule2, 0, [eof]);
-      const afterNextToken = item.rule.tokens.slice(item.position + 1);
+      const afterNextToken = item.rule.symbols.slice(item.position + 1);
 
       const result = [...getFirstSet(grammar, firstSetList, afterNextToken)];
 
