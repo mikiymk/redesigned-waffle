@@ -12,10 +12,10 @@ import type { ParseReader } from "../reader/parse-reader";
 import type {
   DirectorSetSymbol,
   FollowSetSymbol,
+  Grammar,
   LR0ItemSymbol,
   NonTermSymbol,
   RuleName,
-  Grammar,
   TermSymbol,
 } from "../rules/define-rules";
 import type { LR0Item } from "./lr0-item";

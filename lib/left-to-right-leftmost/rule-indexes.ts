@@ -1,6 +1,6 @@
 import { zip } from "../util/zip-array";
 
-import type { RuleName, Grammar } from "@/lib/rules/define-rules";
+import type { Grammar, RuleName } from "@/lib/rules/define-rules";
 
 /**
  * 指定したルール名のルール番号を探し、その番号のアイテムのリストを返します。

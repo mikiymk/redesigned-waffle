@@ -16,10 +16,10 @@ import type { ReferenceSymbol } from "../rules/reference-symbol";
 import type { MatchResult } from "./parse-table-row";
 import type {
   DirectorSetSymbol,
+  Grammar,
   LR0ItemSymbol,
   NonTermSymbol,
   RuleSymbol,
-  Grammar,
   TermSymbol,
 } from "@/lib/rules/define-rules";
 

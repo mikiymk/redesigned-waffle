@@ -1,4 +1,4 @@
-import type { RuleName, Grammar } from "@/lib/rules/define-rules";
+import type { Grammar, RuleName } from "@/lib/rules/define-rules";
 
 /**
  * 構文ルールリストからルールの名前を一覧します。

@@ -5,7 +5,7 @@ import { ReferenceSymbol } from "../rules/reference-symbol";
 import { WordSymbol } from "../rules/word-symbol";
 
 import type { ParseReader, Result } from "../reader/parse-reader";
-import type { DirectorSetSymbol, RuleSymbol, Grammar } from "../rules/define-rules";
+import type { DirectorSetSymbol, Grammar, RuleSymbol } from "../rules/define-rules";
 import type { ObjectSet } from "../util/object-set";
 import type { Tree } from "./tree";
 

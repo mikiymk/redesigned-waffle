@@ -4,7 +4,7 @@ import { eachRules } from "./rule-indexes";
 
 import type { ParseReader, Result } from "../reader/parse-reader";
 import type { ObjectSet } from "../util/object-set";
-import type { DirectorSetSymbol, RuleName, Grammar } from "@/lib/rules/define-rules";
+import type { DirectorSetSymbol, Grammar, RuleName } from "@/lib/rules/define-rules";
 
 /**
  * 次の文字にマッチするルール番号を探します。
