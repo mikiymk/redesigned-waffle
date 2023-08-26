@@ -14,7 +14,14 @@ import { ParseTableRow } from "./parse-table-row";
 import type { ParseReader, Result } from "../reader/parse-reader";
 import type { ReferenceSymbol } from "../rules/reference-symbol";
 import type { MatchResult } from "./parse-table-row";
-import type { DirectorSetSymbol, LR0ItemSymbol, NonTermSymbol, Syntax, TermSymbol, RuleSymbol } from "@/lib/rules/define-rules";
+import type {
+  DirectorSetSymbol,
+  LR0ItemSymbol,
+  NonTermSymbol,
+  RuleSymbol,
+  Syntax,
+  TermSymbol,
+} from "@/lib/rules/define-rules";
 
 /**
  * 構文ルールリストからアイテム集合のリストを作ります。

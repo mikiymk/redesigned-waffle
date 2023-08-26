@@ -2,9 +2,9 @@ import { expect, test } from "vitest";
 
 import { reference, rule, word } from "@/lib/rules/define-rules";
 
-import { getDirectorSetList } from "../../-set/director-set";
-import { getFirstSetList } from "../../-set/first-set";
-import { getFollowSetList } from "../../-set/follow-set";
+import { getDirectorSetList } from "../../symbol-set/director-set";
+import { getFirstSetList } from "../../symbol-set/first-set";
+import { getFollowSetList } from "../../symbol-set/follow-set";
 import { isValidLLGrammar } from "../is-ll-syntax";
 
 test("valid ll", () => {

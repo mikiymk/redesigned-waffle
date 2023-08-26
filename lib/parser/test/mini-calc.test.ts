@@ -38,7 +38,11 @@ const parser = generateLRParser<number>([
   ),
   rule("multiplication", [reference("parentheses")], ([p]) => tree(p).processed),
 
-  rule("parentheses", [word("operator", "("), reference("addition"), word("operator", ")")], ([_, a]) => tree(a).processed),
+  rule(
+    "parentheses",
+    [word("operator", "("), reference("addition"), word("operator", ")")],
+    ([_, a]) => tree(a).processed,
+  ),
   rule("parentheses", [reference("number")], ([n]) => tree(n).processed),
 
   rule("number", [word("num")], ([n]) => Number.parseInt(n as string)),
