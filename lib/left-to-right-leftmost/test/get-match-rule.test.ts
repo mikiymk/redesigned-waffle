@@ -11,7 +11,7 @@ import { getMatchRuleIndex } from "../get-match-rule";
 
 import type { ParseReader, ParseToken, Result } from "../../reader/parse-reader";
 
-const syntax = [
+const grammar = [
   rule("start", [reference("S")]),
 
   // one starts with "w" and the other with "c"
@@ -20,8 +20,8 @@ const syntax = [
   rule("S", [word("word", "ambitious")]),
 ];
 
-const firstSetList = getFirstSetList(syntax);
-const followSetList = getFollowSetList(syntax, firstSetList);
+const firstSetList = getFirstSetList(grammar);
+const followSetList = getFollowSetList(grammar, firstSetList);
 const directorSetList = getDirectorSetList(firstSetList, followSetList);
 
 const cases: [ParseToken | EOF, ParseReader, Result<number>][] = [
@@ -37,5 +37,5 @@ const cases: [ParseToken | EOF, ParseReader, Result<number>][] = [
 ];
 
 test.each(cases)("matches %s", (_code, pr, expected) => {
-  expect(getMatchRuleIndex(syntax, directorSetList, "S", pr)).toStrictEqual(expected);
+  expect(getMatchRuleIndex(grammar, directorSetList, "S", pr)).toStrictEqual(expected);
 });

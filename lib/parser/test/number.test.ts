@@ -11,7 +11,7 @@ import { getFirstSet, getFirstSetList } from "@/lib/symbol-set/first-set";
 import { ObjectSet } from "@/lib/util/object-set";
 
 import type { Tree } from "@/lib/parser/tree";
-import type { Syntax } from "@/lib/rules/define-rules";
+import type { Grammar } from "@/lib/rules/define-rules";
 
 // (0) Start -> Num
 const rule0 = rule<number>("start", [reference("num")], ([number]) => tree(number));
@@ -28,7 +28,7 @@ const rule3 = rule<number>("frac", [empty], (_) => 0);
 // (4) Frac -> . digit
 const rule4 = rule<number>("frac", [word("dot"), word("dig")], ([_, digit]) => Number.parseInt(digit as string) / 10);
 
-const grammar: Syntax<number> = [rule0, rule1, rule2, rule3, rule4];
+const grammar: Grammar<number> = [rule0, rule1, rule2, rule3, rule4];
 
 const reader = new TokenReaderGen([
   ["dig", "[0-9]"],

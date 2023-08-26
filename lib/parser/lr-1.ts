@@ -3,14 +3,14 @@ import { empty } from "../rules/define-rules";
 
 import type { ParseTable } from "../left-to-right-rightmost/parse-table";
 import type { ParseReader, Result } from "../reader/parse-reader";
-import type { Syntax } from "../rules/define-rules";
+import type { Grammar } from "../rules/define-rules";
 import type { Tree } from "./tree";
 
 /**
  * LRパーサー
  */
 export class LRParser<T> {
-  grammar: Syntax<T>;
+  grammar: Grammar<T>;
   table: ParseTable<T>;
 
   /**
@@ -18,7 +18,7 @@ export class LRParser<T> {
    * @param grammar 文法
    * @param table 構文解析表
    */
-  constructor(grammar: Syntax<T>, table: ParseTable<T>) {
+  constructor(grammar: Grammar<T>, table: ParseTable<T>) {
     this.grammar = grammar;
     this.table = table;
   }

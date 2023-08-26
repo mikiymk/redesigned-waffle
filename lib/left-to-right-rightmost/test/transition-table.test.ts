@@ -4,7 +4,7 @@ import { reference, rule, word } from "@/lib/rules/define-rules";
 
 import { generateParseTable } from "../parse-table";
 
-import type { Syntax } from "@/lib/rules/define-rules";
+import type { Grammar } from "@/lib/rules/define-rules";
 
 // (0) S → E
 // (1) E → E * B
@@ -12,7 +12,7 @@ import type { Syntax } from "@/lib/rules/define-rules";
 // (3) E → B
 // (4) B → 0
 // (5) B → 1
-const syntax: Syntax<undefined> = [
+const grammar: Grammar<undefined> = [
   rule("S", [reference("E")]),
   rule("E", [reference("E"), word("word", "*"), reference("B")]),
   rule("E", [reference("E"), word("word", "+"), reference("B")]),
@@ -22,7 +22,7 @@ const syntax: Syntax<undefined> = [
 ];
 
 test("generate parser", () => {
-  const result = generateParseTable(syntax);
+  const result = generateParseTable(grammar);
 
   expect(result.shift).toHaveLength(9);
   expect(result.goto).toHaveLength(9);

@@ -15,7 +15,7 @@ import type {
   LR0ItemSymbol,
   NonTermSymbol,
   RuleName,
-  Syntax,
+  Grammar,
   TermSymbol,
 } from "../rules/define-rules";
 import type { LR0Item } from "./lr0-item";
@@ -30,7 +30,7 @@ export class ParseTableRow<T> {
   readonly additions: ObjectSet<LR0Item<T>>;
   readonly gotoMap: [LR0ItemSymbol, number][] = [];
 
-  readonly #syntax;
+  readonly #grammar;
 
   #collected = false;
   #reduce: [ObjectSet<DirectorSetSymbol>, number][] = [];
@@ -40,16 +40,16 @@ export class ParseTableRow<T> {
 
   /**
    * 1つのアイテム集合を作ります。
-   * @param syntax 構文ルールリスト
+   * @param grammar 構文ルールリスト
    * @param items LR(0)アイテムリスト
    */
-  constructor(syntax: Syntax<T>, items: Iterable<LR0Item<T>>) {
+  constructor(grammar: Grammar<T>, items: Iterable<LR0Item<T>>) {
     this.kernels = new ObjectSet<LR0Item<T>>(items);
     this.additions = new ObjectSet<LR0Item<T>>();
-    this.#syntax = syntax;
+    this.#grammar = grammar;
 
     for (const item of this.kernels) {
-      this.additions.append(closure(syntax, item));
+      this.additions.append(closure(grammar, item));
     }
 
     // このアイテム集合のフォロー集合を求める
@@ -80,7 +80,7 @@ export class ParseTableRow<T> {
         // アイテムが最後なら
 
         // ルール番号を調べる
-        const ruleNumber = this.#syntax.findIndex((rule) => equalsRule(item.rule, rule));
+        const ruleNumber = this.#grammar.findIndex((rule) => equalsRule(item.rule, rule));
 
         if (ruleNumber === -1) {
           throw new Error(`ルール[${item.rule.toString()}]は文法の中にありません。`);

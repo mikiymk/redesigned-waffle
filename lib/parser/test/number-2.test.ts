@@ -11,14 +11,14 @@ import { getFirstSet, getFirstSetList } from "@/lib/symbol-set/first-set";
 import { ObjectSet } from "@/lib/util/object-set";
 
 import type { Tree, TreeBranch } from "@/lib/parser/tree";
-import type { Syntax } from "@/lib/rules/define-rules";
+import type { Grammar } from "@/lib/rules/define-rules";
 
 // (0) S -> N
 // (1) N -> I
 // (2) N -> I F
 // (3) I -> dig
 // (4) F -> dot dig
-const grammar: Syntax<number> = [
+const grammar: Grammar<number> = [
   rule("start", [reference("num")], ([number]) => tree(number).processed),
 
   rule("num", [reference("int")], ([integer]) => tree(integer).processed),

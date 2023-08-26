@@ -5,9 +5,9 @@ import { reference, rule, word } from "@/lib/rules/define-rules";
 
 import { generateParser } from "../generate-parser";
 
-import type { Syntax } from "@/lib/rules/define-rules";
+import type { Grammar } from "@/lib/rules/define-rules";
 
-const syntax: Syntax<undefined> = [
+const grammar: Grammar<undefined> = [
   rule("start", [reference("S")]),
   rule("S", [reference("F")]),
   rule("S", [word("char", "("), reference("S"), word("char", "+"), reference("F"), word("char", ")")]),
@@ -15,11 +15,11 @@ const syntax: Syntax<undefined> = [
 ];
 
 test("generating parser", () => {
-  expect(() => generateParser(syntax)).not.toThrow();
+  expect(() => generateParser(grammar)).not.toThrow();
 });
 
 describe("parsing", () => {
-  const parser = generateParser(syntax);
+  const parser = generateParser(grammar);
 
   test("parse success", () => {
     const source = "(1+1)";

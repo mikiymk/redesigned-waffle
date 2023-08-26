@@ -13,7 +13,7 @@ import type { Tree } from "../parser/tree";
 /**
  * 言語の構文
  */
-export type Syntax<T> = Rule<T>[];
+export type Grammar<T> = Rule<T>[];
 
 /**
  * 構文の名前付きルール

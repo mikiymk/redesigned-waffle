@@ -5,7 +5,7 @@ import { ReferenceSymbol } from "../rules/reference-symbol";
 import { WordSymbol } from "../rules/word-symbol";
 
 import type { ParseReader, Result } from "../reader/parse-reader";
-import type { DirectorSetSymbol, RuleSymbol, Syntax } from "../rules/define-rules";
+import type { DirectorSetSymbol, RuleSymbol, Grammar } from "../rules/define-rules";
 import type { ObjectSet } from "../util/object-set";
 import type { Tree } from "./tree";
 
@@ -13,7 +13,7 @@ import type { Tree } from "./tree";
  * LLパーサー
  */
 export class LLParser<T> {
-  grammar: Syntax<T>;
+  grammar: Grammar<T>;
   directorSetList: ObjectSet<DirectorSetSymbol>[];
 
   /**
@@ -21,7 +21,7 @@ export class LLParser<T> {
    * @param grammar 文法
    * @param directorSetList 構文解析表
    */
-  constructor(grammar: Syntax<T>, directorSetList: ObjectSet<DirectorSetSymbol>[]) {
+  constructor(grammar: Grammar<T>, directorSetList: ObjectSet<DirectorSetSymbol>[]) {
     this.grammar = grammar;
     this.directorSetList = directorSetList;
   }

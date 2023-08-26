@@ -8,7 +8,7 @@ import { getFirstSetList } from "../first-set";
 import { getFollowSetList } from "../follow-set";
 
 test("１つの記号", () => {
-  const syntax = [
+  const grammar = [
     // start
     rule("S", [reference("E")]),
 
@@ -20,8 +20,8 @@ test("１つの記号", () => {
     rule("B", [empty]),
   ];
 
-  const firstSet = getFirstSetList(syntax);
-  const followSet = getFollowSetList(syntax, firstSet);
+  const firstSet = getFirstSetList(grammar);
+  const followSet = getFollowSetList(grammar, firstSet);
   const result = getDirectorSetList(firstSet, followSet);
 
   expect(result).toHaveLength(4);
@@ -32,7 +32,7 @@ test("１つの記号", () => {
 });
 
 test("非終端記号の後に終端記号", () => {
-  const syntax = [
+  const grammar = [
     // start
     rule("S", [reference("E")]),
 
@@ -43,8 +43,8 @@ test("非終端記号の後に終端記号", () => {
     rule("B", [word("word", "word")]),
   ];
 
-  const firstSet = getFirstSetList(syntax);
-  const followSet = getFollowSetList(syntax, firstSet);
+  const firstSet = getFirstSetList(grammar);
+  const followSet = getFollowSetList(grammar, firstSet);
   const result = getDirectorSetList(firstSet, followSet);
 
   expect(result).toHaveLength(3);
@@ -54,7 +54,7 @@ test("非終端記号の後に終端記号", () => {
 });
 
 test("空になる可能性がある非終端記号の後に終端記号", () => {
-  const syntax = [
+  const grammar = [
     // start
     rule("S", [reference("E")]),
 
@@ -66,8 +66,8 @@ test("空になる可能性がある非終端記号の後に終端記号", () =>
     rule("B", [empty]),
   ];
 
-  const firstSet = getFirstSetList(syntax);
-  const followSet = getFollowSetList(syntax, firstSet);
+  const firstSet = getFirstSetList(grammar);
+  const followSet = getFollowSetList(grammar, firstSet);
   const result = getDirectorSetList(firstSet, followSet);
 
   expect(result).toHaveLength(4);
@@ -78,7 +78,7 @@ test("空になる可能性がある非終端記号の後に終端記号", () =>
 });
 
 test("左再帰", () => {
-  const syntax = [
+  const grammar = [
     // start
     rule("S", [reference("E")]),
 
@@ -87,8 +87,8 @@ test("左再帰", () => {
     rule("E", [word("word", "word lr")]),
   ];
 
-  const firstSet = getFirstSetList(syntax);
-  const followSet = getFollowSetList(syntax, firstSet);
+  const firstSet = getFirstSetList(grammar);
+  const followSet = getFollowSetList(grammar, firstSet);
   const result = getDirectorSetList(firstSet, followSet);
 
   expect(result).toHaveLength(3);
@@ -98,7 +98,7 @@ test("左再帰", () => {
 });
 
 test("右再帰", () => {
-  const syntax = [
+  const grammar = [
     // start
     rule("S", [reference("E")]),
 
@@ -107,8 +107,8 @@ test("右再帰", () => {
     rule("E", [word("word", "word rr")]),
   ];
 
-  const firstSet = getFirstSetList(syntax);
-  const followSet = getFollowSetList(syntax, firstSet);
+  const firstSet = getFirstSetList(grammar);
+  const followSet = getFollowSetList(grammar, firstSet);
   const result = getDirectorSetList(firstSet, followSet);
 
   expect(result).toHaveLength(3);
@@ -118,7 +118,7 @@ test("右再帰", () => {
 });
 
 test("間接の左再帰", () => {
-  const syntax = [
+  const grammar = [
     // start
     rule("S", [reference("A")]),
 
@@ -130,8 +130,8 @@ test("間接の左再帰", () => {
     rule("B", [word("word", "word in-lr")]),
   ];
 
-  const firstSet = getFirstSetList(syntax);
-  const followSet = getFollowSetList(syntax, firstSet);
+  const firstSet = getFirstSetList(grammar);
+  const followSet = getFollowSetList(grammar, firstSet);
   const result = getDirectorSetList(firstSet, followSet);
 
   expect(result).toHaveLength(4);
@@ -142,7 +142,7 @@ test("間接の左再帰", () => {
 });
 
 test("間接の右再帰", () => {
-  const syntax = [
+  const grammar = [
     // start
     rule("S", [reference("A")]),
 
@@ -154,8 +154,8 @@ test("間接の右再帰", () => {
     rule("B", [word("word", "word in-rr")]),
   ];
 
-  const firstSet = getFirstSetList(syntax);
-  const followSet = getFollowSetList(syntax, firstSet);
+  const firstSet = getFirstSetList(grammar);
+  const followSet = getFollowSetList(grammar, firstSet);
   const result = getDirectorSetList(firstSet, followSet);
 
   expect(result).toHaveLength(4);

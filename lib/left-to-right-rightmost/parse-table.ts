@@ -19,19 +19,19 @@ import type {
   LR0ItemSymbol,
   NonTermSymbol,
   RuleSymbol,
-  Syntax,
+  Grammar,
   TermSymbol,
 } from "@/lib/rules/define-rules";
 
 /**
  * 構文ルールリストからアイテム集合のリストを作ります。
- * @param syntax 構文ルールリスト
+ * @param grammar 構文ルールリスト
  * @returns LR(0)状態遷移テーブル
  */
-export const generateParseTable = <T>(syntax: Syntax<T>): ParseTable<T> => {
+export const generateParseTable = <T>(grammar: Grammar<T>): ParseTable<T> => {
   // 最初のルール
   // S → E $ であり、Sは他のいずれのルールでも右辺に登場しません。
-  const firstRule = syntax[0];
+  const firstRule = grammar[0];
   if (firstRule === undefined) {
     throw new Error("文法は１つ以上のルールが必要です。");
   }
@@ -39,7 +39,7 @@ export const generateParseTable = <T>(syntax: Syntax<T>): ParseTable<T> => {
   const firstItem = new LR0Item(firstRule, 0, [eof]);
 
   // DFA 初期状態
-  const initialState = new ParseTableRow(syntax, [firstItem]);
+  const initialState = new ParseTableRow(grammar, [firstItem]);
 
   // DFA 状態集合
   const states = [initialState];
@@ -88,11 +88,11 @@ export const generateParseTable = <T>(syntax: Syntax<T>): ParseTable<T> => {
 
       transitionState[symbolId] = nextIndex;
       gotoMap.push([symbol, nextIndex]);
-      states.push(new ParseTableRow(syntax, next));
+      states.push(new ParseTableRow(grammar, next));
     }
 
     for (const item of [...kernels, ...additions]) {
-      if (syntax[0] && equalsRule(item.rule, syntax[0])) {
+      if (grammar[0] && equalsRule(item.rule, grammar[0])) {
         acceptStates.push(index);
       }
     }
