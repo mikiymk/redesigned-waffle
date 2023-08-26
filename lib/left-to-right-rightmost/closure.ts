@@ -1,14 +1,14 @@
 import { empty } from "@/lib/rules/define-rules";
 
 import { eachRules } from "../left-to-right-leftmost/rule-indexes";
-import { ReferenceToken } from "../rules/reference-token";
-import { getFirstSet, getFirstSetList } from "../token-set/first-set";
+import { ReferenceSymbol } from "../rules/reference-symbol";
+import { getFirstSet, getFirstSetList } from "../symbol-set/first-set";
 import { ObjectMap } from "../util/object-map";
 
 import { LR0Item } from "./lr0-item";
 
 import type { ObjectSet } from "../util/object-set";
-import type { FollowSetToken, RuleName, Syntax } from "@/lib/rules/define-rules";
+import type { FollowSetSymbol, RuleName, Syntax } from "@/lib/rules/define-rules";
 
 /**
  * ドットが非終端記号の前にある場合、その非終端記号を展開したアイテムリストを作る
@@ -22,9 +22,9 @@ export const closure = <T>(syntax: Syntax<T>, item: LR0Item<T>): LR0Item<T>[] =>
 
   for (const item of closuredItems) {
     // アイテムからドットの後ろのトークンを得る
-    const nextToken = item.nextToken();
+    const nextToken = item.nextSymbol();
 
-    if (nextToken instanceof ReferenceToken) {
+    if (nextToken instanceof ReferenceSymbol) {
       // 次のトークンが非終端記号なら
       // 非終端記号を展開する
       const ruleName = nextToken.name;
@@ -44,11 +44,11 @@ export const closure = <T>(syntax: Syntax<T>, item: LR0Item<T>): LR0Item<T>[] =>
       }
 
       // さらに後ろのトークンのリスト
-      const afterNextToken = item.rule.tokens.slice(item.position + 1);
+      const afterNextToken = item.rule.symbols.slice(item.position + 1);
 
       // First集合を求める
       const firstSetList = getFirstSetList(syntax);
-      const afterNextTokenFirst: ObjectSet<FollowSetToken> = getFirstSet(syntax, firstSetList, afterNextToken);
+      const afterNextTokenFirst: ObjectSet<FollowSetSymbol> = getFirstSet(syntax, firstSetList, afterNextToken);
 
       // もし、Emptyが含まれるならば、先読み集合を追加する。
       if (afterNextTokenFirst.has(empty)) {

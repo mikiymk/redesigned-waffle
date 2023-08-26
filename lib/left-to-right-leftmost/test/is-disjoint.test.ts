@@ -6,21 +6,21 @@ import { ObjectSet } from "@/lib/util/object-set";
 import { isDisjoint } from "../is-disjoint";
 
 test("disjoint word", () => {
-  const tokenSet1 = new ObjectSet([word("word", "word")]);
+  const symbolSet1 = new ObjectSet([word("word", "word")]);
 
-  const tokenSet2 = new ObjectSet([word("word", "world")]);
+  const symbolSet2 = new ObjectSet([word("word", "world")]);
 
-  const result = isDisjoint(tokenSet1, tokenSet2);
+  const result = isDisjoint(symbolSet1, symbolSet2);
 
   expect(result).toBe(true);
 });
 
 test("not disjoint word", () => {
-  const tokenSet1 = new ObjectSet([word("word", "word")]);
+  const Set1 = new ObjectSet([word("word", "word")]);
 
-  const tokenSet2 = new ObjectSet([word("word", "code")]);
+  const Set2 = new ObjectSet([word("word", "code")]);
 
-  const result = isDisjoint(tokenSet1, tokenSet2);
+  const result = isDisjoint(Set1, Set2);
 
   expect(result).toBe(true);
 });

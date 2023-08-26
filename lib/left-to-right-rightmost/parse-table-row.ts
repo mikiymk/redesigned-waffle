@@ -1,7 +1,7 @@
 import { equalsRule } from "../rules/define-rules";
-import { ReferenceToken } from "../rules/reference-token";
-import { getFirstSetList } from "../token-set/first-set";
-import { getFollowSetList } from "../token-set/follow-set";
+import { ReferenceSymbol } from "../rules/reference-symbol";
+import { getFirstSetList } from "../symbol-set/first-set";
+import { getFollowSetList } from "../symbol-set/follow-set";
 import { ObjectSet } from "../util/object-set";
 import { primitiveToString } from "../util/primitive-to-string";
 import { zip } from "../util/zip-array";
@@ -10,17 +10,17 @@ import { closure } from "./closure";
 
 import type { ParseReader } from "../reader/parse-reader";
 import type {
-  DirectorSetToken,
-  FollowSetToken,
-  LR0ItemToken,
-  NonTermToken,
+  DirectorSetSymbol,
+  FollowSetSymbol,
+  LR0ItemSymbol,
+  NonTermSymbol,
   RuleName,
   Syntax,
-  TermToken,
+  TermSymbol,
 } from "../rules/define-rules";
 import type { LR0Item } from "./lr0-item";
 
-export type MatchResult = ["reduce", number] | ["shift", number, TermToken] | ["accept"] | ["error"];
+export type MatchResult = ["reduce", number] | ["shift", number, TermSymbol] | ["accept"] | ["error"];
 
 /**
  *
@@ -28,15 +28,15 @@ export type MatchResult = ["reduce", number] | ["shift", number, TermToken] | ["
 export class ParseTableRow<T> {
   readonly kernels: ObjectSet<LR0Item<T>>;
   readonly additions: ObjectSet<LR0Item<T>>;
-  readonly gotoMap: [LR0ItemToken, number][] = [];
+  readonly gotoMap: [LR0ItemSymbol, number][] = [];
 
   readonly #syntax;
 
   #collected = false;
-  #reduce: [ObjectSet<DirectorSetToken>, number][] = [];
-  #accept: [ObjectSet<DirectorSetToken>, number][] = [];
-  #shift: [TermToken, number][] = [];
-  #goto: [NonTermToken, number][] = [];
+  #reduce: [ObjectSet<DirectorSetSymbol>, number][] = [];
+  #accept: [ObjectSet<DirectorSetSymbol>, number][] = [];
+  #shift: [TermSymbol, number][] = [];
+  #goto: [NonTermSymbol, number][] = [];
 
   /**
    * 1つのアイテム集合を作ります。
@@ -56,7 +56,7 @@ export class ParseTableRow<T> {
     const itemSetRules = [...this.kernels, ...this.additions].map((item) => item.rule);
     const firstSet = getFirstSetList(itemSetRules);
     const followSet = getFollowSetList(itemSetRules, firstSet);
-    const lookahead: Record<RuleName, ObjectSet<FollowSetToken>> = {};
+    const lookahead: Record<RuleName, ObjectSet<FollowSetSymbol>> = {};
     for (const [_, rule, set] of zip(itemSetRules, followSet)) {
       lookahead[rule.name] = set;
     }
@@ -97,11 +97,11 @@ export class ParseTableRow<T> {
     }
 
     // shiftを調べる
-    for (const [token, number] of this.gotoMap) {
-      if (token instanceof ReferenceToken) {
-        this.#goto.push([token, number]);
+    for (const [symbol, number] of this.gotoMap) {
+      if (symbol instanceof ReferenceSymbol) {
+        this.#goto.push([symbol, number]);
       } else {
-        this.#shift.push([token, number]);
+        this.#shift.push([symbol, number]);
       }
     }
 
@@ -112,7 +112,7 @@ export class ParseTableRow<T> {
    *
    * @returns Reduceリスト
    */
-  reduce(): [ObjectSet<DirectorSetToken>, number][] {
+  reduce(): [ObjectSet<DirectorSetSymbol>, number][] {
     return this.#reduce;
   }
 
@@ -120,7 +120,7 @@ export class ParseTableRow<T> {
    *
    * @returns Acceptリスト
    */
-  accept(): [ObjectSet<DirectorSetToken>, number][] {
+  accept(): [ObjectSet<DirectorSetSymbol>, number][] {
     return this.#accept;
   }
 
@@ -128,7 +128,7 @@ export class ParseTableRow<T> {
    *
    * @returns Shiftリスト
    */
-  shift(): [TermToken, number][] {
+  shift(): [TermSymbol, number][] {
     return this.#shift;
   }
 
@@ -136,7 +136,7 @@ export class ParseTableRow<T> {
    *
    * @returns Gotoリスト
    */
-  goto(): [NonTermToken, number][] {
+  goto(): [NonTermSymbol, number][] {
     return this.#goto;
   }
 
@@ -151,8 +151,8 @@ export class ParseTableRow<T> {
     }
 
     for (const [set, _] of this.#accept) {
-      for (const token of set) {
-        if (token.matchFirstChar(pr)) {
+      for (const symbol of set) {
+        if (symbol.matchFirstChar(pr)) {
           return ["accept"];
         }
       }
@@ -160,17 +160,17 @@ export class ParseTableRow<T> {
 
     // reduceを調べる
     for (const [set, number] of this.#reduce) {
-      for (const token of set) {
-        if (token.matchFirstChar(pr)) {
+      for (const symbol of set) {
+        if (symbol.matchFirstChar(pr)) {
           return ["reduce", number];
         }
       }
     }
 
     // shiftを調べる
-    for (const [token, number] of this.#shift) {
-      if (token.matchFirstChar(pr)) {
-        return ["shift", number, token];
+    for (const [symbol, number] of this.#shift) {
+      if (symbol.matchFirstChar(pr)) {
+        return ["shift", number, symbol];
       }
     }
 
@@ -187,8 +187,8 @@ export class ParseTableRow<T> {
       throw new Error("not collected");
     }
 
-    for (const [token, newState] of this.#goto) {
-      if (token.name === nonTermName) {
+    for (const [symbol, newState] of this.#goto) {
+      if (symbol.name === nonTermName) {
         return newState;
       }
     }

@@ -1,39 +1,39 @@
 import { empty } from "./define-rules";
 
 import type { Tree } from "../parser/tree";
-import type { SyntaxToken } from "./define-rules";
+import type { SyntaxSymbol } from "./define-rules";
 
 /**
  *
  */
 export class Rule<T> {
   readonly name;
-  readonly tokens;
+  readonly symbols;
   readonly #process;
 
   /**
    * 構文用のルールを作る
    * @param name ルール名
-   * @param tokens ルールのトークン列
+   * @param symbols ルールのトークン列
    * @param process 変換する関数
    */
-  constructor(name: string, tokens: SyntaxToken[], process?: (children: Tree<T>[]) => T) {
+  constructor(name: string, symbols: SyntaxSymbol[], process?: (children: Tree<T>[]) => T) {
     if (name.length === 0) {
       throw new Error("ルール名は１文字以上である必要があります。");
     }
 
-    if (tokens.length === 0) {
+    if (symbols.length === 0) {
       throw new Error("ルールトークンは１つ以上である必要があります。");
     }
 
-    if (tokens.includes(empty) && tokens.length !== 1) {
+    if (symbols.includes(empty) && symbols.length !== 1) {
       throw new Error(
-        `ルールに空文字トークンを含む場合、トークン列は空文字トークン１つのみである必要があります。 受け取ったトークン: ${tokens.length}個`,
+        `ルールに空文字トークンを含む場合、トークン列は空文字トークン１つのみである必要があります。 受け取ったトークン: ${symbols.length}個`,
       );
     }
 
     this.name = name;
-    this.tokens = tokens;
+    this.symbols = symbols;
 
     this.#process = process;
   }
@@ -55,8 +55,8 @@ export class Rule<T> {
   equals(other: Rule<T>): boolean {
     return (
       this.name === other.name &&
-      this.tokens.length === other.tokens.length &&
-      this.tokens.every((value, index) => other.tokens[index]?.equals(value))
+      this.symbols.length === other.symbols.length &&
+      this.symbols.every((value, index) => other.symbols[index]?.equals(value))
     );
   }
 
@@ -65,6 +65,6 @@ export class Rule<T> {
    * @returns 文字列
    */
   toString(): string {
-    return `${this.name} ${this.tokens.map((token) => token.toString()).join(" ")}`;
+    return `${this.name} ${this.symbols.map((symbol) => symbol.toString()).join(" ")}`;
   }
 }

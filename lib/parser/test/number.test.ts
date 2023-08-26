@@ -1,13 +1,13 @@
 import { describe, expect, test } from "vitest";
 
 import { closure } from "@/lib/left-to-right-rightmost/closure";
-import { groupByNextToken } from "@/lib/left-to-right-rightmost/group-next-token";
+import { groupByNextToken } from "@/lib/left-to-right-rightmost/group-next-symbol";
 import { LR0Item } from "@/lib/left-to-right-rightmost/lr0-item";
 import { ParseTableRow } from "@/lib/left-to-right-rightmost/parse-table-row";
 import { generateLRParser } from "@/lib/main";
 import { TokenReaderGen } from "@/lib/reader/token-reader";
 import { empty, eof, reference, rule, word } from "@/lib/rules/define-rules";
-import { getFirstSet, getFirstSetList } from "@/lib/token-set/first-set";
+import { getFirstSet, getFirstSetList } from "@/lib/symbol-set/first-set";
 import { ObjectSet } from "@/lib/util/object-set";
 
 import type { Tree } from "@/lib/parser/tree";
@@ -120,7 +120,7 @@ describe("処理の流れで調べる", () => {
 
     {
       const item = new LR0Item(rule0, 0, [eof]);
-      const afterNextToken = item.rule.tokens.slice(item.position + 1);
+      const afterNextToken = item.rule.symbols.slice(item.position + 1);
 
       const result = [...getFirstSet(grammar, firstSetList, afterNextToken)];
 
@@ -130,7 +130,7 @@ describe("処理の流れで調べる", () => {
 
     {
       const item = new LR0Item(rule1, 0, [eof]);
-      const afterNextToken = item.rule.tokens.slice(item.position + 1);
+      const afterNextToken = item.rule.symbols.slice(item.position + 1);
 
       const result = [...getFirstSet(grammar, firstSetList, afterNextToken)];
 
@@ -141,7 +141,7 @@ describe("処理の流れで調べる", () => {
 
     {
       const item = new LR0Item(rule2, 0, [eof]);
-      const afterNextToken = item.rule.tokens.slice(item.position + 1);
+      const afterNextToken = item.rule.symbols.slice(item.position + 1);
 
       const result = [...getFirstSet(grammar, firstSetList, afterNextToken)];
 

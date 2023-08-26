@@ -4,7 +4,7 @@ import { eof, reference, rule, word } from "@/lib/rules/define-rules";
 import { ObjectSet } from "@/lib/util/object-set";
 
 import { closure } from "../closure";
-import { groupByNextToken } from "../group-next-token";
+import { groupByNextToken } from "../group-next-symbol";
 import { LR0Item } from "../lr0-item";
 
 import type { Syntax } from "@/lib/rules/define-rules";

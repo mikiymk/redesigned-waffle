@@ -6,15 +6,15 @@ import { ObjectSet } from "../util/object-set";
 import { primitiveToString } from "../util/primitive-to-string";
 import { zip } from "../util/zip-array";
 
-import { groupByNextToken } from "./group-next-token";
+import { groupByNextToken } from "./group-next-symbol";
 import { LR0Item } from "./lr0-item";
 import { nextItemSet } from "./next-item";
 import { ParseTableRow } from "./parse-table-row";
 
 import type { ParseReader, Result } from "../reader/parse-reader";
-import type { ReferenceToken } from "../rules/reference-token";
+import type { ReferenceSymbol } from "../rules/reference-symbol";
 import type { MatchResult } from "./parse-table-row";
-import type { DirectorSetToken, LR0ItemToken, NonTermToken, Syntax, TermToken, Token } from "@/lib/rules/define-rules";
+import type { DirectorSetSymbol, LR0ItemSymbol, NonTermSymbol, Syntax, TermSymbol, RuleSymbol } from "@/lib/rules/define-rules";
 
 /**
  * 構文ルールリストからアイテム集合のリストを作ります。
@@ -37,8 +37,8 @@ export const generateParseTable = <T>(syntax: Syntax<T>): ParseTable<T> => {
   // DFA 状態集合
   const states = [initialState];
   // DFA 文字集合
-  const symbols: LR0ItemToken[] = [];
-  const symbolsSet = new ObjectSet<LR0ItemToken>();
+  const symbols: LR0ItemSymbol[] = [];
+  const symbolsSet = new ObjectSet<LR0ItemSymbol>();
   // DFA 遷移関数 状態 → 文字 → 状態
   const transition: Record<number, Record<number, number>> = {};
   // DFA 受理状態
@@ -53,16 +53,16 @@ export const generateParseTable = <T>(syntax: Syntax<T>): ParseTable<T> => {
     const groups = groupByNextToken(new ObjectSet<LR0Item<T>>([...kernels, ...additions]));
 
     // 各グループについて
-    outer: for (const [token, itemSet] of groups) {
-      let tokenId: number;
+    outer: for (const [symbol, itemSet] of groups) {
+      let symbolId: number;
       // 登場するシンボルを集める
-      if (symbolsSet.has(token)) {
-        const tokenKey = token.toKeyString();
-        tokenId = symbols.findIndex((value) => value.toKeyString() === tokenKey);
+      if (symbolsSet.has(symbol)) {
+        const symbolKey = symbol.toKeyString();
+        symbolId = symbols.findIndex((value) => value.toKeyString() === symbolKey);
       } else {
-        tokenId = symbols.length;
-        symbols.push(token);
-        symbolsSet.add(token);
+        symbolId = symbols.length;
+        symbols.push(symbol);
+        symbolsSet.add(symbol);
       }
 
       const next = nextItemSet(itemSet);
@@ -71,16 +71,16 @@ export const generateParseTable = <T>(syntax: Syntax<T>): ParseTable<T> => {
       // 新しく追加しない
       for (const [index, { kernels }] of states.entries()) {
         if (kernels.equals(next)) {
-          transitionState[tokenId] = index;
-          gotoMap.push([token, index]);
+          transitionState[symbolId] = index;
+          gotoMap.push([symbol, index]);
           continue outer;
         }
       }
 
       const nextIndex = states.length;
 
-      transitionState[tokenId] = nextIndex;
-      gotoMap.push([token, nextIndex]);
+      transitionState[symbolId] = nextIndex;
+      gotoMap.push([symbol, nextIndex]);
       states.push(new ParseTableRow(syntax, next));
     }
 
@@ -103,10 +103,10 @@ export const generateParseTable = <T>(syntax: Syntax<T>): ParseTable<T> => {
  *
  */
 export class ParseTable<T> {
-  reduce: [ObjectSet<DirectorSetToken>, number][][] = [];
-  accept: [ObjectSet<DirectorSetToken>, number][][] = [];
-  shift: [TermToken, number][][] = [];
-  goto: [ReferenceToken, number][][] = [];
+  reduce: [ObjectSet<DirectorSetSymbol>, number][][] = [];
+  accept: [ObjectSet<DirectorSetSymbol>, number][][] = [];
+  shift: [TermSymbol, number][][] = [];
+  goto: [ReferenceSymbol, number][][] = [];
 
   /**
    *
@@ -130,8 +130,8 @@ export class ParseTable<T> {
   match(state: number, pr: ParseReader): MatchResult {
     // reduceを調べる
     for (const [set, _] of this.accept[state] ?? []) {
-      for (const token of set) {
-        if (token.matchFirstChar(pr)) {
+      for (const symbol of set) {
+        if (symbol.matchFirstChar(pr)) {
           return ["accept"];
         }
       }
@@ -139,17 +139,17 @@ export class ParseTable<T> {
 
     // reduceを調べる
     for (const [set, number] of this.reduce[state] ?? []) {
-      for (const token of set) {
-        if (token.matchFirstChar(pr)) {
+      for (const symbol of set) {
+        if (symbol.matchFirstChar(pr)) {
           return ["reduce", number];
         }
       }
     }
 
     // shiftを調べる
-    for (const [token, number] of this.shift[state] ?? []) {
-      if (token.matchFirstChar(pr)) {
-        return ["shift", number, token];
+    for (const [symbol, number] of this.shift[state] ?? []) {
+      if (symbol.matchFirstChar(pr)) {
+        return ["shift", number, symbol];
       }
     }
 
@@ -163,8 +163,8 @@ export class ParseTable<T> {
    * @returns Gotoが正常な場合、移動先の番号
    */
   gotoState(state: number, name: string): Result<number> {
-    for (const [token, newState] of this.goto[state] ?? []) {
-      if (token.name === name) {
+    for (const [symbol, newState] of this.goto[state] ?? []) {
+      if (symbol.name === name) {
         return [true, newState];
       }
     }
@@ -185,24 +185,24 @@ export class ParseTable<T> {
    * デバッグ出力
    */
   printDebug(): void {
-    const termTokenSet = new ObjectSet<TermToken>();
-    const nonTermTokenSet = new ObjectSet<NonTermToken>();
+    const termTokenSet = new ObjectSet<TermSymbol>();
+    const nonTermTokenSet = new ObjectSet<NonTermSymbol>();
 
     for (const [_, reduce, accept, shift, goto] of zip(this.reduce, this.accept, this.shift, this.goto)) {
       for (const [set] of reduce) {
-        termTokenSet.append(set.difference(new ObjectSet([eof])) as ObjectSet<TermToken>);
+        termTokenSet.append(set.difference(new ObjectSet([eof])) as ObjectSet<TermSymbol>);
       }
 
       for (const [set] of accept) {
-        termTokenSet.append(set.difference(new ObjectSet([eof])) as ObjectSet<TermToken>);
+        termTokenSet.append(set.difference(new ObjectSet([eof])) as ObjectSet<TermSymbol>);
       }
 
-      for (const [token] of shift) {
-        termTokenSet.add(token);
+      for (const [symbol] of shift) {
+        termTokenSet.add(symbol);
       }
 
-      for (const [token] of goto) {
-        nonTermTokenSet.add(token);
+      for (const [symbol] of goto) {
+        nonTermTokenSet.add(symbol);
       }
     }
 
@@ -252,51 +252,51 @@ export class ParseTable<T> {
     console.log(lineString1);
 
     for (const [index, reduce, accept, shift, goto] of zip(this.reduce, this.accept, this.shift, this.goto)) {
-      const tokenMap = new ObjectMap<Token, string[]>();
+      const symbolMap = new ObjectMap<RuleSymbol, string[]>();
 
       for (const [set, n] of reduce) {
-        for (const token of set) {
-          const value = tokenMap.get(token) ?? [];
+        for (const symbol of set) {
+          const value = symbolMap.get(symbol) ?? [];
           value.push(`r ${n}`);
-          tokenMap.set(token, value);
+          symbolMap.set(symbol, value);
         }
       }
 
       for (const [set] of accept) {
-        for (const token of set) {
-          const value = tokenMap.get(token) ?? [];
+        for (const symbol of set) {
+          const value = symbolMap.get(symbol) ?? [];
           value.push("acc");
-          tokenMap.set(token, value);
+          symbolMap.set(symbol, value);
         }
       }
 
-      for (const [token, n] of shift) {
-        const value = tokenMap.get(token) ?? [];
+      for (const [symbol, n] of shift) {
+        const value = symbolMap.get(symbol) ?? [];
         value.push(`s ${n}`);
-        tokenMap.set(token, value);
+        symbolMap.set(symbol, value);
       }
 
-      for (const [token, n] of goto) {
-        const value = tokenMap.get(token) ?? [];
+      for (const [symbol, n] of goto) {
+        const value = symbolMap.get(symbol) ?? [];
         value.push(`g ${n}`);
-        tokenMap.set(token, value);
+        symbolMap.set(symbol, value);
       }
 
       lineString = `| ${index.toString().padStart(5, " ")} |`;
 
       for (const term of termTokens) {
         const termTitle = term.word ? `${term.type} ${term.word}` : `${term.type}`;
-        const result = tokenMap.get(term);
+        const result = symbolMap.get(term);
         const termValue = (result?.join("<br>") ?? "").padEnd(termTitle.length, " ");
 
         lineString += ` ${termValue} |`;
       }
 
-      lineString += ` ${tokenMap.get(eof)?.join("<br>") ?? "   "} |`;
+      lineString += ` ${symbolMap.get(eof)?.join("<br>") ?? "   "} |`;
 
       for (const nonTerm of nonTermTokenSet) {
         const nonTermTitle = typeof nonTerm.name === "symbol" ? `Symbol(${nonTerm.name.description})` : nonTerm.name;
-        const result = tokenMap.get(nonTerm);
+        const result = symbolMap.get(nonTerm);
         const nonTermValue = (result?.join("<br>") ?? "").padEnd(nonTermTitle.length, " ");
 
         lineString += ` ${nonTermValue} |`;

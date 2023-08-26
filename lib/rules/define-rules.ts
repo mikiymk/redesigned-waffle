@@ -2,11 +2,11 @@
  * @file
  */
 
-import { EmptyToken } from "./empty-token";
-import { EOFToken } from "./eof-token";
-import { ReferenceToken } from "./reference-token";
+import { EmptySymbol } from "./empty-symbol";
+import { EOFSymbol } from "./eof-symbol";
+import { ReferenceSymbol } from "./reference-symbol";
 import { Rule } from "./rule";
-import { WordToken } from "./word-token";
+import { WordSymbol } from "./word-symbol";
 
 import type { Tree } from "../parser/tree";
 
@@ -20,28 +20,28 @@ export type Syntax<T> = Rule<T>[];
  */
 export type RuleName = string | symbol;
 
-export type SyntaxToken = WordToken | ReferenceToken | EmptyToken;
-export type FirstSetToken = WordToken | EmptyToken;
-export type FollowSetToken = WordToken | EOFToken;
-export type DirectorSetToken = WordToken | EOFToken;
-export type LR0ItemToken = WordToken | ReferenceToken;
-export type TermToken = WordToken;
-export type NonTermToken = ReferenceToken;
+export type SyntaxSymbol = WordSymbol | ReferenceSymbol | EmptySymbol;
+export type FirstSetSymbol = WordSymbol | EmptySymbol;
+export type FollowSetSymbol = WordSymbol | EOFSymbol;
+export type DirectorSetSymbol = WordSymbol | EOFSymbol;
+export type LR0ItemSymbol = WordSymbol | ReferenceSymbol;
+export type TermSymbol = WordSymbol;
+export type NonTermSymbol = ReferenceSymbol;
 
-export type Token = WordToken | ReferenceToken | EmptyToken | EOFToken;
+export type RuleSymbol = WordSymbol | ReferenceSymbol | EmptySymbol | EOFSymbol;
 
 /**
  * 構文用のルールを作る
  * @param name ルール名
- * @param tokens ルールのトークン列
+ * @param symbols ルールのトークン列
  * @param process 変換する関数
  * @returns ルールオブジェクト（タグ付きタプル）
  */
 export const rule: {
-  (name: string, tokens: SyntaxToken[]): Rule<undefined>;
-  <T>(name: string, tokens: SyntaxToken[], process?: (children: Tree<T>[]) => T): Rule<T>;
-} = <T>(name: string, tokens: SyntaxToken[], process?: (children: Tree<T>[]) => T): Rule<T> => {
-  return new Rule(name, tokens, process);
+  (name: string, symbols: SyntaxSymbol[]): Rule<undefined>;
+  <T>(name: string, symbols: SyntaxSymbol[], process?: (children: Tree<T>[]) => T): Rule<T>;
+} = <T>(name: string, symbols: SyntaxSymbol[], process?: (children: Tree<T>[]) => T): Rule<T> => {
+  return new Rule(name, symbols, process);
 };
 
 /**
@@ -50,8 +50,8 @@ export const rule: {
  * @param word キーワード
  * @returns ルール用トークン
  */
-export const word = (type: string, word?: string): WordToken => {
-  return new WordToken(type, word);
+export const word = (type: string, word?: string): WordSymbol => {
+  return new WordSymbol(type, word);
 };
 
 /**
@@ -59,15 +59,15 @@ export const word = (type: string, word?: string): WordToken => {
  * @param terminal ルール名
  * @returns ルール用トークン
  */
-export const reference = (terminal: string | symbol): ReferenceToken => {
-  return new ReferenceToken(terminal);
+export const reference = (terminal: string | symbol): ReferenceSymbol => {
+  return new ReferenceSymbol(terminal);
 };
 
 /**
  * 空のトークン
  */
-export const empty: EmptyToken = new EmptyToken();
-export const eof: EOFToken = new EOFToken();
+export const empty: EmptySymbol = new EmptySymbol();
+export const eof: EOFSymbol = new EOFSymbol();
 
 /**
  * 2つのルールを比較します

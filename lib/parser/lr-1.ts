@@ -53,8 +53,8 @@ export class LRParser<T> {
         const rule = this.grammar[index];
 
         if (rule) {
-          const tokens = rule.tokens.filter((token) => token !== empty);
-          const children = tree.splice(-tokens.length, tokens.length);
+          const symbols = rule.symbols.filter((symbol) => symbol !== empty);
+          const children = tree.splice(-symbols.length, symbols.length);
           tree.push({
             index,
             children: children,
@@ -68,9 +68,9 @@ export class LRParser<T> {
 
     const rule = this.grammar[0];
     if (rule) {
-      const { tokens } = rule;
+      const { symbols } = rule;
 
-      if (tokens.filter((token) => token !== empty).length === tree.length) {
+      if (symbols.filter((symbol) => symbol !== empty).length === tree.length) {
         return [
           true,
           {
@@ -96,11 +96,11 @@ export class LRParser<T> {
 
     for (;;) {
       const state = stack.at(-1) ?? 0;
-      const [action, parameter, token] = this.table.match(state, pr);
+      const [action, parameter, symbol] = this.table.match(state, pr);
 
       switch (action) {
         case "shift": {
-          const [ok, word] = token.read(pr);
+          const [ok, word] = symbol.read(pr);
           if (!ok) {
             return [false, word];
           }
@@ -117,8 +117,8 @@ export class LRParser<T> {
             return [false, new Error(`Reduce操作先が無効なルール番号です。 ${parameter}`)];
           }
 
-          const { name, tokens } = rule;
-          for (const _ of tokens.filter((token) => token !== empty)) {
+          const { name, symbols } = rule;
+          for (const _ of symbols.filter((symbol) => symbol !== empty)) {
             stack.pop();
           }
 

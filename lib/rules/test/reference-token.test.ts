@@ -1,44 +1,44 @@
 import { describe, expect, test } from "vitest";
 
-import { ReferenceToken } from "../reference-token";
-import { WordToken } from "../word-token";
+import { ReferenceSymbol } from "../reference-symbol";
+import { WordSymbol } from "../word-symbol";
 
 describe("#constructor", () => {
   test("文字列", () => {
-    expect(() => new ReferenceToken("A")).not.toThrow();
+    expect(() => new ReferenceSymbol("A")).not.toThrow();
   });
 
   test("空文字列", () => {
-    expect(() => new ReferenceToken("")).toThrow();
+    expect(() => new ReferenceSymbol("")).toThrow();
   });
 
   test("シンボル", () => {
-    expect(() => new ReferenceToken(Symbol("A"))).not.toThrow();
+    expect(() => new ReferenceSymbol(Symbol("A"))).not.toThrow();
   });
 });
 
 test("#isNonTerminal", () => {
-  const token = new ReferenceToken("A");
+  const symbol = new ReferenceSymbol("A");
 
-  const result = token.isNonTerminal();
+  const result = symbol.isNonTerminal();
 
   expect(result).toBe(true);
 });
 
 describe("#toKeyString", () => {
   test("文字列", () => {
-    const token = new ReferenceToken("A");
+    const symbol = new ReferenceSymbol("A");
 
-    const result = token.toKeyString();
+    const result = symbol.toKeyString();
 
     expect(result).toBe('r "A"');
   });
 
   test("シンボル", () => {
     const symbol = Symbol("A");
-    const token = new ReferenceToken(symbol);
+    const nonTermSymbol = new ReferenceSymbol(symbol);
 
-    const result = token.toKeyString();
+    const result = nonTermSymbol.toKeyString();
 
     expect(result).toBe(symbol);
   });
@@ -46,17 +46,17 @@ describe("#toKeyString", () => {
 
 describe("#toString", () => {
   test("文字列", () => {
-    const token = new ReferenceToken("A");
+    const symbol = new ReferenceSymbol("A");
 
-    const result = token.toString();
+    const result = symbol.toString();
 
     expect(result).toBe("rule(A)");
   });
 
   test("シンボル", () => {
-    const token = new ReferenceToken(Symbol("A"));
+    const symbol = new ReferenceSymbol(Symbol("A"));
 
-    const result = token.toString();
+    const result = symbol.toString();
 
     expect(result).toBe("rule(Symbol(A))");
   });
@@ -64,38 +64,38 @@ describe("#toString", () => {
 
 describe("#equal", () => {
   test("同じクラスで同じ文字列", () => {
-    const token1 = new ReferenceToken("A");
-    const token2 = new ReferenceToken("A");
+    const symbol1 = new ReferenceSymbol("A");
+    const symbol2 = new ReferenceSymbol("A");
 
-    const result = token1.equals(token2);
+    const result = symbol1.equals(symbol2);
 
     expect(result).toBe(true);
   });
 
   test("同じクラスで同じシンボル", () => {
     const symbol = Symbol("A");
-    const token1 = new ReferenceToken(symbol);
-    const token2 = new ReferenceToken(symbol);
+    const symbol1 = new ReferenceSymbol(symbol);
+    const symbol2 = new ReferenceSymbol(symbol);
 
-    const result = token1.equals(token2);
+    const result = symbol1.equals(symbol2);
 
     expect(result).toBe(true);
   });
 
   test("同じクラスで違う文字列", () => {
-    const token1 = new ReferenceToken("A");
-    const token2 = new ReferenceToken("B");
+    const symbol1 = new ReferenceSymbol("A");
+    const symbol2 = new ReferenceSymbol("B");
 
-    const result = token1.equals(token2);
+    const result = symbol1.equals(symbol2);
 
     expect(result).toBe(false);
   });
 
   test("違うクラス", () => {
-    const token1 = new ReferenceToken("A");
-    const token2 = new WordToken("word", "word");
+    const symbol1 = new ReferenceSymbol("A");
+    const symbol2 = new WordSymbol("word", "word");
 
-    const result = token1.equals(token2);
+    const result = symbol1.equals(symbol2);
 
     expect(result).toBe(false);
   });

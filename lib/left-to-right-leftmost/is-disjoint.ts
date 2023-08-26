@@ -1,5 +1,5 @@
 import type { ObjectSet } from "../util/object-set";
-import type { DirectorSetToken } from "@/lib/rules/define-rules";
+import type { DirectorSetSymbol } from "@/lib/rules/define-rules";
 
 /**
  * ２つのトークン集合が最初の１文字について互いに素かどうかを判定する。
@@ -7,13 +7,13 @@ import type { DirectorSetToken } from "@/lib/rules/define-rules";
  * @param right B
  * @returns 互いに素なら `true`
  */
-export const isDisjoint = (left: ObjectSet<DirectorSetToken>, right: ObjectSet<DirectorSetToken>): boolean => {
+export const isDisjoint = (left: ObjectSet<DirectorSetSymbol>, right: ObjectSet<DirectorSetSymbol>): boolean => {
   // 左辺の各文字についてループ
-  for (const leftToken of left) {
+  for (const leftSymbol of left) {
     // 右辺の文字にかぶるところがあるかチェックする
 
     // １つでも範囲が重なるところがあれば
-    if (right.has(leftToken)) {
+    if (right.has(leftSymbol)) {
       // あったらfalseを返す
       return false;
     }

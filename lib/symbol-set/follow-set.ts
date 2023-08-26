@@ -5,7 +5,7 @@ import { ObjectSet } from "../util/object-set";
 
 import { getFirstSet } from "./first-set";
 
-import type { FirstSetToken, FollowSetToken, Syntax } from "@/lib/rules/define-rules";
+import type { FirstSetSymbol, FollowSetSymbol, Syntax } from "@/lib/rules/define-rules";
 
 /**
  * 各ルールについて、続く文字の文字を求める。
@@ -15,10 +15,10 @@ import type { FirstSetToken, FollowSetToken, Syntax } from "@/lib/rules/define-r
  */
 export const getFollowSetList = <T>(
   syntax: Syntax<T>,
-  firstSetList: ObjectSet<FirstSetToken>[],
-): ObjectSet<FollowSetToken>[] => {
+  firstSetList: ObjectSet<FirstSetSymbol>[],
+): ObjectSet<FollowSetSymbol>[] => {
   // ルールリストと同じ長さで文字集合リストを作る
-  const followSetList = syntax.map(() => new ObjectSet<FollowSetToken>());
+  const followSetList = syntax.map(() => new ObjectSet<FollowSetSymbol>());
 
   followSetList[0]?.add(eof);
 
@@ -49,8 +49,8 @@ export const getFollowSetList = <T>(
  */
 const generateFollowSet = <T>(
   syntax: Syntax<T>,
-  followSetList: ObjectSet<FollowSetToken>[],
-  firstSetList: ObjectSet<FirstSetToken>[],
+  followSetList: ObjectSet<FollowSetSymbol>[],
+  firstSetList: ObjectSet<FirstSetSymbol>[],
   index: number,
 ): boolean => {
   const rule = syntax[index];
@@ -61,22 +61,22 @@ const generateFollowSet = <T>(
   }
 
   let updated = false;
-  const tokens = rule.tokens;
+  const symbols = rule.symbols;
 
   //   Aj → wAiw' という形式の規則がある場合、
 
   //     終端記号 a が Fi(w' ) に含まれるなら、a を Fo(Ai) に追加する。
   //     ε が Fi(w' ) に含まれるなら、Fo(Aj) を Fo(Ai) に追加する。
 
-  for (const [index, token] of tokens.entries()) {
+  for (const [index, symbol] of symbols.entries()) {
     // 非終端記号なら
-    if (token.isNonTerminal()) {
+    if (symbol.isNonTerminal()) {
       // 現在のトークンより後ろのファースト集合を作る
-      const follows = tokens.slice(index + 1);
+      const follows = symbols.slice(index + 1);
       const followFirstSet = getFirstSet(syntax, firstSetList, follows);
 
       // その非終端記号のフォロー集合に追加する
-      for (const [_, [referenceFollowSet]] of eachRules(syntax, token.name, [followSetList])) {
+      for (const [_, [referenceFollowSet]] of eachRules(syntax, symbol.name, [followSetList])) {
         const length = referenceFollowSet.size;
 
         // 空を除いた集合を追加する

@@ -1,9 +1,9 @@
-import { EmptyToken } from "../rules/empty-token";
+import { EmptySymbol } from "../rules/empty-symbol";
 import { ObjectSet } from "../util/object-set";
 import { primitiveToString } from "../util/primitive-to-string";
 
 import type { Rule } from "../rules/rule";
-import type { FollowSetToken, LR0ItemToken, SyntaxToken } from "@/lib/rules/define-rules";
+import type { FollowSetSymbol, LR0ItemSymbol, SyntaxSymbol } from "@/lib/rules/define-rules";
 
 /**
  *
@@ -11,7 +11,7 @@ import type { FollowSetToken, LR0ItemToken, SyntaxToken } from "@/lib/rules/defi
 export class LR0Item<T> {
   readonly rule;
   readonly position;
-  readonly lookahead: ObjectSet<FollowSetToken>;
+  readonly lookahead: ObjectSet<FollowSetSymbol>;
 
   /**
    * 構文ルールから先頭にドットトークンを追加したLR(0)アイテムを作る
@@ -24,7 +24,7 @@ export class LR0Item<T> {
    * @param position ドットの位置
    * @param lookahead 先読み集合
    */
-  constructor(rule: Rule<T>, position = 0, lookahead: Iterable<FollowSetToken> = []) {
+  constructor(rule: Rule<T>, position = 0, lookahead: Iterable<FollowSetSymbol> = []) {
     this.rule = rule;
     this.position = position;
     this.lookahead = new ObjectSet(lookahead);
@@ -34,10 +34,10 @@ export class LR0Item<T> {
    * 次のトークンを返します
    * @returns ドットの次のトークン
    */
-  nextToken(): LR0ItemToken | undefined {
-    return this.rule.tokens
+  nextSymbol(): LR0ItemSymbol | undefined {
+    return this.rule.symbols
       .slice(this.position)
-      .find((token): token is Exclude<SyntaxToken, EmptyToken> => !(token instanceof EmptyToken));
+      .find((symbol): symbol is Exclude<SyntaxSymbol, EmptySymbol> => !(symbol instanceof EmptySymbol));
   }
 
   /**
@@ -53,7 +53,7 @@ export class LR0Item<T> {
    * @returns ドットの次のトークンがなければ`true`
    */
   isLast(): boolean {
-    return this.nextToken() === undefined;
+    return this.nextSymbol() === undefined;
   }
 
   /**
@@ -61,10 +61,10 @@ export class LR0Item<T> {
    * @returns 文字列
    */
   toKeyString(): string {
-    return `${primitiveToString(this.rule.name)} → ${this.rule.tokens
+    return `${primitiveToString(this.rule.name)} → ${this.rule.symbols
       .slice(0, this.position)
       .map((value) => value.toKeyString())
-      .join(" ")} . ${this.rule.tokens
+      .join(" ")} . ${this.rule.symbols
       .slice(this.position)
       .map((value) => value.toKeyString())
       .join(" ")} [${[...this.lookahead].map((value) => value.toKeyString()).join(" ")}]`;
@@ -76,9 +76,9 @@ export class LR0Item<T> {
    */
   toString(): string {
     return `${primitiveToString(this.rule.name)} → [${[
-      ...this.rule.tokens.slice(0, this.position).map((value) => value.toKeyString()),
+      ...this.rule.symbols.slice(0, this.position).map((value) => value.toKeyString()),
       ".",
-      ...this.rule.tokens.slice(this.position).map((value) => value.toKeyString()),
-    ].join(" , ")}]; ${[...this.lookahead].map((token) => token.toKeyString()).join(" ")}`;
+      ...this.rule.symbols.slice(this.position).map((value) => value.toKeyString()),
+    ].join(" , ")}]; ${[...this.lookahead].map((symbol) => symbol.toKeyString()).join(" ")}`;
   }
 }

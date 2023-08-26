@@ -7,7 +7,7 @@ import { reference, rule, word } from "@/lib/rules/define-rules";
 import type { Tree, TreeBranch } from "@/lib/parser/tree";
 
 const reader = new TokenReaderGen([
-  ["token", "[()+*/-]"],
+  ["operator", "[()+*/-]"],
   ["num", "[0-9]"],
 ]);
 
@@ -16,29 +16,29 @@ const parser = generateLRParser<number>([
 
   rule(
     "addition",
-    [reference("addition"), word("token", "+"), reference("multiplication")],
+    [reference("addition"), word("operator", "+"), reference("multiplication")],
     ([a, _, m]) => tree(a).processed + tree(m).processed,
   ),
   rule(
     "addition",
-    [reference("addition"), word("token", "-"), reference("multiplication")],
+    [reference("addition"), word("operator", "-"), reference("multiplication")],
     ([a, _, m]) => tree(a).processed - tree(m).processed,
   ),
   rule("addition", [reference("multiplication")], ([mul]) => tree(mul).processed),
 
   rule(
     "multiplication",
-    [reference("multiplication"), word("token", "*"), reference("parentheses")],
+    [reference("multiplication"), word("operator", "*"), reference("parentheses")],
     ([m, _, p]) => tree(m).processed * tree(p).processed,
   ),
   rule(
     "multiplication",
-    [reference("multiplication"), word("token", "/"), reference("parentheses")],
+    [reference("multiplication"), word("operator", "/"), reference("parentheses")],
     ([m, _, p]) => tree(m).processed / tree(p).processed,
   ),
   rule("multiplication", [reference("parentheses")], ([p]) => tree(p).processed),
 
-  rule("parentheses", [word("token", "("), reference("addition"), word("token", ")")], ([_, a]) => tree(a).processed),
+  rule("parentheses", [word("operator", "("), reference("addition"), word("operator", ")")], ([_, a]) => tree(a).processed),
   rule("parentheses", [reference("number")], ([n]) => tree(n).processed),
 
   rule("number", [word("num")], ([n]) => Number.parseInt(n as string)),

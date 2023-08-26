@@ -1,21 +1,21 @@
 import { empty } from "@/lib/rules/define-rules";
 
 import { eachRules } from "../left-to-right-leftmost/rule-indexes";
-import { EmptyToken } from "../rules/empty-token";
-import { ReferenceToken } from "../rules/reference-token";
-import { WordToken } from "../rules/word-token";
+import { EmptySymbol } from "../rules/empty-symbol";
+import { ReferenceSymbol } from "../rules/reference-symbol";
+import { WordSymbol } from "../rules/word-symbol";
 import { ObjectSet } from "../util/object-set";
 
-import type { FirstSetToken, Syntax, SyntaxToken } from "@/lib/rules/define-rules";
+import type { FirstSetSymbol, Syntax, SyntaxSymbol } from "@/lib/rules/define-rules";
 
 /**
  * 各ルールについて、最初の文字を求める。
  * @param syntax 構文ルールリスト
  * @returns 最初の文字の集合リスト
  */
-export const getFirstSetList = <T>(syntax: Syntax<T>): ObjectSet<FirstSetToken>[] => {
+export const getFirstSetList = <T>(syntax: Syntax<T>): ObjectSet<FirstSetSymbol>[] => {
   // ルールリストと同じ長さで文字集合リストを作る
-  const firstSet = syntax.map(() => new ObjectSet<FirstSetToken>());
+  const firstSet = syntax.map(() => new ObjectSet<FirstSetSymbol>());
 
   for (;;) {
     let updated = false;
@@ -48,9 +48,9 @@ export const getFirstSetList = <T>(syntax: Syntax<T>): ObjectSet<FirstSetToken>[
  */
 const generateFirstSet = <T>(
   syntax: Syntax<T>,
-  firstSetList: ObjectSet<FirstSetToken>[],
+  firstSetList: ObjectSet<FirstSetSymbol>[],
   index: number,
-): ObjectSet<FirstSetToken> => {
+): ObjectSet<FirstSetSymbol> => {
   const rule = syntax[index];
   const firstSet = firstSetList[index];
 
@@ -58,9 +58,9 @@ const generateFirstSet = <T>(
     throw new Error(`文法のルール数:${syntax.length}ですが、${index}個目の要素にアクセスしようとしました。`);
   }
 
-  const tokens = rule.tokens;
+  const symbols = rule.symbols;
 
-  firstSet.append(getFirstSet(syntax, firstSetList, tokens));
+  firstSet.append(getFirstSet(syntax, firstSetList, symbols));
 
   return firstSet;
 };
@@ -69,38 +69,38 @@ const generateFirstSet = <T>(
  * トークン列の最初の文字集合を作る
  * @param syntax 構文ルールリスト
  * @param firstSetList 最初の文字集合リスト
- * @param tokens 作るルールのトークン列
+ * @param symbols 作るルールのトークン列
  * @returns 作った最初の文字集合
  */
 export const getFirstSet = <T>(
   syntax: Syntax<T>,
-  firstSetList: ObjectSet<FirstSetToken>[],
-  tokens: SyntaxToken[],
-): ObjectSet<FirstSetToken> => {
-  const set = new ObjectSet<FirstSetToken>();
+  firstSetList: ObjectSet<FirstSetSymbol>[],
+  symbols: SyntaxSymbol[],
+): ObjectSet<FirstSetSymbol> => {
+  const set = new ObjectSet<FirstSetSymbol>();
   // ルールから最初のトークンを取り出す
-  for (const [index, token] of tokens.entries()) {
-    if (token instanceof WordToken) {
+  for (const [index, symbol] of symbols.entries()) {
+    if (symbol instanceof WordSymbol) {
       // もし、文字なら、それを文字集合に追加する
-      set.add(token);
+      set.add(symbol);
       return set;
-    } else if (token instanceof EmptyToken) {
-      if (tokens[index + 1] === undefined) {
+    } else if (symbol instanceof EmptySymbol) {
+      if (symbols[index + 1] === undefined) {
         // もし、空かつその後にトークンがないなら、空を文字集合に追加する
 
-        set.add(token);
+        set.add(symbol);
         return set;
       }
-    } else if (token instanceof ReferenceToken) {
+    } else if (symbol instanceof ReferenceSymbol) {
       // もし、他のルールなら、そのルールの文字集合を文字集合に追加する
-      for (const [_, [referenceFirstSet]] of eachRules(syntax, token.name, [firstSetList])) {
-        for (const token of referenceFirstSet) {
-          set.add(token);
+      for (const [_, [referenceFirstSet]] of eachRules(syntax, symbol.name, [firstSetList])) {
+        for (const symbol of referenceFirstSet) {
+          set.add(symbol);
         }
       }
 
       // 空トークンが入っているなら、次のトークンを追加する
-      if (set.has(empty) && tokens[index + 1] !== undefined) {
+      if (set.has(empty) && symbols[index + 1] !== undefined) {
         set.delete(empty);
         continue;
       }
