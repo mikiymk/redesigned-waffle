@@ -2,6 +2,8 @@ import { LLParser } from "../parser/ll-1";
 import { getDirectorSetList } from "../symbol-set/director-set";
 import { getFirstSetList } from "../symbol-set/first-set";
 import { getFollowSetList } from "../symbol-set/follow-set";
+import { RuleSet } from "../symbol-set/rule-set";
+import { SymbolSet } from "../symbol-set/symbol-set";
 
 import { isValidLLGrammar } from "./is-ll-grammar";
 
@@ -13,6 +15,9 @@ import type { Grammar } from "@/lib/rules/define-rules";
  * @returns パーサー
  */
 export const generateParser = <T>(grammar: Grammar<T>): LLParser<T> => {
+  const symbolSet = new SymbolSet(grammar);
+  const ruleSet = new RuleSet(grammar, symbolSet);
+
   const firstSetList = getFirstSetList(grammar);
   const followSetList = getFollowSetList(grammar, firstSetList);
   const directorSetList = getDirectorSetList(firstSetList, followSetList);

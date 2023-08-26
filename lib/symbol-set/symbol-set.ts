@@ -8,9 +8,8 @@ import type { Grammar, NonTermSymbol, TermSymbol } from "../rules/define-rules";
  * 文法規則の記号の集合です。終端記号と非終端記号に分けています。
  */
 export class SymbolSet<T> {
-  readonly terminalSymbolList: SymbolSetItem<WordSymbol>[] = [];
+  readonly symbolList: SymbolSetItem<WordSymbol | ReferenceSymbol>[] = [];
   readonly terminalSymbolSet = new ObjectSet<SymbolSetItem<WordSymbol>>();
-  readonly nonTerminalSymbolList: SymbolSetItem<ReferenceSymbol>[] = [];
   readonly nonTerminalSymbolSet = new ObjectSet<SymbolSetItem<ReferenceSymbol>>();
 
   /**
@@ -18,24 +17,23 @@ export class SymbolSet<T> {
    * @param grammar 文脈自由文法
    */
   constructor(grammar: Grammar<T>) {
-    let termIndex = 0;
-    let nonTermIndex = 0;
+    let index = 0;
 
     for (const rule of grammar) {
       for (const symbol of rule.symbols) {
         if (symbol instanceof WordSymbol) {
-          const newItem = new SymbolSetItem(symbol, termIndex);
+          const newItem = new SymbolSetItem(symbol, index);
           if (!this.terminalSymbolSet.has(newItem)) {
             this.terminalSymbolSet.add(newItem);
-            this.terminalSymbolList.push(newItem);
-            termIndex++;
+            this.symbolList.push(newItem);
+            index++;
           }
         } else if (symbol instanceof ReferenceSymbol) {
-          const newItem = new SymbolSetItem(symbol, nonTermIndex);
+          const newItem = new SymbolSetItem(symbol, index);
           if (!this.nonTerminalSymbolSet.has(newItem)) {
             this.nonTerminalSymbolSet.add(newItem);
-            this.nonTerminalSymbolList.push(newItem);
-            nonTermIndex++;
+            this.symbolList.push(newItem);
+            index++;
           }
         }
       }
@@ -45,13 +43,13 @@ export class SymbolSet<T> {
   /**
    * 番号から登録された記号を取得します。
    * @param index ルール番号
-   * @returns 終端記号
+   * @returns 記号
    */
-  term(index: number): WordSymbol {
-    const item = this.terminalSymbolList[index];
+  getSymbol(index: number): WordSymbol | ReferenceSymbol {
+    const item = this.symbolList[index];
 
     if (item === undefined) {
-      throw new RangeError(`Out-of-bounds access. length: ${this.terminalSymbolList.length} but index: ${index}.`);
+      throw new RangeError(`Out-of-bounds access. length: ${this.symbolList.length} but index: ${index}.`);
     }
 
     return item.item;
@@ -62,38 +60,11 @@ export class SymbolSet<T> {
    * @param symbol 終端記号
    * @returns ルール番号
    */
-  termIndex(symbol: WordSymbol): number {
-    const item = this.terminalSymbolSet.get(new SymbolSetItem(symbol, 0));
-
-    if (item === undefined) {
-      throw new RangeError(`term set is not contains symbol: ${symbol.toString()}.`);
-    }
-
-    return item.index;
-  }
-
-  /**
-   * 番号から登録された記号を取得します。
-   * @param index ルール番号
-   * @returns 非終端記号
-   */
-  nonTerm(index: number): ReferenceSymbol {
-    const item = this.nonTerminalSymbolList[index];
-
-    if (item === undefined) {
-      throw new RangeError(`Out-of-bounds access. length: ${this.terminalSymbolList.length} but index: ${index}.`);
-    }
-
-    return item.item;
-  }
-
-  /**
-   * 非終端記号からそのIDを取得します。
-   * @param symbol 終端記号
-   * @returns ルール番号
-   */
-  nonTermIndex(symbol: ReferenceSymbol): number {
-    const item = this.nonTerminalSymbolSet.get(new SymbolSetItem(symbol, 0));
+  getIndex(symbol: WordSymbol | ReferenceSymbol): number {
+    const item =
+      symbol instanceof WordSymbol
+        ? this.terminalSymbolSet.get(new SymbolSetItem(symbol, 0))
+        : this.nonTerminalSymbolSet.get(new SymbolSetItem(symbol, 0));
 
     if (item === undefined) {
       throw new RangeError(`term set is not contains symbol: ${symbol.toString()}.`);

@@ -61,6 +61,14 @@ export class Rule<T> {
   }
 
   /**
+   * キー用の文字列表現にします
+   * @returns 文字列
+   */
+  toKeyString(): string {
+    return `rule:${this.name}(${this.symbols.map((symbol) => symbol.toString()).join(",")})`;
+  }
+
+  /**
    * 表示用の文字列表現にします
    * @returns 文字列
    */
