@@ -41,18 +41,47 @@ export class SymbolSet<T> {
   }
 
   /**
+   * 集合に属する全ての終端記号をループします。
+   * @yields
+   */
+  *terms(): Generator<SymbolSetItem<WordSymbol>> {
+    for (const item of this.terminalSymbolSet) {
+      yield item;
+    }
+  }
+
+  /**
+   * 集合に属する全ての非終端記号をループします。
+   * @yields
+   */
+  *nonTerms(): Generator<SymbolSetItem<ReferenceSymbol>> {
+    for (const item of this.nonTerminalSymbolSet) {
+      yield item;
+    }
+  }
+
+  /**
    * 番号から登録された記号を取得します。
    * @param index ルール番号
    * @returns 記号
    */
-  getSymbol(index: number): WordSymbol | ReferenceSymbol {
+  getItem(index: number): SymbolSetItem<WordSymbol | ReferenceSymbol> {
     const item = this.symbolList[index];
 
     if (item === undefined) {
       throw new RangeError(`Out-of-bounds access. length: ${this.symbolList.length} but index: ${index}.`);
     }
 
-    return item.item;
+    return item;
+  }
+
+  /**
+   * 番号から登録された記号を取得します。
+   * @param index ルール番号
+   * @returns 記号
+   */
+  getSymbol(index: number): WordSymbol | ReferenceSymbol {
+    return this.getItem(index).item;
   }
 
   /**

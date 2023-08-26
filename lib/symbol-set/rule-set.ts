@@ -39,14 +39,23 @@ export class RuleSet<T> {
    * @param index 番号
    * @returns 文法規則
    */
-  getRule(index: number): Rule<T> {
+  getItem(index: number): RuleSetItem<T> {
     const item = this.rules[index];
 
     if (item === undefined) {
       throw new RangeError(`Out-of-bounds access. length: ${this.rules.length} but index: ${index}.`);
     }
 
-    return item.rule;
+    return item;
+  }
+
+  /**
+   * 番号から文法規則を取得します。
+   * @param index 番号
+   * @returns 文法規則
+   */
+  getRule(index: number): Rule<T> {
+    return this.getItem(index).rule;
   }
 
   /**
