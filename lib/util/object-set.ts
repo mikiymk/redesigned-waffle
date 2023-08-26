@@ -47,6 +47,15 @@ export class ObjectSet<T extends ToKey> {
   }
 
   /**
+   * 要素を取得します
+   * @param item 要素
+   * @returns 保存されている要素
+   */
+  get(item: T): T | undefined {
+    return this.map.get(item.toKeyString());
+  }
+
+  /**
    * 要素を削除します
    * @param item 要素
    * @returns 要素が存在して削除された場合は `true`
