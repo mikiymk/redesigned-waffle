@@ -71,6 +71,16 @@ test("集合に複数の要素を追加する", () => {
   expect(set.has(word("fish"))).toBe(false);
 });
 
+test("集合から要素を取得する", () => {
+  const item = word("dog");
+  const set = new ObjectSet([item]);
+
+  const result = set.get(word("dog"));
+
+  expect(result).not.toBe(word("dog"));
+  expect(result).toBe(item);
+});
+
 test("集合にある要素を削除する", () => {
   const set = new ObjectSet([word("dog"), word("cat")]);
 
