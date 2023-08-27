@@ -1,8 +1,46 @@
 import { WordSymbol } from "../rules/word-symbol";
 import { ObjectSet } from "../util/object-set";
 import { ReferenceSymbol } from "../rules/reference-symbol";
+import { empty, eof } from "../rules/define-rules";
+import { EmptySymbol } from "../rules/empty-symbol";
+import { EOFSymbol } from "../rules/eof-symbol";
 
-import type { Grammar, NonTermSymbol, TermSymbol } from "../rules/define-rules";
+import type { Grammar, RuleSymbol } from "../rules/define-rules";
+
+/**
+ * 記号集合のアイテム
+ */
+class SymbolSetItem<T extends RuleSymbol> {
+  item: T;
+  index: number;
+
+  /**
+   * アイテムと番号を揃って記録する
+   * @param item アイテム
+   * @param index 番号
+   */
+  constructor(item: T, index: number) {
+    this.item = item;
+    this.index = index;
+  }
+
+  /**
+   * ２つのアイテムが等しいかどうかを判定する
+   * @param other もう一つのアイテム
+   * @returns ２つのアイテムが番号が等しいなら同じアイテムとする
+   */
+  equals(other: SymbolSetItem<RuleSymbol>) {
+    return this.index === other.index;
+  }
+
+  /**
+   *
+   * @returns キー文字列
+   */
+  toKeyString() {
+    return this.item.toKeyString();
+  }
+}
 
 /**
  * 文法規則の記号の集合です。終端記号と非終端記号に分けています。
@@ -11,6 +49,9 @@ export class SymbolSet<T> {
   readonly symbolList: SymbolSetItem<WordSymbol | ReferenceSymbol>[] = [];
   readonly terminalSymbolSet = new ObjectSet<SymbolSetItem<WordSymbol>>();
   readonly nonTerminalSymbolSet = new ObjectSet<SymbolSetItem<ReferenceSymbol>>();
+
+  static readonly eof = new SymbolSetItem(eof, -1);
+  static readonly empty = new SymbolSetItem(empty, -2);
 
   /**
    *
@@ -65,7 +106,13 @@ export class SymbolSet<T> {
    * @param index ルール番号
    * @returns 記号
    */
-  getItem(index: number): SymbolSetItem<WordSymbol | ReferenceSymbol> {
+  getItem(index: number): SymbolSetItem<RuleSymbol> {
+    if (index === -1) {
+      return SymbolSet.eof;
+    } else if (index === -2) {
+      return SymbolSet.empty;
+    }
+
     const item = this.symbolList[index];
 
     if (item === undefined) {
@@ -80,7 +127,7 @@ export class SymbolSet<T> {
    * @param index ルール番号
    * @returns 記号
    */
-  getSymbol(index: number): WordSymbol | ReferenceSymbol {
+  getSymbol(index: number): RuleSymbol {
     return this.getItem(index).item;
   }
 
@@ -89,7 +136,13 @@ export class SymbolSet<T> {
    * @param symbol 終端記号
    * @returns ルール番号
    */
-  getIndex(symbol: WordSymbol | ReferenceSymbol): number {
+  getIndex(symbol: RuleSymbol): number {
+    if (symbol instanceof EmptySymbol) {
+      return -2;
+    } else if (symbol instanceof EOFSymbol) {
+      return -1;
+    }
+
     const item =
       symbol instanceof WordSymbol
         ? this.terminalSymbolSet.get(new SymbolSetItem(symbol, 0))
@@ -100,31 +153,5 @@ export class SymbolSet<T> {
     }
 
     return item.index;
-  }
-}
-
-/**
- * 記号集合のアイテム
- */
-class SymbolSetItem<T extends TermSymbol | NonTermSymbol> {
-  item: T;
-  index: number;
-
-  /**
-   * アイテムと番号を揃って記録する
-   * @param item アイテム
-   * @param index 番号
-   */
-  constructor(item: T, index: number) {
-    this.item = item;
-    this.index = index;
-  }
-
-  /**
-   *
-   * @returns キー文字列
-   */
-  toKeyString() {
-    return this.item.toKeyString();
   }
 }

@@ -30,7 +30,10 @@ export class RuleSet<T> {
         ruleSymbols.push(symbols.getIndex(symbol));
       }
 
-      this.rules.push(new RuleSetItem(index++, rule, ruleSymbols));
+      const item = new RuleSetItem(index++, rule, ruleSymbols);
+
+      this.ruleSet.set(item, this.rules.length);
+      this.rules.push(item);
     }
   }
 
