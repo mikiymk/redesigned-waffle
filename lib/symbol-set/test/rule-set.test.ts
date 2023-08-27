@@ -2,8 +2,8 @@ import { expect, test } from "vitest";
 
 import { empty, reference, rule, word } from "@/lib/rules/define-rules";
 
-import { SymbolSet } from "../symbol-set";
 import { RuleSet } from "../rule-set";
+import { SymbolSet } from "../symbol-set";
 
 test("文法規則セット", () => {
   const grammar = [

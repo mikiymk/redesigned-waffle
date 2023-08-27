@@ -1,9 +1,9 @@
-import { WordSymbol } from "../rules/word-symbol";
-import { ObjectSet } from "../util/object-set";
-import { ReferenceSymbol } from "../rules/reference-symbol";
 import { empty, eof } from "../rules/define-rules";
 import { EmptySymbol } from "../rules/empty-symbol";
 import { EOFSymbol } from "../rules/eof-symbol";
+import { ReferenceSymbol } from "../rules/reference-symbol";
+import { WordSymbol } from "../rules/word-symbol";
+import { ObjectSet } from "../util/object-set";
 
 import type { Grammar, RuleSymbol } from "../rules/define-rules";
 
