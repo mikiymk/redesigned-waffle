@@ -1,7 +1,5 @@
-import { vanillaExtractPlugin } from "@vanilla-extract/vite-plugin";
 import { default as merge } from "deepmerge";
 import { defineConfig } from "vite";
-import { default as solidPlugin } from "vite-plugin-solid";
 
 import type { UserConfig } from "vite";
 
@@ -16,7 +14,7 @@ export default defineConfig(({ mode }) => {
   const common: UserConfig = {
     base: "/ts-page-template/",
 
-    plugins: [solidPlugin(), vanillaExtractPlugin()],
+    plugins: [],
 
     resolve: {
       alias: [{ find: /^@\/(.*)/, replacement: resolve(__dirname, "$1") }],
