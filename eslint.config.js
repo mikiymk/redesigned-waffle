@@ -3,6 +3,7 @@ import tseslint from "typescript-eslint";
 import unicorn from "eslint-plugin-unicorn";
 import vitest from "eslint-plugin-vitest";
 import jsdoc from "eslint-plugin-jsdoc";
+import prettier from "eslint-config-prettier";
 
 export default tseslint.config(
   eslint.configs.recommended,
@@ -11,6 +12,7 @@ export default tseslint.config(
   unicorn.configs["flat/recommended"],
   vitest.configs.recommended,
   jsdoc.configs["flat/recommended-typescript"],
+  prettier,
   {
     linterOptions: {
       reportUnusedDisableDirectives: "error",
@@ -57,5 +59,5 @@ export default tseslint.config(
 
       "jsdoc/require-jsdoc": "off",
     },
-  }
+  },
 );

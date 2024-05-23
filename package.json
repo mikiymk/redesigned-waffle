@@ -1,54 +1,48 @@
 {
-  "$schema": "https://json.schemastore.org/package.json",
   "name": "redesigned-waffle",
   "version": "1.0.0",
-  "description": "",
-  "type": "module",
+  "author": "mikiymk",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mikiymk/redesigned-waffle.git"
+  },
   "main": "index.js",
+  "devDependencies": {
+    "@biomejs/biome": "^1.7.3",
+    "@eslint/js": "^9.3.0",
+    "@tsconfig/strictest": "^2.0.5",
+    "eslint": "^9.3.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-jsdoc": "^48.2.5",
+    "eslint-plugin-unicorn": "^53.0.0",
+    "eslint-plugin-vitest": "^0.5.4",
+    "jsdom": "^24.0.0",
+    "knip": "^5.16.0",
+    "run-z": "^2.0.0",
+    "typescript": "^5.4.5",
+    "typescript-eslint": "^7.10.0",
+    "vitest": "^1.6.0"
+  },
+  "$schema": "https://json.schemastore.org/package.json",
+  "description": "",
+  "keywords": [],
+  "license": "MIT",
   "scripts": {
     "test": "vitest run",
     "test-coverage": "vitest run --coverage",
-    "format": "biome format lib --write",
+    "format": "biome format . --write",
     "lint:ts": "tsc",
     "lint:eslint": "eslint lib --cache",
     "lint:eslint:fix": "eslint lib --cache --fix",
     "lint:biome": "biome check lib",
     "lint:biome:fix": "biome check lib --apply",
     "lint:biome-ci": "biome ci lib",
+    "lint:knip": "knip",
     "build:lib": "vite build --mode lib",
     "build:lib-type": "tsc --project ./tsconfig.lib.json",
-    "serve": "vite",
     "watch:test": "vitest watch",
     "watch:ts": "tsc --watch",
     "check": "run-z format lint:ts lint:biome lint:eslint test build:lib build:lib-type"
   },
-  "keywords": [],
-  "author": "mikiymk",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/mikiymk/redesigned-waffle.git"
-  },
-  "license": "MIT",
-  "dependencies": {
-    "@biomejs/biome": "^1.7.3"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.3.0",
-    "@tsconfig/strictest": "^2.0.5",
-    "@vitest/coverage-c8": "^0.33.0",
-    "@vitest/coverage-v8": "^1.6.0",
-    "deepmerge": "^4.3.1",
-    "eslint": "^9.3.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-import-resolver-typescript": "^3.6.1",
-    "eslint-plugin-eslint-comments": "^3.2.0",
-    "eslint-plugin-jsdoc": "^48.2.5",
-    "eslint-plugin-unicorn": "^53.0.0",
-    "eslint-plugin-vitest": "^0.5.4",
-    "jsdom": "^24.0.0",
-    "run-z": "^2.0.0",
-    "typescript": "^5.4.5",
-    "typescript-eslint": "^7.10.0",
-    "vitest": "^1.6.0"
-  }
+  "type": "module"
 }
