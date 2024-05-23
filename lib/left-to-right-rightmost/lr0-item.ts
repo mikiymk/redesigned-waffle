@@ -2,8 +2,8 @@ import { EmptySymbol } from "../rules/empty-symbol";
 import { ObjectSet } from "../util/object-set";
 import { primitiveToString } from "../util/primitive-to-string";
 
-import type { Rule } from "../rules/rule";
 import type { FollowSetSymbol, LR0ItemSymbol, SyntaxSymbol } from "@/lib/rules/define-rules";
+import type { Rule } from "../rules/rule";
 
 /**
  *

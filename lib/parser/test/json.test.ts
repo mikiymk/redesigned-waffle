@@ -10,11 +10,11 @@ type JsonValue = null | boolean | number | string | JsonValue[] | { [x: string]:
 
 const reader = new TokenReaderGen([
   ["literal", "true|false|null"],
-  ["operator", "[-.eE+[\\],{}:]"],
+  ["operator", String.raw`[-.eE+[\],{}:]`],
   ["zero-start-digits", "0[0-9]+"],
   ["digits", "[1-9][0-9]*"],
   ["zero", "0"],
-  ["string", '"([^\\\\"]|\\\\[\\\\"/bfnrt]|\\\\u[0-9a-fA-F]{4})*"'],
+  ["string", String.raw`"([^\\"]|\\[\\"/bfnrt]|\\u[0-9a-fA-F]{4})*"`],
   ["ws", "[\u0020\u000A\u000D\u0009]+"],
 ]);
 
@@ -66,11 +66,11 @@ const parser = generateLRParser<JsonValue>([
     const s = string as string;
 
     return s
-      .replaceAll("\\b", "\b")
-      .replaceAll("\\f", "\f")
-      .replaceAll("\\n", "\n")
-      .replaceAll("\\r", "\r")
-      .replaceAll("\\t", "\t")
+      .replaceAll(String.raw`\b`, "\b")
+      .replaceAll(String.raw`\f`, "\f")
+      .replaceAll(String.raw`\n`, "\n")
+      .replaceAll(String.raw`\r`, "\r")
+      .replaceAll(String.raw`\t`, "\t")
       .replaceAll(/\\u[\dA-Fa-f]{4}/g, (s) => String.fromCodePoint(Number.parseInt(s.slice(2), 16)))
       .replaceAll(/\\["/\\]/g, (s) => s.slice(1))
       .slice(1, -1);
@@ -132,7 +132,8 @@ const parseJson = (jsonString: string) => {
 const tree = <T>(tree: Tree<T> | undefined): TreeBranch<T> => {
   if (tree === undefined) {
     throw new TypeError("Tree is undefined");
-  } else if (typeof tree === "string") {
+  }
+  if (typeof tree === "string") {
     throw new TypeError("Tree is string");
   }
 
@@ -162,16 +163,16 @@ const cases: [string, unknown][] = [
   ['""', ""],
   ['"abc"', "abc"],
 
-  ['"\\""', '"'],
-  ['"\\\\"', "\\"],
-  ['"\\/"', "/"],
-  ['"\\b"', "\b"],
-  ['"\\f"', "\f"],
-  ['"\\n"', "\n"],
-  ['"\\r"', "\r"],
-  ['"\\t"', "\t"],
-  ['"\\u2bc1"', "⯁"],
-  ['"\\u2BC1"', "⯁"],
+  [String.raw`"\""`, '"'],
+  [String.raw`"\\"`, "\\"],
+  [String.raw`"\/"`, "/"],
+  [String.raw`"\b"`, "\b"],
+  [String.raw`"\f"`, "\f"],
+  [String.raw`"\n"`, "\n"],
+  [String.raw`"\r"`, "\r"],
+  [String.raw`"\t"`, "\t"],
+  [String.raw`"\u2bc1"`, "⯁"],
+  [String.raw`"\u2BC1"`, "⯁"],
 
   ["[]", []],
   ["[  ]", []],

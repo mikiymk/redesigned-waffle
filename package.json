@@ -21,7 +21,7 @@
     "serve": "vite",
     "watch:test": "vitest watch",
     "watch:ts": "tsc --watch",
-    "check": "run-z format lint:ts lint:eslint lint:biome test build:page build:lib build:lib-type"
+    "check": "run-z format lint:ts lint:biome lint:eslint test build:page build:lib build:lib-type"
   },
   "keywords": [],
   "author": "mikiymk",

@@ -2,9 +2,9 @@ import { isDisjoint } from "./is-disjoint";
 import { eachRules } from "./rule-indexes";
 import { getRuleNames } from "./rule-names";
 
+import type { DirectorSetSymbol, Grammar } from "@/lib/rules/define-rules";
 import type { Result } from "../reader/parse-reader";
 import type { ObjectSet } from "../util/object-set";
-import type { DirectorSetSymbol, Grammar } from "@/lib/rules/define-rules";
 
 /**
  * 構文リストがLL(1)パーサーになれるか調べます。

@@ -11,9 +11,6 @@ import { LR0Item } from "./lr0-item";
 import { nextItemSet } from "./next-item";
 import { ParseTableRow } from "./parse-table-row";
 
-import type { ParseReader, Result } from "../reader/parse-reader";
-import type { ReferenceSymbol } from "../rules/reference-symbol";
-import type { MatchResult } from "./parse-table-row";
 import type {
   DirectorSetSymbol,
   Grammar,
@@ -22,6 +19,9 @@ import type {
   RuleSymbol,
   TermSymbol,
 } from "@/lib/rules/define-rules";
+import type { ParseReader, Result } from "../reader/parse-reader";
+import type { ReferenceSymbol } from "../rules/reference-symbol";
+import type { MatchResult } from "./parse-table-row";
 
 /**
  * 構文ルールリストからアイテム集合のリストを作ります。

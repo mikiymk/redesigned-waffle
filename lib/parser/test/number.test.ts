@@ -57,7 +57,8 @@ const tree = <T>(tree: Tree<T> | undefined, default_?: T): T => {
       throw new TypeError("Tree is undefined");
     }
     return default_;
-  } else if (typeof tree === "string") {
+  }
+  if (typeof tree === "string") {
     throw new TypeError("Tree is string");
   }
 

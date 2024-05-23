@@ -6,8 +6,8 @@ describe("文字列", () => {
   const cases: [string, string][] = [
     ["", '""'],
     ["abc", '"abc"'],
-    ['""', '"\\"\\""'],
-    ["\\u1234", '"\\\\u1234"'],
+    ['""', String.raw`"\"\""`],
+    [String.raw`\u1234`, String.raw`"\\u1234"`],
   ];
 
   test.each(cases)("%s の文字列化", (source, expected) => {
@@ -38,7 +38,7 @@ describe("シンボル", () => {
   const cases: [symbol, string][] = [
     [Symbol(""), 'Symbol("")'],
     [Symbol("abc"), 'Symbol("abc")'],
-    [Symbol('") Symbol("'), 'Symbol("\\") Symbol(\\"")'],
+    [Symbol('") Symbol("'), String.raw`Symbol("\") Symbol(\"")`],
   ];
 
   test.each(cases)("%s の文字列化", (source, expected) => {

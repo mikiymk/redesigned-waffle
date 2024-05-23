@@ -44,7 +44,8 @@ export class WordReader implements ParseReader {
 
       if (char === undefined) {
         return EOF;
-      } else if (char === " ") {
+      }
+      if (char === " ") {
         position++;
       } else {
         break;

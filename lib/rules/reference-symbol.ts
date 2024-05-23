@@ -32,7 +32,7 @@ export class ReferenceSymbol implements BaseSymbol {
    */
   toKeyString(): string | symbol {
     return typeof this.name === "string"
-      ? `r "${this.name.replaceAll('"', '\\"').replaceAll("\\", "\\\\")}"`
+      ? `r "${this.name.replaceAll('"', String.raw`\"`).replaceAll("\\", "\\\\")}"`
       : this.name;
   }
 
