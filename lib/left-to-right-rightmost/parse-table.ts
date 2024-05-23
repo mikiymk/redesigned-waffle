@@ -1,7 +1,5 @@
 import { eof, equalsRule } from "@/lib/rules/define-rules";
 
-import { DFA } from "../deterministic-finite-automaton/dfa";
-import { ObjectMap } from "../util/object-map";
 import { ObjectSet } from "../util/object-set";
 import { primitiveToString } from "../util/primitive-to-string";
 import { zip } from "../util/zip-array";
@@ -11,14 +9,7 @@ import { LR0Item } from "./lr0-item";
 import { nextItemSet } from "./next-item";
 import { ParseTableRow } from "./parse-table-row";
 
-import type {
-  DirectorSetSymbol,
-  Grammar,
-  LR0ItemSymbol,
-  NonTermSymbol,
-  RuleSymbol,
-  TermSymbol,
-} from "@/lib/rules/define-rules";
+import type { DirectorSetSymbol, Grammar, LR0ItemSymbol, TermSymbol } from "@/lib/rules/define-rules";
 import type { ParseReader, Result } from "../reader/parse-reader";
 import type { ReferenceSymbol } from "../rules/reference-symbol";
 import type { MatchResult } from "./parse-table-row";
@@ -99,9 +90,6 @@ export const generateParseTable = <T>(grammar: Grammar<T>): ParseTable<T> => {
 
     row.collectRow();
   }
-
-  const dfa = new DFA(states, symbols, 0, transition, acceptStates);
-  console.log(dfa.minimization());
 
   return new ParseTable(states);
 };
@@ -186,130 +174,5 @@ export class ParseTable<T> {
           .join(", ")}`,
       ),
     ];
-  }
-
-  /**
-   * デバッグ出力
-   */
-  printDebug(): void {
-    const termTokenSet = new ObjectSet<TermSymbol>();
-    const nonTermTokenSet = new ObjectSet<NonTermSymbol>();
-
-    for (const [_, reduce, accept, shift, goto] of zip(this.reduce, this.accept, this.shift, this.goto)) {
-      for (const [set] of reduce) {
-        termTokenSet.append(set.difference(new ObjectSet([eof])) as ObjectSet<TermSymbol>);
-      }
-
-      for (const [set] of accept) {
-        termTokenSet.append(set.difference(new ObjectSet([eof])) as ObjectSet<TermSymbol>);
-      }
-
-      for (const [symbol] of shift) {
-        termTokenSet.add(symbol);
-      }
-
-      for (const [symbol] of goto) {
-        nonTermTokenSet.add(symbol);
-      }
-    }
-
-    const termTokens = [...termTokenSet].sort((a, b) => {
-      if (a.type < b.type) {
-        return -1;
-      }
-      if (a.type > b.type) {
-        return 1;
-      }
-
-      if (a.word === undefined) {
-        return -1;
-      }
-      if (b.word === undefined) {
-        return 1;
-      }
-
-      if (a.word < b.word) {
-        return -1;
-      }
-      if (a.word > b.word) {
-        return 1;
-      }
-
-      return 0;
-    });
-
-    let lineString = "| State |";
-    let lineString1 = "| ----- |";
-    for (const term of termTokens) {
-      const termTitle = term.word ? `${term.type} ${term.word}` : `${term.type}`;
-      lineString += ` ${termTitle} |`;
-      lineString1 += ` ${"-".repeat(termTitle.length)} |`;
-    }
-
-    lineString += "   $ |";
-    lineString1 += " --- |";
-
-    for (const nonTerm of nonTermTokenSet) {
-      const nonTermTitle = typeof nonTerm.name === "symbol" ? `Symbol(${nonTerm.name.description})` : nonTerm.name;
-      lineString += ` ${nonTermTitle} |`;
-      lineString1 += ` ${"-".repeat(nonTermTitle.length)} |`;
-    }
-
-    console.log(lineString);
-    console.log(lineString1);
-
-    for (const [index, reduce, accept, shift, goto] of zip(this.reduce, this.accept, this.shift, this.goto)) {
-      const symbolMap = new ObjectMap<RuleSymbol, string[]>();
-
-      for (const [set, n] of reduce) {
-        for (const symbol of set) {
-          const value = symbolMap.get(symbol) ?? [];
-          value.push(`r ${n}`);
-          symbolMap.set(symbol, value);
-        }
-      }
-
-      for (const [set] of accept) {
-        for (const symbol of set) {
-          const value = symbolMap.get(symbol) ?? [];
-          value.push("acc");
-          symbolMap.set(symbol, value);
-        }
-      }
-
-      for (const [symbol, n] of shift) {
-        const value = symbolMap.get(symbol) ?? [];
-        value.push(`s ${n}`);
-        symbolMap.set(symbol, value);
-      }
-
-      for (const [symbol, n] of goto) {
-        const value = symbolMap.get(symbol) ?? [];
-        value.push(`g ${n}`);
-        symbolMap.set(symbol, value);
-      }
-
-      lineString = `| ${index.toString().padStart(5, " ")} |`;
-
-      for (const term of termTokens) {
-        const termTitle = term.word ? `${term.type} ${term.word}` : `${term.type}`;
-        const result = symbolMap.get(term);
-        const termValue = (result?.join("<br>") ?? "").padEnd(termTitle.length, " ");
-
-        lineString += ` ${termValue} |`;
-      }
-
-      lineString += ` ${symbolMap.get(eof)?.join("<br>") ?? "   "} |`;
-
-      for (const nonTerm of nonTermTokenSet) {
-        const nonTermTitle = typeof nonTerm.name === "symbol" ? `Symbol(${nonTerm.name.description})` : nonTerm.name;
-        const result = symbolMap.get(nonTerm);
-        const nonTermValue = (result?.join("<br>") ?? "").padEnd(nonTermTitle.length, " ");
-
-        lineString += ` ${nonTermValue} |`;
-      }
-
-      console.log(lineString);
-    }
   }
 }
