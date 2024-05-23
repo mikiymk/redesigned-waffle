@@ -6,7 +6,7 @@
 export const primitiveToString = (value: string | number | boolean | bigint | symbol | null | undefined): string => {
   switch (typeof value) {
     case "string": {
-      return `"${value.replaceAll("\\", "\\\\").replaceAll('"', '\\"')}"`;
+      return `"${value.replaceAll("\\", "\\\\").replaceAll('"', String.raw`\"`)}"`;
     }
 
     case "number":

@@ -1,5 +1,5 @@
 export type Tree<T> = TreeLeaf | TreeBranch<T>;
-export type TreeLeaf = string;
+type TreeLeaf = string;
 export type TreeBranch<T> = {
   index: number;
   children: Tree<T>[];

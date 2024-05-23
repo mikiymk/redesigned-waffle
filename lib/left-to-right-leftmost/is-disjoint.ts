@@ -1,5 +1,5 @@
-import type { ObjectSet } from "../util/object-set";
 import type { DirectorSetSymbol } from "@/lib/rules/define-rules";
+import type { ObjectSet } from "../util/object-set";
 
 /**
  * ２つのトークン集合が最初の１文字について互いに素かどうかを判定する。

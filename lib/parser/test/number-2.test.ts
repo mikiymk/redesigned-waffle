@@ -55,7 +55,8 @@ const parseJson = (jsonString: string) => {
 const tree = <T>(tree: Tree<T> | undefined): TreeBranch<T> => {
   if (tree === undefined) {
     throw new TypeError("Tree is undefined");
-  } else if (typeof tree === "string") {
+  }
+  if (typeof tree === "string") {
     throw new TypeError("Tree is string");
   }
 

@@ -3,10 +3,8 @@
 
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    // override
     "noEmit": false,
 
-    // output .d.ts
     "declaration": true,
     "declarationMap": true,
     "declarationDir": "./types",

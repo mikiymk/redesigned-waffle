@@ -84,7 +84,8 @@ export const getFirstSet = <T>(
       // もし、文字なら、それを文字集合に追加する
       set.add(symbol);
       return set;
-    } else if (symbol instanceof EmptySymbol) {
+    }
+    if (symbol instanceof EmptySymbol) {
       if (symbols[index + 1] === undefined) {
         // もし、空かつその後にトークンがないなら、空を文字集合に追加する
 

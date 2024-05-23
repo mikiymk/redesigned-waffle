@@ -1,7 +1,7 @@
 import { ObjectSet } from "../util/object-set";
 
-import type { LR0Item } from "./lr0-item";
 import type { LR0ItemSymbol, RuleName } from "@/lib/rules/define-rules";
+import type { LR0Item } from "./lr0-item";
 
 /**
  * アイテムを次のトークンでグループ分けします。

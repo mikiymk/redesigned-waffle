@@ -47,14 +47,16 @@ export class LLParser<T> {
 
       if (symbol === undefined) {
         return [false, new Error(`スタックが空になりました。 出力: [${output.join(", ")}]`)];
-      } else if (symbol instanceof EOFSymbol) {
+      }
+      if (symbol instanceof EOFSymbol) {
         // EOFなら読み込みを終了する
         if (symbol.matchFirstChar(pr)) {
           break;
         }
 
         return [false, new Error("文字列の終端が期待されましたが、読んでいない残りの文字列があります。")];
-      } else if (symbol instanceof ReferenceSymbol) {
+      }
+      if (symbol instanceof ReferenceSymbol) {
         // 非終端記号の場合
         const [ok, ruleIndex] = getMatchRuleIndex(this.grammar, this.directorSetList, symbol.name, pr);
         if (!ok) {

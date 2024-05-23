@@ -46,9 +46,8 @@ export class DFA<T, U> {
       if (equalsPartition(partition, nextPartition)) {
         partition = nextPartition;
         break;
-      } else {
-        partition = nextPartition;
       }
+      partition = nextPartition;
     }
 
     return partition;

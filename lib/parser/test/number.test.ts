@@ -57,27 +57,12 @@ const tree = <T>(tree: Tree<T> | undefined, default_?: T): T => {
       throw new TypeError("Tree is undefined");
     }
     return default_;
-  } else if (typeof tree === "string") {
+  }
+  if (typeof tree === "string") {
     throw new TypeError("Tree is string");
   }
 
   return tree.processed;
-};
-
-const _log = <T>(tree: Tree<T>, ind = 0) => {
-  const indentString = "  ".repeat(ind);
-  if (typeof tree === "string") {
-    console.log(indentString, " ", tree);
-  } else {
-    console.log(indentString, "{");
-    console.log(indentString, " ", "index:", tree.index);
-    console.log(indentString, " ", "children:");
-    for (const child of tree.children) {
-      _log(child, ind + 1);
-    }
-    console.log(indentString, " ", "processed:", tree.processed);
-    console.log(indentString, "}");
-  }
 };
 
 const cases: [string, unknown][] = [

@@ -109,7 +109,8 @@ export class SymbolSet<T> {
   getItem(index: number): SymbolSetItem<RuleSymbol> {
     if (index === -1) {
       return SymbolSet.eof;
-    } else if (index === -2) {
+    }
+    if (index === -2) {
       return SymbolSet.empty;
     }
 
@@ -139,7 +140,8 @@ export class SymbolSet<T> {
   getIndex(symbol: RuleSymbol): number {
     if (symbol instanceof EmptySymbol) {
       return -2;
-    } else if (symbol instanceof EOFSymbol) {
+    }
+    if (symbol instanceof EOFSymbol) {
       return -1;
     }
 

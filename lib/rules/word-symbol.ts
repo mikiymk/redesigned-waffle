@@ -37,12 +37,12 @@ export class WordSymbol implements BaseSymbol, TerminalSymbol {
 
     if (peeked === EOF) {
       return [false, new Error("文字列の終端に到達しました。")];
-    } else if (peeked.type === this.type && (undefined === this.word || peeked.value === this.word)) {
+    }
+    if (peeked.type === this.type && (undefined === this.word || peeked.value === this.word)) {
       get(pr);
       return [true, peeked.value];
-    } else {
-      return [false, new Error(`${peeked.value}は単語とマッチしません。`)];
     }
+    return [false, new Error(`${peeked.value}は単語とマッチしません。`)];
   }
 
   /**
