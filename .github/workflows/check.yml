@@ -28,6 +28,8 @@ jobs:
       - name: Setup bun
         uses: oven-sh/setup-bun@v1
 
+      - run: bun install --frozen-lockfile
+
       - run: bun lint:ts
       - run: bun lint:eslint
       - run: bun lint:biome-ci
